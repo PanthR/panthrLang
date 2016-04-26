@@ -1,0 +1,44 @@
+{
+  "name": "panthr-lang",
+  "version": "0.0.2",
+  "description": "Language parser and interpreter for PanthR.",
+  "main": "panthrlang.js",
+  "scripts": {
+    "test": "mocha --reporter=progress --recursive",
+    "lint": "eslint .",
+    "doc": "node ./node_modules/panthrdoc/run.js .",
+    "parser": "jison -o parser.js lang_spec.jison",
+    "build": "browserify bundlePre.js | uglifyjs -c > panthrLang.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PanthR/panthrLang.git"
+  },
+  "keywords": [
+    "parser", "interpreter", "panthr"
+  ],
+  "author": {
+    "name": "PanthR Team",
+    "url": "https://github.com/PanthR/"
+  },
+  "contributors": [
+    {
+      "name": "Haris Skiadas",
+      "email": "skiadas@hanover.edu",
+      "url": "https://github.com/skiadas"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PanthR/panthrLang/issues"
+  },
+  "homepage": "https://github.com/PanthR/panthrLang",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "~1.21.3",
+    "panthrdoc": "*",
+    "sinon": "^1.10.3",
+    "sinon-chai": "^2.5.0"
+  },
+  "dependencies": {}
+}
