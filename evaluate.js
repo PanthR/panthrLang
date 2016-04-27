@@ -2,20 +2,22 @@
 'use strict';
 define(function(require) {
 
+   var global = {}; // "global" frame
+
    function Evaluate() {
-      this.store = {};
+      this.reset();
       // Users overwrite this
       this.emit = function(value, node) {};
    }
 
    Evaluate.prototype = {
       reset: function() {
-         this.store = {};
+         this.frames = [global, {}];
       },
       run: function(node) {
-         var store, val;
+         var frames, val;
 
-         store = this.store;
+         frames = this.frames;
 
          val = _run(node);
          this.emit(val);
@@ -31,9 +33,9 @@ define(function(require) {
                                _run(node.args[1]),
                                _run(node.args[2]));
             case 'var':
-               return do_lookup(store, node.args[0]);
+               return do_lookup(frames, node.args[0]);
             case 'assign':
-               return do_assign(store, node.args[0], _run(node.args[1]));
+               return do_assign(frames, node.args[0], _run(node.args[1]));
             default:
                throw new Error('Unknown node: ' + name);
             }
@@ -51,20 +53,20 @@ define(function(require) {
       }
    }
 
-   function do_assign(store, lvalue, v) {
+   function do_assign(frames, lvalue, v) {
       var name;
 
       name = lvalue.args[0];
-      store[name] = v;
+      frames[frames.length - 1][name] = v;
 
       return v;
    }
 
-   function do_lookup(store, s) {
-      if (!(store.hasOwnProperty(s))) {
+   function do_lookup(frames, s) {
+      if (!(frames[frames.length - 1].hasOwnProperty(s))) {
          throw new Error("Unknown property: ", s);
       }
-      return store[s];
+      return frames[frames.length - 1][s];
    }
 
    return Evaluate;

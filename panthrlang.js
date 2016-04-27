@@ -34,7 +34,7 @@ define(function(require) {
    var v = panthrLang.parse("x <- 3 + 4\n (x + 2) * 4", function(node) {
       console.log("value: ", ev.run(node));
    });
-   console.log(v, ev.store);
+   console.log(v, ev.frames);
 
    return panthrLang;
 
