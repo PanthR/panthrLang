@@ -28,6 +28,14 @@ define(function(require) {
       }
    }
 
+   // A quick test
+
+   var ev = new panthrLang.Evaluate();
+   var v = panthrLang.parse("x <- 3 + 4\n x * 4", function(node) {
+      console.log("value: ", ev.run(node));
+   });
+   console.log(v, ev.store);
+
    return panthrLang;
 
 });

@@ -30,6 +30,10 @@ define(function(require) {
                return do_arith(node.args[0],
                                _run(node.args[1]),
                                _run(node.args[2]));
+            case 'var':
+               return do_lookup(store, node.args[0]);
+            case 'assign':
+               return do_assign(store, node.args[0], _run(node.args[1]));
             default:
                throw new Error('Unknown node: ' + name);
             }
@@ -45,6 +49,22 @@ define(function(require) {
          case '*': return v1 * v2;
          case '/': return v1 / v2;
       }
+   }
+
+   function do_assign(store, lvalue, v) {
+      var name;
+
+      name = lvalue.args[0];
+      store[name] = v;
+
+      return v;
+   }
+
+   function do_lookup(store, s) {
+      if (!(store.hasOwnProperty(s))) {
+         throw new Error("Unknown property: ", s);
+      }
+      return store[s];
    }
 
    return Evaluate;
