@@ -13,6 +13,8 @@
 '<-'           return 'LARROW';
 '='            return 'EQUALS';
 \w[\w\.]*      return 'VAR';
+'('            return '(';
+')'            return ')';
 <<EOF>>        return 'EOF';
 
 /lex
@@ -49,6 +51,7 @@ expr
    : NUM           { $$ = make_node('number', parseInt($1)); }
    | VAR           { $$ = make_node('var', $1); }
    | EOL expr      { $$ = $2; }
+   | '(' expr ')'  { $$ = $2; }
    | expr ':' expr { $$ = make_node('range', $1, $3); }
    | expr '+' expr { $$ = make_node('arithop', '+', $1, $3); }
    | expr '-' expr { $$ = make_node('arithop', '-', $1, $3); }
