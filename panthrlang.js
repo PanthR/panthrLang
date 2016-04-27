@@ -11,13 +11,15 @@ define(function(require) {
     * @author Haris Skiadas <skiadas@hanover.edu>
     */
 
-   var panthrLang, parser, Node;
+   var panthrLang, parser, Node, Evaluate;
 
-   Node = require('./node.js');
+   Node = require('./node');
+   Evaluate = require('./evaluate');
    parser = require('./parser').parser;
 
    panthrLang = {
       Node: Node,
+      Evaluate: Evaluate,
       parse: function(str, action) {
          if (action == null) { action = function(x) { console.log(x); }}
          // action is the function to call on each completed node

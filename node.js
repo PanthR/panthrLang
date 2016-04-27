@@ -42,28 +42,6 @@ define(function(require) {
       return func;
    };
 
-   Node.evaluate = Node.recurse(function(name, arg1, arg2, arg3) {
-      switch (name) {
-      case 'number': return arg1;
-      case 'range': return arg1; // FIXME
-      case 'arithop':
-         switch (arg1) {
-            case '+': return arg2 + arg3;
-            case '-': return arg2 - arg3;
-            case '*': return arg2 * arg3;
-            case '/': return arg2 / arg3;
-         }
-      default:
-         throw new Error('Unknown node: ' + name);
-      }
-   });
-
-   Node.prototype = {
-      evaluate: function() {
-         return Node.evaluate(this);
-      }
-   }
-
    return Node;
 
 });
