@@ -2,7 +2,9 @@
 'use strict';
 define(function(require) {
 
-   var global = {}; // "global" frame
+   var Frame;
+
+   Frame = require('./frame');
 
    function Evaluate() {
       this.reset();
@@ -12,35 +14,47 @@ define(function(require) {
 
    Evaluate.prototype = {
       reset: function() {
-         this.frames = [global, {}];
+         this.frame = Frame.newGlobal();
       },
-      run: function(node) {
-         var frames, val;
+      // "runs" a certain node to completion.
+      // Emits the resulting value
+      eval: function(node) {
+         var val;
 
-         frames = this.frames;
-
-         val = _run(node);
+         val = this.run(node);
          this.emit(val);
 
          return val;
-
-         function _run(node) {
-            switch (node.name) {
-            case 'number': return node.args[0];
-            case 'range': return _run(node.args[0]); // FIXME
-            case 'arithop':
-               return do_arith(node.args[0],
-                               _run(node.args[1]),
-                               _run(node.args[2]));
-            case 'var':
-               return do_lookup(frames, node.args[0]);
-            case 'assign':
-               return do_assign(frames, node.args[0], _run(node.args[1]));
-            default:
-               throw new Error('Unknown node: ' + name);
-            }
+      },
+      run: function run(node) {
+         switch (node.name) {
+         case 'number': return node.args[0];
+         case 'range': return this.run(node.args[0]); // FIXME
+         case 'arithop':
+            return do_arith(node.args[0],
+                            this.run(node.args[1]),
+                            this.run(node.args[2]));
+         case 'var':
+            return this.lookup(node.args[0]);
+         case 'assign':
+            return this.assign(node.args[0].args[0], this.run(node.args[1]));
+         default:
+            throw new Error('Unknown node: ' + node.name);
          }
+      },
+      lookup: function lookup(symbol) {
+         var val;
 
+         val = this.frame.lookup(symbol);
+         if (val === null) {
+            throw new Error("Unknown property: ", symbol);
+         }
+         return val;
+      },
+      assign: function assign(symbol, value) {
+         this.frame.store(symbol, value);
+
+         return value;
       }
    };
 
@@ -51,22 +65,6 @@ define(function(require) {
          case '*': return v1 * v2;
          case '/': return v1 / v2;
       }
-   }
-
-   function do_assign(frames, lvalue, v) {
-      var name;
-
-      name = lvalue.args[0];
-      frames[frames.length - 1][name] = v;
-
-      return v;
-   }
-
-   function do_lookup(frames, s) {
-      if (!(frames[frames.length - 1].hasOwnProperty(s))) {
-         throw new Error("Unknown property: ", s);
-      }
-      return frames[frames.length - 1][s];
    }
 
    return Evaluate;
