@@ -28,21 +28,22 @@
 %left 'EOL'
 %left '+' '-'
 %left '*' '/'
-&nonassoc ':'
+%nonassoc ':'
+%nonassoc '('
 
 %start expression
 
 %%
 
 expression
-   : exprList EOF { }
+   : exprList EOF { yy.emit($1); }
    ;
 
 exprList
-   : exprList EOL expr  { yy.emit($3); }
-   | exprList EOL { }
-   | expr { yy.emit($1); }
-   | VAR assign expr { yy.emit(make_node('assign', make_node('lvar', $1), $3)); }
+   : exprList EOL expr  { $1.push($3); $$ = $1; }
+   | exprList EOL { $$ = $1; }
+   | expr { $$ = [$1]; }
+   | VAR assign expr { $$ = [make_node('assign', make_node('lvar', $1), $3)]; }
    ;
 
 assign : LARROW | EQUALS;
@@ -57,4 +58,16 @@ expr
    | expr '-' expr { $$ = make_node('arithop', '-', $1, $3); }
    | expr '*' expr { $$ = make_node('arithop', '*', $1, $3); }
    | expr '/' expr { $$ = make_node('arithop', '/', $1, $3); }
+   | expr '(' ')'         { $$ = make_node('fun_call', $1, []); }
+   | expr '(' argList ')' { $$ = make_node('fun_call', $1, $3); }
+   | '{' exprList '}'     { $$ = make_node('expr_seq', $2); }
+   ;
+
+argList
+   : argTerm ',' argList { $3.unshift($1); $$ = $3; }
+   | argTerm             { $$ = [$1]; }
+   ;
+
+argTerm
+   : VAR          { $$ = make_node('var', $1); }
    ;
