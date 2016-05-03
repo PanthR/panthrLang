@@ -41,6 +41,8 @@ define(function(require) {
             return this.assign(node.args[0].args[0], this.run(node.args[1]));
          case 'fun_def':
             return Value.make_closure(node, this.frame);
+         case 'expr_seq':
+            return this.eval_seq(node.args[0]);
          default:
             throw new Error('Unknown node: ' + node.name);
          }
@@ -58,6 +60,14 @@ define(function(require) {
          this.frame.store(symbol, value);
 
          return value;
+      },
+      eval_seq: function eval_seq(exprs) {
+         var i, val;
+
+         for (i = 0; i < exprs.length; i += 1) {
+            val = this.run(exprs[i]);
+         }
+         return val;
       }
    };
 
