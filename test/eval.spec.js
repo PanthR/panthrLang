@@ -43,4 +43,24 @@ describe('The evaluator', function() {
       expect(evs[0].value).to.have.keys(['env', 'func']);
       expect(evs[0].value.func.name).to.equal('fun_def');
    });
+   // it('parses blocks', function() {
+   //    ['{ 3 + 4\n2*3\n}'].forEach(function(expr) {
+   //       main.parse(expr, function(nodes) {
+   //          expect(nodes.length).to.equal(1);
+   //          var node = nodes[0];
+   //          expect(node.name).to.equal('expr_seq');
+   //          expect(node.args.length).to.equal(1);
+   //          expect(node.args[0].length).to.equal(2);
+   //       });
+   //    });
+   // });
+   // it('parses function calls', function() {
+   //    ['f <- function(x, y) { x + y }\n f(2, 4)'].forEach(function(expr) {
+   //       main.parse(expr, function(nodes) {
+   //          expect(nodes.length).to.equal(2);
+   //          var node = nodes[1];
+   //          expect(node.name).to.equal('fun_call');
+   //       });
+   //    });
+   // });
 });

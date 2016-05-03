@@ -21,6 +21,7 @@
 %}
 
 %left 'EOL'
+%nonassoc 'FUN'
 %nonassoc 'VAR'
 %nonassoc 'LARROW' 'EQUALS'
 %left '+' '-'
