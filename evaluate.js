@@ -43,6 +43,9 @@ define(function(require) {
             return Value.make_closure(node, this.frame);
          case 'expr_seq':
             return this.eval_seq(node.args[0]);
+         case 'fun_call':
+            return this.eval_call(this.run(node.args[0]),
+                                  node.args[1].map(this.run.bind(this)));
          default:
             throw new Error('Unknown node: ' + node.name);
          }
@@ -68,6 +71,28 @@ define(function(require) {
             val = this.run(exprs[i]);
          }
          return val;
+      },
+      // TODO: This all should be done cleaner
+      eval_call: function eval_call(clos, actuals) {
+         var formals, body, oldFrame, i, result;
+         if (clos.type !== 'closure') {
+            throw new Error('trying to call non-closure');
+         }
+         formals = clos.value.func.args[0];
+         body = clos.value.func.args[1];
+         if (formals.length !== actuals.length) {
+            throw new Error('function called with wrong number of arguments');
+         }
+
+         oldFrame = this.frame;
+         this.frame = clos.value.env.extend();
+         for (i = 0; i < formals.length; i += 1) {
+            this.frame.store(formals[i].args[0], actuals[i]);
+         }
+         result = this.run(body);
+         this.frame = oldFrame;
+
+         return result;
       }
    };
 

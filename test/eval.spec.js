@@ -60,13 +60,12 @@ describe('The evaluator', function() {
       expect(evs[1].type).to.equal('numeric');
       expect(evs[1].value).to.equal(6);
    });
-   // it('parses function calls', function() {
-   //    ['f <- function(x, y) { x + y }\n f(2, 4)'].forEach(function(expr) {
-   //       main.parse(expr, function(nodes) {
-   //          expect(nodes.length).to.equal(2);
-   //          var node = nodes[1];
-   //          expect(node.name).to.equal('fun_call');
-   //       });
-   //    });
-   // });
+   it('evaluates function calls properly', function() {
+      var evs = main.eval('f <- function(x, y) { x + y }\n x<-4; f(2, 4); x; f(x, 4); x');
+      expect(evs.length).to.equal(6);
+      expect(evs[2].value).to.equal(6);
+      expect(evs[3].value).to.equal(4);
+      expect(evs[4].value).to.equal(8);
+      expect(evs[5].value).to.equal(4);
+   });
 });
