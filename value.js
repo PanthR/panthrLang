@@ -27,6 +27,10 @@ define(function(require) {
       return Value.make_value('numeric', value);
    }
 
+   Value.make_closure = function make_closure(func, env) {
+      return Value.make_value('closure', { func: func, env: env });
+   }
+
    return Value;
 
 });

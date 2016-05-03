@@ -36,4 +36,11 @@ describe('The evaluator', function() {
       var evs = main.eval('x<- 3 + 4\ny = x * 5\nx+y');
       expect(evs.map(function(v) { return v.value; })).to.deep.equal([7, 35, 42]);
    });
+   it('evaluates function definitions', function() {
+      var evs = main.eval('function(x, y) { x + y }');
+      expect(evs.length).to.equal(1);
+      expect(evs[0].type).to.equal('closure');
+      expect(evs[0].value).to.have.keys(['env', 'func']);
+      expect(evs[0].value.func.name).to.equal('fun_def');
+   });
 });

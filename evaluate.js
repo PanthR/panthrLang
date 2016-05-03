@@ -39,6 +39,8 @@ define(function(require) {
             return this.lookup(node.args[0]);
          case 'assign':
             return this.assign(node.args[0].args[0], this.run(node.args[1]));
+         case 'fun_def':
+            return Value.make_closure(node, this.frame);
          default:
             throw new Error('Unknown node: ' + node.name);
          }
