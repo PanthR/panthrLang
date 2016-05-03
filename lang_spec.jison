@@ -46,7 +46,7 @@ exprList
 assign : LARROW | EQUALS;
 
 expr
-   : NUM           { $$ = make_node('number', parseInt($1)); }
+   : NUM           { $$ = make_node('number', parseFloat($1)); }
    | VAR           { $$ = make_node('var', $1); }
    | '+' expr  %prec UMINUS { $$ = $2; }
    | '-' expr  %prec UMINUS { $$ = make_node('arithop', '-', make_node('number', 0), $2); }

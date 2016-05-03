@@ -7,12 +7,22 @@ describe('The parser', function() {
       expect(main).to.respondTo('parse');
       expect(function() { main.parse('2', function() {}); }).to.not.throw();
    });
-   it('parses numbers', function() {
-      ['5', '23', '2.34', '0.23', '0', '0.1e-10'].forEach(function(num) {
+   it('parses integers correctly', function() {
+      ['5', '23', '0'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
             expect(node.name).to.equal('number');
+         });
+      });
+   });
+   it('parses floats correctly', function() {
+      ['2.34', '0.23', '0.1e-10'].forEach(function(num) {
+         main.parse(num, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            var node = nodes[0];
+            expect(node.name).to.equal('number');
+            expect(node.args[0]).to.equal(parseFloat(num));
          });
       });
    });
