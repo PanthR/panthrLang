@@ -42,6 +42,12 @@ describe('The evaluator', function() {
       expect(evs[0].type).to.equal('closure');
       expect(evs[0].value).to.have.keys(['env', 'func']);
       expect(evs[0].value.func.name).to.equal('fun_def');
+
+      evs = main.eval('function(x, y) x + y / 2');
+      expect(evs.length).to.equal(1);
+      expect(evs[0].type).to.equal('closure');
+      expect(evs[0].value).to.have.keys(['env', 'func']);
+      expect(evs[0].value.func.name).to.equal('fun_def');
    });
    // it('parses blocks', function() {
    //    ['{ 3 + 4\n2*3\n}'].forEach(function(expr) {
