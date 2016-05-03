@@ -11,7 +11,8 @@ describe('The evaluator', function() {
       ['5', '23', '2.34', '0.23', '0', '0.1e-10'].forEach(function(num) {
          var evs = main.eval(num);
          expect(evs.length).to.equal(1);
-         expect(evs[0]).to.equal(parseFloat(num));
+         expect(evs[0].type).to.equal('numeric');
+         expect(evs[0].value).to.equal(parseFloat(num));
       });
    });
    it('evaluates arithmetic operations correctly', function() {
@@ -19,18 +20,20 @@ describe('The evaluator', function() {
        '-0.23 * 2 + 3', '-0.23 + 2 * 3'].forEach(function(expr) {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
-         expect(evs[0]).to.equal(eval(expr));
+         expect(evs[0].type).to.equal('numeric');
+         expect(evs[0].value).to.equal(eval(expr));
       });
    });
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
-         expect(evs[0]).to.equal(eval(expr));
+         expect(evs[0].type).to.equal('numeric');
+         expect(evs[0].value).to.equal(eval(expr));
       });
    });
    it('evaluates assignments properly', function() {
       var evs = main.eval('x<- 3 + 4\ny = x * 5\nx+y');
-      expect(evs).to.deep.equal([7, 35, 42]);
+      expect(evs.map(function(v) { return v.value; })).to.deep.equal([7, 35, 42]);
    });
 });

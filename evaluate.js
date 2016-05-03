@@ -2,9 +2,10 @@
 'use strict';
 define(function(require) {
 
-   var Frame;
+   var Frame, Value;
 
    Frame = require('./frame');
+   Value = require('./value');
 
    function Evaluate() {
       this.reset();
@@ -28,7 +29,7 @@ define(function(require) {
       },
       run: function run(node) {
          switch (node.name) {
-         case 'number': return node.args[0];
+         case 'number': return Value.make_numeric(node.args[0]);
          case 'range': return this.run(node.args[0]); // FIXME
          case 'arithop':
             return do_arith(node.args[0],
@@ -59,11 +60,14 @@ define(function(require) {
    };
 
    function do_arith(op, v1, v2) {
+      if (v1.type !== 'numeric' || v2.type !== 'numeric') {
+         throw new Error('operating on non-numeric values');
+      }
       switch (op) {
-         case '+': return v1 + v2;
-         case '-': return v1 - v2;
-         case '*': return v1 * v2;
-         case '/': return v1 / v2;
+         case '+': return Value.make_numeric(v1.value + v2.value);
+         case '-': return Value.make_numeric(v1.value - v2.value);
+         case '*': return Value.make_numeric(v1.value * v2.value);
+         case '/': return Value.make_numeric(v1.value / v2.value);
       }
    }
 
