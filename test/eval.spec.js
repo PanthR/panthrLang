@@ -54,6 +54,11 @@ describe('The evaluator', function() {
       expect(evs.length).to.equal(2);
       expect(evs[1].type).to.equal('numeric');
       expect(evs[1].value).to.equal(6);
+
+      evs = main.eval('x <- { x<-3 + 4; 2*3\n}\n x');
+      expect(evs.length).to.equal(2);
+      expect(evs[1].type).to.equal('numeric');
+      expect(evs[1].value).to.equal(6);
    });
    // it('parses function calls', function() {
    //    ['f <- function(x, y) { x + y }\n f(2, 4)'].forEach(function(expr) {

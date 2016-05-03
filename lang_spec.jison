@@ -4,7 +4,7 @@
 
 [ \t]+         {/* skip whitespace */}
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
-\n             return 'EOL';
+\n|';'         return 'EOL';
 [:+\-*/\,()\{\}]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';

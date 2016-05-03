@@ -65,13 +65,13 @@ describe('The parser', function() {
       });
    });
    it('parses blocks', function() {
-      ['{ 3 + 4\n2*3\n}'].forEach(function(expr) {
+      ['{ 3 + 4\n2*3; 4\n}'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
             expect(node.name).to.equal('expr_seq');
             expect(node.args.length).to.equal(1);
-            expect(node.args[0].length).to.equal(2);
+            expect(node.args[0].length).to.equal(3);
          });
       });
    });
