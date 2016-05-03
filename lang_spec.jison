@@ -20,8 +20,9 @@
    make_node = Node.make_node;
 %}
 
-%nonassoc 'LARROW' 'EQUALS'
 %left 'EOL'
+%nonassoc 'VAR'
+%nonassoc 'LARROW' 'EQUALS'
 %left '+' '-'
 %left '*' '/'
 %left 'UMINUS'
@@ -40,7 +41,6 @@ exprList
    : exprList EOL expr  { $1.push($3); $$ = $1; }
    | exprList EOL { $$ = $1; }
    | expr { $$ = [$1]; }
-   | VAR assign expr { $$ = [make_node('assign', make_node('lvar', $1), $3)]; }
    ;
 
 assign : LARROW | EQUALS;
@@ -48,6 +48,7 @@ assign : LARROW | EQUALS;
 expr
    : NUM           { $$ = make_node('number', parseFloat($1)); }
    | VAR           { $$ = make_node('var', $1); }
+   | VAR assign expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
    | '+' expr  %prec UMINUS { $$ = $2; }
    | '-' expr  %prec UMINUS { $$ = make_node('arithop', '-', make_node('number', 0), $2); }
    | EOL expr      { $$ = $2; }
@@ -57,7 +58,7 @@ expr
    | expr '-' expr { $$ = make_node('arithop', '-', $1, $3); }
    | expr '*' expr { $$ = make_node('arithop', '*', $1, $3); }
    | expr '/' expr { $$ = make_node('arithop', '/', $1, $3); }
-   | expr '(' ')'         { $$ = make_node('fun_call', $1, []); }
+   | expr '(' ')'  { $$ = make_node('fun_call', $1, []); }
    | expr '(' callList ')' { $$ = make_node('fun_call', $1, $3); }
    | FUN '(' argList ')' expr { $$ = make_node('fun_def', $3, $5); }
    | '{' exprList '}'     { $$ = make_node('expr_seq', $2); }

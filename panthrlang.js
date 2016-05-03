@@ -25,16 +25,17 @@ define(function(require) {
          // action is the function to call on each completed node
          parser.yy.emit = function(node) { action(node); }
          return parser.parse(str);
+      },
+      eval: function(str) {
+         var vals, ev;
+
+         ev = new Evaluate();
+         this.parse(str, function(nodes) {
+            vals = nodes.map(function(node) { return ev.eval(node); });
+         });
+         return vals;
       }
    }
-
-   // A quick test
-
-   var ev = new panthrLang.Evaluate();
-   var v = panthrLang.parse("x <- 3 + 4\n (x + 2) * 4", function(node) {
-      console.log("value: ", ev.run(node));
-   });
-   console.log(v, ev.frames);
 
    return panthrLang;
 
