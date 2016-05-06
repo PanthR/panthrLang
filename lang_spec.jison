@@ -9,6 +9,7 @@
 'function'     return 'FUN';
 'fun'          return 'FUN';
 '<-'           return 'LARROW';
+'<<-'          return 'LLARROW';
 '='            return 'EQUALS';
 \w[\w\.]*      return 'VAR';
 <<EOF>>        return 'EOF';
@@ -23,7 +24,7 @@
 %left 'EOL'
 %nonassoc 'FUN'
 %nonassoc 'VAR'
-%nonassoc 'LARROW' 'EQUALS'
+%nonassoc 'LLARROW' 'LARROW' 'EQUALS'
 %left '+' '-'
 %left '*' '/'
 %left 'UMINUS'
@@ -50,6 +51,7 @@ expr
    : NUM           { $$ = make_node('number', parseFloat($1)); }
    | VAR           { $$ = make_node('var', $1); }
    | VAR assign expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
+   | VAR LLARROW expr { $$ = make_node('assign_inherit', make_node('lvar', $1), $3); }
    | '+' expr  %prec UMINUS { $$ = $2; }
    | '-' expr  %prec UMINUS { $$ = make_node('arithop', '-', make_node('number', 0), $2); }
    | EOL expr      { $$ = $2; }

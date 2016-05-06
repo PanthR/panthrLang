@@ -39,6 +39,8 @@ define(function(require) {
             return this.lookup(node.args[0]);
          case 'assign':
             return this.assign(node.args[0].args[0], this.run(node.args[1]));
+         case 'assign_inherit':
+            return this.assignInherit(node.args[0].args[0], this.run(node.args[1]));
          case 'fun_def':
             return Value.make_closure(node, this.frame);
          case 'expr_seq':
@@ -59,8 +61,24 @@ define(function(require) {
          }
          return val;
       },
+      // Assigns value in the current frame (possibly shadowing existing value)
       assign: function assign(symbol, value) {
          this.frame.store(symbol, value);
+
+         return value;
+      },
+      // Assigns value to whichever frame in the inheritance chain the
+      // value is defined. If the value is not defined in a previous
+      // frame, it will be created as a global value.
+      // TODO: What about protecting functions like "c"?
+      assignInherit: function(symbol, value) {
+         var frame = this.frame;
+
+         while (!frame.hasOwnProperty(symbol) &&
+                frame.getParent() !== null) {
+            frame = frame.getParent();
+         }
+         frame.store(symbol, value);
 
          return value;
       },

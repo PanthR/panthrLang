@@ -102,4 +102,13 @@ describe('The parser', function() {
          });
       });
    });
+   it('parses "<<-" assignments', function() {
+      ['g <<- 2; f <- function(x, y) { g <<- 5 }\n f(2, 4)\n g'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(4);
+            var node = nodes[0];
+            expect(node.name).to.equal('assign_inherit');
+         });
+      });
+   });
 });
