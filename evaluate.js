@@ -46,6 +46,8 @@ define(function(require) {
                           node.args[1].map(function(node) {
                              return evalInFrame(node, frame);
                           }));
+      case 'actual':  // TODO: Need to adjust when proper calls in place
+         return evalInFrame(node.args[0], frame);
       default:
          throw new Error('Unknown node: ' + node.name);
       }

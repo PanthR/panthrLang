@@ -99,7 +99,6 @@ describe('The parser', function() {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
             var formals = node.args[0];
-            // console.log(formals);
             expect(formals.length).to.equal(3);
             expect(formals[0].name).to.equal('arg');
             expect(formals[1].name).to.equal('arg_default');
@@ -116,6 +115,20 @@ describe('The parser', function() {
          });
       });
    });
+   it('parses named arguments and "..." in function calls', function() {
+      ['f(2, y = 3 + 5, ...)'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            var node = nodes[0];
+            var actuals = node.args[1];
+            expect(actuals.length).to.equal(3);
+            expect(actuals[0].name).to.equal('actual');
+            expect(actuals[1].name).to.equal('actual_named');
+            expect(actuals[2].name).to.equal('actual_dots');
+         });
+      });
+   });
+
    it('parses "<<-" assignments', function() {
       ['g <<- 2; f <- function(x, y) { g <<- 5 }\n f(2, 4)\n g'].forEach(function(expr) {
          main.parse(expr, function(nodes) {

@@ -41,17 +41,20 @@ expression
    ;
 
 exprList
-   : exprList EOL expr  { $1.push($3); $$ = $1; }
+   : exprList EOL topExpr  { $1.push($3); $$ = $1; }
    | exprList EOL { $$ = $1; }
-   | expr { $$ = [$1]; }
+   | topExpr { $$ = [$1]; }
    ;
 
-assign : LARROW | EQUALS;
+topExpr
+   : expr { $$ = $1; }
+   | VAR EQUALS expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
+   ;
 
 expr
    : NUM           { $$ = make_node('number', parseFloat($1)); }
    | VAR           { $$ = make_node('var', $1); }
-   | VAR assign expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
+   | VAR LARROW expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
    | VAR LLARROW expr { $$ = make_node('assign_inherit', make_node('lvar', $1), $3); }
    | '+' expr  %prec UMINUS { $$ = $2; }
    | '-' expr  %prec UMINUS { $$ = make_node('arithop', '-', make_node('number', 0), $2); }
@@ -69,8 +72,14 @@ expr
    ;
 
 callList
-   : expr ',' callList   { $3.unshift($1); $$ = $3; }
-   | expr                { $$ = [$1]; }
+   : callItem ',' callList   { $3.unshift($1); $$ = $3; }
+   | callItem                { $$ = [$1]; }
+   ;
+
+callItem
+   : expr                    { $$ = make_node('actual', $1); }
+   | VAR EQUALS expr         { $$ = make_node('actual_named', $1, $3); }
+   | DOTS                    { $$ = make_node('actual_dots'); }
    ;
 
 argList
