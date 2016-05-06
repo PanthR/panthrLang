@@ -93,6 +93,20 @@ describe('The parser', function() {
          });
       });
    });
+   it('parses default arguments and "..." in function definitions', function() {
+      ['function(x, y = 3, ...) { x + y }'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            var node = nodes[0];
+            var formals = node.args[0];
+            // console.log(formals);
+            expect(formals.length).to.equal(3);
+            expect(formals[0].name).to.equal('arg');
+            expect(formals[1].name).to.equal('arg_default');
+            expect(formals[2].name).to.equal('arg_dots');
+         });
+      });
+   });
    it('parses function calls', function() {
       ['f <- function(x, y) { x + y }\n f(2, 4)'].forEach(function(expr) {
          main.parse(expr, function(nodes) {

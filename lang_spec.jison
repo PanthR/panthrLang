@@ -11,6 +11,7 @@
 '<-'           return 'LARROW';
 '<<-'          return 'LLARROW';
 '='            return 'EQUALS';
+'...'          return 'DOTS';
 \w[\w\.]*      return 'VAR';
 <<EOF>>        return 'EOF';
 
@@ -78,5 +79,7 @@ argList
    ;
 
 argTerm
-   : VAR          { $$ = make_node('var', $1); }
+   : VAR                 { $$ = make_node('arg', $1); }
+   | VAR EQUALS expr     { $$ = make_node('arg_default', $1, $3); }
+   | DOTS                { $$ = make_node('arg_dots'); }
    ;
