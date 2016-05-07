@@ -2,10 +2,11 @@
 'use strict';
 define(function(require) {
 
-   var Frame, Value;
+   var Frame, Value, Base;
 
    Frame = require('./frame');
    Value = require('./value');
+   Base = require('panthrBase/index');
 
    function Evaluate() {
       this.global = Frame.newGlobal();
@@ -58,7 +59,6 @@ define(function(require) {
       if (val === null) {
          throw new Error("Unknown property: ", symbol);
       }
-      if (Array.isArray(val)) { return val; } // Case of "..."
       return val.resolve();
    }
    // Assigns value in the current frame (possibly shadowing existing value)
@@ -97,25 +97,42 @@ define(function(require) {
       var actuals, symbols;
 
       symbols = {}; // Used to make sure the same symbol is not provided twice.
-      actuals = [];
+      actuals = new Base.List();
 
+      // helper method that adds an unnamed value
+      function addValue(value) {
+         actuals.push(value);
+      }
+
+      function addNamedValue(name, value) {
+         if (actuals.has(name)) {
+            throw new Error('symbol occurred twice');
+         }
+         actuals.set(name, value);
+      }
       exprs.forEach(function(expr) {
          switch (expr.name) {
          case 'actual':
-            actuals.push({ value: evalInFrame(expr.args[0], frame) });
+            addValue(evalInFrame(expr.args[0], frame));
             break;
          case 'actual_named':
-            if (symbols.hasOwnProperty(expr.args[0])) {
-               throw new Error('symbol occurred twice');
-            }
-            symbols[expr.args[0]] = evalInFrame(expr.args[1], frame);
-            actuals.push({ name: expr.args[0],
-                           value: symbols[expr.args[0]] });
+            addNamedValue(expr.args[0], evalInFrame(expr.args[1], frame));
             break;
          case 'actual_dots':
             // Need to look for a defined dots in the immediate environment
-            actuals = actuals.concat(lookup('...', frame));
-            break; // TODO
+            (function(result) {
+               if (result == null) {
+                  throw new Error('Inappropriate use of ...');
+               }
+               result.value.each(function(value, i, name) {
+                  if (name) {
+                     addNamedValue(name, value);
+                  } else {
+                     addValue(value);
+                  }
+               });
+            }(lookup('...', frame)));
+            break;
          default:
             throw new Error('actual expected, but got' + expr.type);
          }
@@ -124,9 +141,7 @@ define(function(require) {
       return actuals;
    }
 
-   // "actuals" will be an array of objects.
-   // Each object has a property "value" corresponding to the value of that
-   // actual, and also possibly a property "name" if it was a named parameter.
+   // "actuals" will be a Base.List
    function eval_call(clos, actuals) {
       if (clos.type === 'closure') {
          return eval_closure(clos, actuals);
@@ -153,23 +168,27 @@ define(function(require) {
       // Go through actuals, see if they are named and match a formal
       // Compares the i-th element in the actuals list to the j-th element
       // in the formals list. It adjusts the arrays if necessary.
+      // Since actuals are a Base.List, their indexing starts at 1.
       function matchNamed(i, j) {
-         if (i >= actuals.length) { return; }
-         if (!actuals[i].hasOwnProperty('name')) { return matchNamed(i + 1, 0); }
+         var actual, name;
+         if (i > actuals.length()) { return; }
+         actual = actuals.get(i);
+         name = actuals.names(i);
+         if (!name) { return matchNamed(i + 1, 0); }
          if (j >= formals.length) { return matchNamed(i + 1, 0); }
          if ((formals[j].name === 'arg' ||
               formals[j].name === 'arg_default') &&
-             formals[j].args[0] === actuals[i].name) {
+             formals[j].args[0] === name) {
             // found match
-            closExtFrame.store(formals[j].args[0], actuals[i].value);
+            closExtFrame.store(formals[j].args[0], actual);
             formals.splice(j, 1);
-            actuals.splice(i, 1);
+            actuals.delete(i);
             // i-th spot now contains the next entry
             return matchNamed(i, 0);
          }
          return matchNamed(i, j + 1);
       }
-      matchNamed(0, 0);
+      matchNamed(1, 0);
 
       // At this point named arguments have been matched and removed from
       // both lists.
@@ -179,21 +198,21 @@ define(function(require) {
       // If there is a remaining dots argument, we need to bind it to "..."
       // If there are other remaining arguments they need to be bound to a
       // "missing" value, which if accessed should raise error.
-      actualPos = 0; // Holds the place in the actuals that contains the
+      actualPos = 1; // Holds the place in the actuals that contains the
                      // first nonnamed actual.
       while (formals.length !== 0) {
-         while (actualPos < actuals.length &&
-                actuals[actualPos].hasOwnProperty('name')) {
+         while (actualPos <= actuals.length() &&
+                actuals.names(actualPos)) {
             actualPos += 1; // Find first unnamed argument
          }
          if (formals[0].name === 'arg_dots') {
             // Need to eat up all remaining actuals.
-            closExtFrame.store('...', actuals);
-            actuals = [];
-         } else if (actualPos < actuals.length) {
+            closExtFrame.store('...', Value.make_list(actuals));
+            actuals = new Base.List();
+         } else if (actualPos <= actuals.length()) {
             // There is a value to read
-            closExtFrame.store(formals[0].args[0], actuals[actualPos].value);
-            actuals.splice(actualPos, 1);
+            closExtFrame.store(formals[0].args[0], actuals.get(actualPos));
+            actuals.delete(actualPos);
          } else if (formals[0].name === 'arg_default') {
             // Need to evaluate the default value
             // Cannot evaluate right away because it might depend on
