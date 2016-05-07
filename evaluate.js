@@ -38,16 +38,14 @@ define(function(require) {
                               evalInFrame(node.args[1], frame),
                               frame);
       case 'fun_def':
+         // TODO: Need to do some checking to ensure argument list
+         // is valid
          return Value.make_closure(node, frame);
       case 'expr_seq':
          return eval_seq(node.args[0], frame);
       case 'fun_call':
          return eval_call(evalInFrame(node.args[0], frame),
-                          node.args[1].map(function(node) {
-                             return evalInFrame(node, frame);
-                          }));
-      case 'actual':  // TODO: Need to adjust when proper calls in place
-         return evalInFrame(node.args[0], frame);
+                          eval_actuals(node.args[1], frame));
       default:
          throw new Error('Unknown node: ' + node.name);
       }
@@ -90,21 +88,112 @@ define(function(require) {
       }
       return val;
    }
-   // TODO: This all should be done cleaner
+
+   // Evaluates the actuals represented by the array of exprs
+   // in the current frame. It also takes care to properly transform "..."
+   // If it is present (it would have a value from the current function call).
+   function eval_actuals(exprs, frame) {
+      var actuals, symbols;
+
+      symbols = {}; // Used to make sure the same symbol is not provided twice.
+      actuals = [];
+
+      exprs.forEach(function(expr) {
+         switch (expr.name) {
+         case 'actual':
+            actuals.push({ value: evalInFrame(expr.args[0], frame) });
+            break;
+         case 'actual_named':
+            if (symbols.hasOwnProperty(expr.args[0])) {
+               throw new Error('symbol occurred twice');
+            }
+            symbols[expr.args[0]] = evalInFrame(expr.args[1], frame);
+            actuals.push({ name: expr.args[0],
+                           value: symbols[expr.args[0]] });
+            break;
+         case 'actual_dots':
+            // Need to look for a defined dots in the immediate environment
+            actuals = actuals.concat(lookup('...', frame));
+            break; // TODO
+         default:
+            throw new Error('actual expected, but got' + expr.type);
+         }
+      });
+
+      return actuals;
+   }
+
+   // "actuals" will be an array of objects.
+   // Each object has a property "value" corresponding to the value of that
+   // actual, and also possibly a property "name" if it was a named parameter.
    function eval_call(clos, actuals) {
-      var formals, body, closExtFrame, i, result;
+      var formals, body, closExtFrame, i, result, actualPos;
       if (clos.type !== 'closure') {
          throw new Error('trying to call non-closure');
       }
-      formals = clos.value.func.args[0];
+      // Will be messing with the array of formals, so need to copy it
+      formals = clos.value.func.args[0].slice();
       body = clos.value.func.args[1];
-      if (formals.length !== actuals.length) {
-         throw new Error('function called with wrong number of arguments');
-      }
-
       closExtFrame = clos.value.env.extend();
-      for (i = 0; i < formals.length; i += 1) {
-         closExtFrame.store(formals[i].args[0], actuals[i]);
+
+      // Go through actuals, see if they are named and match a formal
+      // Compares the i-th element in the actuals list to the j-th element
+      // in the formals list. It adjusts the arrays if necessary.
+      function matchNamed(i, j) {
+         if (i >= actuals.length) { return; }
+         if (!actuals[i].hasOwnProperty('name')) { return matchNamed(i + 1, 0); }
+         if (j >= formals.length) { return matchNamed(i + 1, 0); }
+         if ((formals[j].name === 'arg' ||
+              formals[j].name === 'arg_default') &&
+             formals[j].args[0] === actuals[i].name) {
+            // found match
+            closExtFrame.store(formals[j].args[0], actuals[i].value);
+            formals.splice(j, 1);
+            actuals.splice(i, 1);
+            // i-th spot now contains the next entry
+            return matchNamed(i, 0);
+         }
+         return matchNamed(i, j + 1);
+      }
+      matchNamed(0, 0);
+
+      // At this point named arguments have been matched and removed from
+      // both lists.
+      // Any remaining named actuals may still be absorbed by "...""
+      // We match remaining arguments by position skipping named
+      // actuals, until we encounter "..."
+      // If there is a remaining dots argument, we need to bind it to "..."
+      // If there are other remaining arguments they need to be bound to a
+      // "missing" value, which if accessed should raise error.
+      actualPos = 0; // Holds the place in the actuals that contains the
+                     // first nonnamed actual.
+      while (formals.length !== 0) {
+         while (actualPos < actuals.length &&
+                actuals[actualPos].hasOwnProperty('name')) {
+            actualPos += 1; // Find first unnamed argument
+         }
+         if (formals[0].name === 'arg_dots') {
+            // Need to eat up all remaining actuals.
+            closExtFrame.store('...', actuals);
+            actuals = [];
+         } else if (actualPos < actuals.length) {
+            // There is a value to read
+            closExtFrame.store(formals[0].args[0], actuals[actualPos].value);
+            actuals.splice(actualPos, 1);
+         } else if (formals[0].name === 'arg_default') {
+            // Need to evaluate the default value
+            // Cannot evaluate right away because it might depend on
+            // later defaults. Must create a promise. It will not be
+            // executed unless needed.
+            closExtFrame.store(formals[0].args[0],
+                               Value.make_promise(formals[0].args[1],
+                                                  closExtFrame));
+
+         } else {
+            // Need to set to missing value
+            closExtFrame.store(formals[0].args[0], Value.make_missing());
+         }
+         formals.splice(0, 1);
       }
 
       return evalInFrame(body, closExtFrame);

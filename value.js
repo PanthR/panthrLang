@@ -31,6 +31,14 @@ define(function(require) {
       return Value.make_value('closure', { func: func, env: env });
    }
 
+   Value.make_missing = function make_missing() {
+      return Value.make_value('missing', {});
+   }
+
+   Value.make_promise = function make_promise(expr, env) {
+      return Value.make_value('promise', { expr: expr, env: env });
+   }
+
    return Value;
 
 });
