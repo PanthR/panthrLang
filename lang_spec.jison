@@ -67,6 +67,7 @@ expr
    | expr '/' expr { $$ = make_node('arithop', '/', $1, $3); }
    | expr '(' ')'  { $$ = make_node('fun_call', $1, []); }
    | expr '(' callList ')' { $$ = make_node('fun_call', $1, $3); }
+   | FUN '(' ')' expr { $$ = make_node('fun_def', [], $4); }
    | FUN '(' argList ')' expr { $$ = make_node('fun_def', $3, $5); }
    | '{' exprList '}'     { $$ = make_node('expr_seq', $2); }
    ;
