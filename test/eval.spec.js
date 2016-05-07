@@ -81,6 +81,11 @@ describe('The evaluator', function() {
       expect(evs.length).to.equal(3);
       expect(evs[2].value).to.equal(4 + 2 / 6);
    });
+   it('computes default parameters properly', function() {
+      var evs = main.eval('g <- function() { x <- 1; function(y, w = z + 1, z = x + 1) { w + y / z } }; x <- 5; g()(1)');
+      expect(evs.length).to.equal(3);
+      expect(evs[2].value).to.equal(3 + 1 / 2);
+   });
    it('implements "<<-" assignment properly', function() {
       var evs = main.eval('g <<- 2; g; f <- function(x, y) { g <<- 5 }\n f(2, 4)\n g');
       expect(evs.length).to.equal(5);

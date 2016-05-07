@@ -35,8 +35,22 @@ define(function(require) {
       return Value.make_value('missing', {});
    }
 
-   Value.make_promise = function make_promise(expr, env) {
-      return Value.make_value('promise', { expr: expr, env: env });
+   Value.make_promise = function make_promise(thunk) {
+      return Value.make_value('promise', { thunk: thunk });
+   }
+
+   Value.prototype = {
+      resolve: function() {
+         var val;
+
+         if (this.type === 'promise') {
+            val = this.value.thunk();
+            this.type = val.type;
+            this.value = val.value;
+         }
+
+         return this;
+      }
    }
 
    return Value;

@@ -58,7 +58,8 @@ define(function(require) {
       if (val === null) {
          throw new Error("Unknown property: ", symbol);
       }
-      return val;
+      if (Array.isArray(val)) { return val; } // Case of "..."
+      return val.resolve();
    }
    // Assigns value in the current frame (possibly shadowing existing value)
    function assign(symbol, value, frame) {
@@ -185,10 +186,12 @@ define(function(require) {
             // Cannot evaluate right away because it might depend on
             // later defaults. Must create a promise. It will not be
             // executed unless needed.
-            closExtFrame.store(formals[0].args[0],
-                               Value.make_promise(formals[0].args[1],
-                                                  closExtFrame));
-
+            closExtFrame.store(
+               formals[0].args[0],
+               Value.make_promise(
+                  evalInFrame.bind(null, formals[0].args[1], closExtFrame)
+               )
+            );
          } else {
             // Need to set to missing value
             closExtFrame.store(formals[0].args[0], Value.make_missing());
