@@ -128,10 +128,23 @@ define(function(require) {
    // Each object has a property "value" corresponding to the value of that
    // actual, and also possibly a property "name" if it was a named parameter.
    function eval_call(clos, actuals) {
-      var formals, body, closExtFrame, i, result, actualPos;
-      if (clos.type !== 'closure') {
-         throw new Error('trying to call non-closure');
+      if (clos.type === 'closure') {
+         return eval_closure(clos, actuals);
+      } else if (close.type === 'builtin') {
+         return eval_builtin(clos, actuals);
       }
+      throw new Error('trying to call non-function');
+   }
+
+   // "Builtin" functions are Javascript functions. They expect one argument
+   // that is a "list" in the panthrBase sense.
+   // We need here to turn "actuals" into that list.
+   function eval_builtin(f, actuals) {
+      // TODO
+   }
+
+   function eval_closure(clos, actuals) {
+      var formals, body, closExtFrame, i, result, actualPos;
       // Will be messing with the array of formals, so need to copy it
       formals = clos.value.func.args[0].slice();
       body = clos.value.func.args[1];
