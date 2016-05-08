@@ -8,6 +8,7 @@
 [:+\-*/\,()\{\}]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
+'library'      return 'LIBRARY';
 '<-'           return 'LARROW';
 '<<-'          return 'LLARROW';
 '='            return 'EQUALS';
@@ -70,6 +71,7 @@ expr
    | FUN '(' ')' expr { $$ = make_node('fun_def', [], $4); }
    | FUN '(' argList ')' expr { $$ = make_node('fun_def', $3, $5); }
    | '{' exprList '}'     { $$ = make_node('expr_seq', $2); }
+   | LIBRARY '(' VAR ')'  { $$ = make_node('library', $3); }
    ;
 
 callList

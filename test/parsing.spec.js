@@ -145,4 +145,15 @@ describe('The parser', function() {
          });
       });
    });
+
+   it('parses package-loading', function() {
+      ['library(base)'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            expect(nodes[0].name).to.equal('library');
+            expect(nodes[0].args[0]).to.equal('base');
+         });
+      });
+   });
+
 });
