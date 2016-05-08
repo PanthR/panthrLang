@@ -31,6 +31,8 @@ define(function(require) {
       }
    }
 
+   Evaluate.add_package('base', require('./packages/base'));
+
    return panthrLang;
 
 });
