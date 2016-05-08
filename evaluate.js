@@ -11,7 +11,25 @@ define(function(require) {
 
    function Evaluate() {
       this.global = Frame.newGlobal();
+      this.global.loaded_packages = null;
    }
+
+   // This is where the external program will "setup" packages bound to names.
+   // These do not get loaded at this point, but they can be found later.
+   var packages = {};
+   // This function is used to add a package, in the form of a function
+   // expecting arguments "evalLang", "addBuiltin", "Value" (see issue #16)
+   Evaluate.add_package = function add_package(name, func) {
+      if (packages.hasOwnProperty(name)) {
+         // TODO: Should do something safer than silently overwriting.
+      }
+      packages[name] = func;
+
+      return Evaluate;
+   };
+   Evaluate.list_packages = function() {
+      return Object.keys(packages);
+   };
 
    Evaluate.prototype = {
       eval: function(node) {
@@ -37,6 +55,41 @@ define(function(require) {
       parser.parse(str);
 
       return vals;
+   }
+
+   // Loads a package into the current evaluation.
+   // The package will be stored in the loaded_packages property
+   // of the global frame corresponding to the current frame.
+   function loadPackage(name, frame) {
+      // TODO: Perhaps we should first search through the list of
+      // loaded packages. On the other hand, "reloading" a package
+      // may be useful.
+      var global, newEval;
+
+      global = frame.getGlobal();  // The global frame
+      newEval = new Evaluate();  // Eval environment for the package
+
+      if (!packages.hasOwnProperty(name)) {
+         throw new Error('Unknown package: ', name);
+      }
+      // Load the package, adding to the newEval's frame.
+      packages[name](
+         function evalLang(str) {
+            newEval.parseAndEval(str);
+         },
+         function addBuiltin(name, f) {
+            assign(name, Value.make_builtin(f), newEval.global);
+         },
+         Value
+      );
+      // Now we need to prepend to the global's package list
+      global.loaded_packages = {
+         name: name,
+         package: newEval,
+         next: global.loaded_packages
+      };
+
+      return Value.make_package(newEval);
    }
 
    // "runs" a certain node to completion.
@@ -68,16 +121,25 @@ define(function(require) {
       case 'fun_call':
          return eval_call(evalInFrame(node.args[0], frame),
                           eval_actuals(node.args[1], frame));
+      case 'library':
+         return loadPackage(node.args[0], frame);
       default:
          throw new Error('Unknown node: ' + node.name);
       }
    }
 
    function lookup(symbol, frame) {
-      var val;
+      var val, pack;
 
       val = frame.lookup(symbol);
       if (val === null) {
+         // Need to look through the package chain
+         pack = frame.getGlobal().loaded_packages;
+         while (pack !== null) {
+            val = pack.package.global.lookup(symbol);
+            if (val !== null) { return val; }
+            pack = pack.next;
+         }
          throw new Error("Unknown property: ", symbol);
       }
       return val.resolve();

@@ -47,6 +47,10 @@ define(function(require) {
       return Value.make_value('promise', { thunk: thunk });
    }
 
+   Value.make_package = function make_promise(pack) {
+      return Value.make_value('pack', { package: pack });
+   }
+
    Value.prototype = {
       resolve: function() {
          var val;

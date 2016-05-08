@@ -94,4 +94,10 @@ describe('The evaluator', function() {
       expect(evs[4].value).to.equal(5);
    });
 
+   it('evaluates package-loading', function() {
+      var evs = main.eval('library(base)\n sin(3)');
+      expect(evs.length).to.equal(2);
+      expect(evs[1].value.values.values).to.deep.equal([Math.sin(3)]);
+   });
+
 });
