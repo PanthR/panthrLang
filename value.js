@@ -35,6 +35,10 @@ define(function(require) {
       return Value.make_value('closure', { func: func, env: env });
    }
 
+   Value.make_builtin = function make_builtin(f) {
+      return Value.make_value('builtin', { f: f });
+   }
+
    Value.make_missing = function make_missing() {
       return Value.make_value('missing', {});
    }

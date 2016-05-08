@@ -166,7 +166,7 @@ define(function(require) {
    function eval_call(clos, actuals) {
       if (clos.type === 'closure') {
          return eval_closure(clos, actuals);
-      } else if (close.type === 'builtin') {
+      } else if (clos.type === 'builtin') {
          return eval_builtin(clos, actuals);
       }
       throw new Error('trying to call non-function');
@@ -175,8 +175,10 @@ define(function(require) {
    // "Builtin" functions are Javascript functions. They expect one argument
    // that is a "list" in the panthrBase sense.
    // We need here to turn "actuals" into that list.
-   function eval_builtin(f, actuals) {
-      // TODO
+   function eval_builtin(builtin, actuals) {
+      // Before passing to built-in function, we need to
+      // "unvalue" the actuals list.
+      return builtin.value.f(actuals.map(function(v) { return v.value; }));
    }
 
    function eval_closure(clos, actuals) {
