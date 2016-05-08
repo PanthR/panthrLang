@@ -7,7 +7,7 @@ define(function(require) {
     *
     * Each node consists of a name and a (possibly empty) list of arguments.
     *
-    * Never call this directly. Use make_node instead.
+    * Never call this directly. Use makeNode instead.
     */
    function Node(name, args) {
       this.name = name;
@@ -15,9 +15,9 @@ define(function(require) {
    }
 
    /* Takes arbitrary many arguments */
-   Node.make_node = function make_node(name) {
+   Node.makeNode = function makeNode(name) {
       return new Node(name, Array.prototype.slice.call(arguments, 1));
-   }
+   };
 
       /**
        * Recurses a function over a node structure.
@@ -33,6 +33,7 @@ define(function(require) {
 
       func = function(o) {
          var evaledArgs;
+
          if (!(o instanceof Node)) { return o; }
          evaledArgs = o.args.map(func);
          evaledArgs.unshift(o.name);

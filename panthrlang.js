@@ -21,17 +21,17 @@ define(function(require) {
       Node: Node,
       Evaluate: Evaluate,
       parse: function(str, action) {
-         if (action == null) { action = function(x) { console.log(x); }}
+         if (action == null) { action = function(x) { console.log(x); }; }
          // action is the function to call on each completed node
-         parser.yy.emit = function(node) { action(node); }
+         parser.yy.emit = function(node) { action(node); };
          return parser.parse(str);
       },
       eval: function(str) {
          return (new Evaluate()).parseAndEval(str);
       }
-   }
+   };
 
-   Evaluate.add_package('base', require('./packages/base'));
+   Evaluate.addPackage('base', require('./packages/base'));
 
    return panthrLang;
 

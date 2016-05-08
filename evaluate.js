@@ -2,24 +2,25 @@
 'use strict';
 define(function(require) {
 
-   var Frame, Value, Base, parser;
+   var Frame, Value, Base, parser, packages;
 
    Frame = require('./frame');
    Value = require('./value');
    Base = require('panthrBase/index');
    parser = require('./parser').parser;
 
-   function Evaluate() {
-      this.global = Frame.newGlobal();
-      this.global.loaded_packages = null;
-   }
-
    // This is where the external program will "setup" packages bound to names.
    // These do not get loaded at this point, but they can be found later.
-   var packages = {};
+   packages = {};
+
+   function Evaluate() {
+      this.global = Frame.newGlobal();
+      this.global.loadedPackages = null;
+   }
+
    // This function is used to add a package, in the form of a function
    // expecting arguments "evalLang", "addBuiltin", "Value" (see issue #16)
-   Evaluate.add_package = function add_package(name, func) {
+   Evaluate.addPackage = function addPackage(name, func) {
       if (packages.hasOwnProperty(name)) {
          // TODO: Should do something safer than silently overwriting.
       }
@@ -27,7 +28,7 @@ define(function(require) {
 
       return Evaluate;
    };
-   Evaluate.list_packages = function() {
+   Evaluate.listPackages = function() {
       return Object.keys(packages);
    };
 
@@ -47,6 +48,7 @@ define(function(require) {
    // Returns the array of results (as well as possibly modifying the frame).
    function parseThenEval(str, frame) {
       var vals;
+
       parser.yy.emit = function(nodes) {
          vals = nodes.map(function(node) {
             return evalInFrame(node, frame);
@@ -58,9 +60,9 @@ define(function(require) {
    }
 
    // Loads a package into the current evaluation.
-   // The package will be stored in the loaded_packages property
+   // The package will be stored in the loadedPackages property
    // of the global frame corresponding to the current frame.
-   function loadPackage(name, frame) {
+   function loadPackage(packageName, frame) {
       // TODO: Perhaps we should first search through the list of
       // loaded packages. On the other hand, "reloading" a package
       // may be useful.
@@ -69,39 +71,39 @@ define(function(require) {
       global = frame.getGlobal();  // The global frame
       newEval = new Evaluate();  // Eval environment for the package
 
-      if (!packages.hasOwnProperty(name)) {
-         throw new Error('Unknown package: ', name);
+      if (!packages.hasOwnProperty(packageName)) {
+         throw new Error('Unknown package: ', packageName);
       }
       // Load the package, adding to the newEval's frame.
-      packages[name](
+      packages[packageName](
          function evalLang(str) {
             newEval.parseAndEval(str);
          },
          function addBuiltin(name, f) {
-            assign(name, Value.make_builtin(f), newEval.global);
+            assign(name, Value.makeBuiltin(f), newEval.global);
          },
          Value
       );
       // Now we need to prepend to the global's package list
-      global.loaded_packages = {
-         name: name,
+      global.loadedPackages = {
+         name: packageName,
          package: newEval,
-         next: global.loaded_packages
+         next: global.loadedPackages
       };
 
-      return Value.make_package(newEval);
+      return Value.makePackage(newEval);
    }
 
    // "runs" a certain node to completion.
    // Emits the resulting value
    function evalInFrame(node, frame) {
       switch (node.name) {
-      case 'number': return Value.make_numeric(node.args[0]);
-      case 'range': return evalInFrame(node.args[0], frames); // FIXME
+      case 'number': return Value.makeNumeric(node.args[0]);
+      case 'range': return evalInFrame(node.args[0], frame); // FIXME
       case 'arithop':
-         return do_arith(node.args[0],
-                         evalInFrame(node.args[1], frame),
-                         evalInFrame(node.args[2], frame));
+         return doArith(node.args[0],
+                        evalInFrame(node.args[1], frame),
+                        evalInFrame(node.args[2], frame));
       case 'var':
          return lookup(node.args[0], frame);
       case 'assign':
@@ -115,12 +117,12 @@ define(function(require) {
       case 'fun_def':
          // TODO: Need to do some checking to ensure argument list
          // is valid
-         return Value.make_closure(node, frame);
+         return Value.makeClosure(node, frame);
       case 'expr_seq':
-         return eval_seq(node.args[0], frame);
+         return evalSeq(node.args[0], frame);
       case 'fun_call':
-         return eval_call(evalInFrame(node.args[0], frame),
-                          eval_actuals(node.args[1], frame));
+         return evalCall(evalInFrame(node.args[0], frame),
+                          evalActuals(node.args[1], frame));
       case 'library':
          return loadPackage(node.args[0], frame);
       default:
@@ -134,13 +136,13 @@ define(function(require) {
       val = frame.lookup(symbol);
       if (val === null) {
          // Need to look through the package chain
-         pack = frame.getGlobal().loaded_packages;
+         pack = frame.getGlobal().loadedPackages;
          while (pack !== null) {
             val = pack.package.global.lookup(symbol);
             if (val !== null) { return val; }
             pack = pack.next;
          }
-         throw new Error("Unknown property: ", symbol);
+         throw new Error('Unknown property: ', symbol);
       }
       return val.resolve();
    }
@@ -164,7 +166,7 @@ define(function(require) {
       return value;
    }
 
-   function eval_seq(exprs, frame) {
+   function evalSeq(exprs, frame) {
       var i, val;
 
       for (i = 0; i < exprs.length; i += 1) {
@@ -176,10 +178,9 @@ define(function(require) {
    // Evaluates the actuals represented by the array of exprs
    // in the current frame. It also takes care to properly transform "..."
    // If it is present (it would have a value from the current function call).
-   function eval_actuals(exprs, frame) {
-      var actuals, symbols;
+   function evalActuals(exprs, frame) {
+      var actuals;
 
-      symbols = {}; // Used to make sure the same symbol is not provided twice.
       actuals = new Base.List();
 
       // helper method that adds an unnamed value
@@ -225,11 +226,11 @@ define(function(require) {
    }
 
    // "actuals" will be a Base.List
-   function eval_call(clos, actuals) {
+   function evalCall(clos, actuals) {
       if (clos.type === 'closure') {
-         return eval_closure(clos, actuals);
+         return evalClosure(clos, actuals);
       } else if (clos.type === 'builtin') {
-         return eval_builtin(clos, actuals);
+         return evalBuiltin(clos, actuals);
       }
       throw new Error('trying to call non-function');
    }
@@ -237,14 +238,15 @@ define(function(require) {
    // "Builtin" functions are Javascript functions. They expect one argument
    // that is a "list" in the panthrBase sense.
    // We need here to turn "actuals" into that list.
-   function eval_builtin(builtin, actuals) {
+   function evalBuiltin(builtin, actuals) {
       // Before passing to built-in function, we need to
       // "unvalue" the actuals list.
       return builtin.value.f(actuals.map(function(v) { return v.value; }));
    }
 
-   function eval_closure(clos, actuals) {
-      var formals, body, closExtFrame, i, result, actualPos;
+   function evalClosure(clos, actuals) {
+      var formals, body, closExtFrame, actualPos;
+
       // Will be messing with the array of formals, so need to copy it
       formals = clos.value.func.args[0].slice();
       body = clos.value.func.args[1];
@@ -256,7 +258,8 @@ define(function(require) {
       // Since actuals are a Base.List, their indexing starts at 1.
       function matchNamed(i, j) {
          var actual, name;
-         if (i > actuals.length()) { return; }
+
+         if (i > actuals.length()) { return null; }
          actual = actuals.get(i);
          name = actuals.names(i);
          if (!name) { return matchNamed(i + 1, 0); }
@@ -292,7 +295,7 @@ define(function(require) {
          }
          if (formals[0].name === 'arg_dots') {
             // Need to eat up all remaining actuals.
-            closExtFrame.store('...', Value.make_list(actuals));
+            closExtFrame.store('...', Value.makeList(actuals));
             actuals = new Base.List();
          } else if (actualPos <= actuals.length()) {
             // There is a value to read
@@ -305,13 +308,13 @@ define(function(require) {
             // executed unless needed.
             closExtFrame.store(
                formals[0].args[0],
-               Value.make_promise(
+               Value.makePromise(
                   evalInFrame.bind(null, formals[0].args[1], closExtFrame)
                )
             );
          } else {
             // Need to set to missing value
-            closExtFrame.store(formals[0].args[0], Value.make_missing());
+            closExtFrame.store(formals[0].args[0], Value.makeMissing());
          }
          formals.splice(0, 1);
       }
@@ -319,20 +322,20 @@ define(function(require) {
       return evalInFrame(body, closExtFrame);
    }
 
-   function do_arith(op, v1, v2) {
+   function doArith(op, v1, v2) {
       if (v1.type !== 'numeric' || v2.type !== 'numeric') {
          throw new Error('operating on non-numeric values');
       }
       switch (op) {
-         case '+': return Value.make_numeric(v1.value + v2.value);
-         case '-': return Value.make_numeric(v1.value - v2.value);
-         case '*': return Value.make_numeric(v1.value * v2.value);
-         case '/': return Value.make_numeric(v1.value / v2.value);
+         case '+': return Value.makeNumeric(v1.value + v2.value);
+         case '-': return Value.makeNumeric(v1.value - v2.value);
+         case '*': return Value.makeNumeric(v1.value * v2.value);
+         case '/': return Value.makeNumeric(v1.value / v2.value);
+         default: throw new Error('Unknown operation:', op);
       }
    }
 
    return Evaluate;
-
 
 });
 

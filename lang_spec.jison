@@ -20,7 +20,7 @@
 
 %{
    Node = require('./node');
-   make_node = Node.make_node;
+   makeNode = Node.makeNode;
 %}
 
 %left 'EOL'
@@ -49,29 +49,29 @@ exprList
 
 topExpr
    : expr { $$ = $1; }
-   | VAR EQUALS expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
+   | VAR EQUALS expr { $$ = makeNode('assign', makeNode('lvar', $1), $3); }
    ;
 
 expr
-   : NUM           { $$ = make_node('number', parseFloat($1)); }
-   | VAR           { $$ = make_node('var', $1); }
-   | VAR LARROW expr { $$ = make_node('assign', make_node('lvar', $1), $3); }
-   | VAR LLARROW expr { $$ = make_node('assign_inherit', make_node('lvar', $1), $3); }
+   : NUM           { $$ = makeNode('number', parseFloat($1)); }
+   | VAR           { $$ = makeNode('var', $1); }
+   | VAR LARROW expr { $$ = makeNode('assign', makeNode('lvar', $1), $3); }
+   | VAR LLARROW expr { $$ = makeNode('assign_inherit', makeNode('lvar', $1), $3); }
    | '+' expr  %prec UMINUS { $$ = $2; }
-   | '-' expr  %prec UMINUS { $$ = make_node('arithop', '-', make_node('number', 0), $2); }
+   | '-' expr  %prec UMINUS { $$ = makeNode('arithop', '-', makeNode('number', 0), $2); }
    | EOL expr      { $$ = $2; }
    | '(' expr ')'  { $$ = $2; }
-   | expr ':' expr { $$ = make_node('range', $1, $3); }
-   | expr '+' expr { $$ = make_node('arithop', '+', $1, $3); }
-   | expr '-' expr { $$ = make_node('arithop', '-', $1, $3); }
-   | expr '*' expr { $$ = make_node('arithop', '*', $1, $3); }
-   | expr '/' expr { $$ = make_node('arithop', '/', $1, $3); }
-   | expr '(' ')'  { $$ = make_node('fun_call', $1, []); }
-   | expr '(' callList ')' { $$ = make_node('fun_call', $1, $3); }
-   | FUN '(' ')' expr { $$ = make_node('fun_def', [], $4); }
-   | FUN '(' argList ')' expr { $$ = make_node('fun_def', $3, $5); }
-   | '{' exprList '}'     { $$ = make_node('expr_seq', $2); }
-   | LIBRARY '(' VAR ')'  { $$ = make_node('library', $3); }
+   | expr ':' expr { $$ = makeNode('range', $1, $3); }
+   | expr '+' expr { $$ = makeNode('arithop', '+', $1, $3); }
+   | expr '-' expr { $$ = makeNode('arithop', '-', $1, $3); }
+   | expr '*' expr { $$ = makeNode('arithop', '*', $1, $3); }
+   | expr '/' expr { $$ = makeNode('arithop', '/', $1, $3); }
+   | expr '(' ')'  { $$ = makeNode('fun_call', $1, []); }
+   | expr '(' callList ')' { $$ = makeNode('fun_call', $1, $3); }
+   | FUN '(' ')' expr { $$ = makeNode('fun_def', [], $4); }
+   | FUN '(' argList ')' expr { $$ = makeNode('fun_def', $3, $5); }
+   | '{' exprList '}'     { $$ = makeNode('expr_seq', $2); }
+   | LIBRARY '(' VAR ')'  { $$ = makeNode('library', $3); }
    ;
 
 callList
@@ -80,9 +80,9 @@ callList
    ;
 
 callItem
-   : expr                    { $$ = make_node('actual', $1); }
-   | VAR EQUALS expr         { $$ = make_node('actual_named', $1, $3); }
-   | DOTS                    { $$ = make_node('actual_dots'); }
+   : expr                    { $$ = makeNode('actual', $1); }
+   | VAR EQUALS expr         { $$ = makeNode('actual_named', $1, $3); }
+   | DOTS                    { $$ = makeNode('actual_dots'); }
    ;
 
 argList
@@ -91,7 +91,7 @@ argList
    ;
 
 argTerm
-   : VAR                 { $$ = make_node('arg', $1); }
-   | VAR EQUALS expr     { $$ = make_node('arg_default', $1, $3); }
-   | DOTS                { $$ = make_node('arg_dots'); }
+   : VAR                 { $$ = makeNode('arg', $1); }
+   | VAR EQUALS expr     { $$ = makeNode('arg_default', $1, $3); }
+   | DOTS                { $$ = makeNode('arg_dots'); }
    ;

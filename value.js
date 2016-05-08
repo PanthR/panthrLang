@@ -19,37 +19,37 @@ define(function(require) {
    }
 
    /* Takes arbitrary many arguments */
-   Value.make_value = function make_value(type, value) {
+   Value.makeValue = function makeValue(type, value) {
       return new Value(type, value);
-   }
+   };
 
-   Value.make_numeric = function make_numeric(value) {
-      return Value.make_value('numeric', value);
-   }
+   Value.makeNumeric = function makeNumeric(value) {
+      return Value.makeValue('numeric', value);
+   };
 
-   Value.make_list = function make_list(value) {
-      return Value.make_value('list', value);
-   }
+   Value.makeList = function makeList(value) {
+      return Value.makeValue('list', value);
+   };
 
-   Value.make_closure = function make_closure(func, env) {
-      return Value.make_value('closure', { func: func, env: env });
-   }
+   Value.makeClosure = function makeClosure(func, env) {
+      return Value.makeValue('closure', { func: func, env: env });
+   };
 
-   Value.make_builtin = function make_builtin(f) {
-      return Value.make_value('builtin', { f: f });
-   }
+   Value.makeBuiltin = function makeBuiltin(f) {
+      return Value.makeValue('builtin', { f: f });
+   };
 
-   Value.make_missing = function make_missing() {
-      return Value.make_value('missing', {});
-   }
+   Value.makeMissing = function makeMissing() {
+      return Value.makeValue('missing', {});
+   };
 
-   Value.make_promise = function make_promise(thunk) {
-      return Value.make_value('promise', { thunk: thunk });
-   }
+   Value.makePromise = function makePromise(thunk) {
+      return Value.makeValue('promise', { thunk: thunk });
+   };
 
-   Value.make_package = function make_promise(pack) {
-      return Value.make_value('pack', { package: pack });
-   }
+   Value.makePackage = function makePackage(pack) {
+      return Value.makeValue('pack', { package: pack });
+   };
 
    Value.prototype = {
       resolve: function() {
@@ -63,7 +63,7 @@ define(function(require) {
 
          return this;
       }
-   }
+   };
 
    return Value;
 

@@ -2,7 +2,9 @@
 'use strict';
 define(function(require) {
 // Example of how a package is structured.
-   var Base = require('panthrBase');
+   var Base;
+
+   Base = require('panthrBase');
 // It needs to always return a function with the following signature:
    return function(evalLang, addBuiltin, Value) {
       // It can call on each of these to create new bindings.
@@ -17,7 +19,7 @@ define(function(require) {
       //
       // Packages may need to load panthrBase like we have
       addBuiltin('sin', function(lst) {
-         return Value.make_numeric(lst.toVariable().map(Math.sin));
+         return Value.makeNumeric(lst.toVariable().map(Math.sin));
       });
       // TODO: Add a whole lot more here.
    };
