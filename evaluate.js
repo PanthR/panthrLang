@@ -2,11 +2,12 @@
 'use strict';
 define(function(require) {
 
-   var Frame, Value, Base;
+   var Frame, Value, Base, parser;
 
    Frame = require('./frame');
    Value = require('./value');
    Base = require('panthrBase/index');
+   parser = require('./parser').parser;
 
    function Evaluate() {
       this.global = Frame.newGlobal();
@@ -15,8 +16,28 @@ define(function(require) {
    Evaluate.prototype = {
       eval: function(node) {
          return evalInFrame(node, this.global);
+      },
+      // Parses and evaluates a string in the given Evaluate setup.
+      // Returns the array of results.
+      parseAndEval: function(str) {
+         return parseThenEval(str, this.global);
       }
    };
+
+   // Given a string and an "evaluation frame", parses then
+   // evaluates that string in that evaluation frame.
+   // Returns the array of results (as well as possibly modifying the frame).
+   function parseThenEval(str, frame) {
+      var vals;
+      parser.yy.emit = function(nodes) {
+         vals = nodes.map(function(node) {
+            return evalInFrame(node, frame);
+         });
+      };
+      parser.parse(str);
+
+      return vals;
+   }
 
    // "runs" a certain node to completion.
    // Emits the resulting value
