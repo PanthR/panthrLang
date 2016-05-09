@@ -26,6 +26,11 @@ define(function(require) {
    Value.makeScalar = function makeScalar(value) {
       return Value.makeValue('scalar', value);
    };
+
+   // Creates the appropriate type from a provided variable
+   // depending on the variable's mode.
+   Value.makeVariable = function makeVariable(value) {
+      return Value.makeValue(value.mode, value);
    };
 
    Value.makeList = function makeList(value) {

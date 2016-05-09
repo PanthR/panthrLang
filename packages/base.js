@@ -18,6 +18,12 @@ define(function(require) {
       // All built-in functions should expect a Base.List
       //
       // Packages may need to load panthrBase like we have
+      addBuiltin('list', function(lst) {
+         return Value.makeList(lst);
+      });
+      addBuiltin('c', function(lst) {
+         return Value.makeVariable(lst.toVariable());
+      });
       addBuiltin('sin', function(lst) {
          return Value.makeScalar(lst.toVariable().map(Math.sin));
       });
