@@ -11,7 +11,7 @@ describe('The evaluator', function() {
       ['5', '23', '2.34', '0.23', '0', '0.1e-10'].forEach(function(num) {
          var evs = main.eval(num);
          expect(evs.length).to.equal(1);
-         expect(evs[0].type).to.equal('numeric');
+         expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value).to.equal(parseFloat(num));
       });
    });
@@ -20,7 +20,7 @@ describe('The evaluator', function() {
        '-0.23 * 2 + 3', '-0.23 + 2 * 3'].forEach(function(expr) {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
-         expect(evs[0].type).to.equal('numeric');
+         expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value).to.equal(eval(expr));
       });
    });
@@ -28,7 +28,7 @@ describe('The evaluator', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
-         expect(evs[0].type).to.equal('numeric');
+         expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value).to.equal(eval(expr));
       });
    });
@@ -52,12 +52,12 @@ describe('The evaluator', function() {
    it('evaluates blocks properly', function() {
       var evs = main.eval('x <- { 3 + 4\n2*3\n}\n x');
       expect(evs.length).to.equal(2);
-      expect(evs[1].type).to.equal('numeric');
+      expect(evs[1].type).to.equal('scalar');
       expect(evs[1].value).to.equal(6);
 
       evs = main.eval('x <- { x<-3 + 4; 2*3\n}\n x');
       expect(evs.length).to.equal(2);
-      expect(evs[1].type).to.equal('numeric');
+      expect(evs[1].type).to.equal('scalar');
       expect(evs[1].value).to.equal(6);
    });
    it('evaluates normal function calls properly', function() {

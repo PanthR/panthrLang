@@ -23,8 +23,9 @@ define(function(require) {
       return new Value(type, value);
    };
 
-   Value.makeNumeric = function makeNumeric(value) {
-      return Value.makeValue('numeric', value);
+   Value.makeScalar = function makeScalar(value) {
+      return Value.makeValue('scalar', value);
+   };
    };
 
    Value.makeList = function makeList(value) {

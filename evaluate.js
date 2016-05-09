@@ -98,7 +98,7 @@ define(function(require) {
    // Emits the resulting value
    function evalInFrame(node, frame) {
       switch (node.name) {
-      case 'number': return Value.makeNumeric(node.args[0]);
+      case 'number': return Value.makeScalar(node.args[0]);
       case 'range': return evalInFrame(node.args[0], frame); // FIXME
       case 'arithop':
          return doArith(node.args[0],
@@ -323,14 +323,14 @@ define(function(require) {
    }
 
    function doArith(op, v1, v2) {
-      if (v1.type !== 'numeric' || v2.type !== 'numeric') {
-         throw new Error('operating on non-numeric values');
+      if (v1.type !== 'scalar' || v2.type !== 'scalar') {
+         throw new Error('operating on non-scalar values');
       }
       switch (op) {
-         case '+': return Value.makeNumeric(v1.value + v2.value);
-         case '-': return Value.makeNumeric(v1.value - v2.value);
-         case '*': return Value.makeNumeric(v1.value * v2.value);
-         case '/': return Value.makeNumeric(v1.value / v2.value);
+         case '+': return Value.makeScalar(v1.value + v2.value);
+         case '-': return Value.makeScalar(v1.value - v2.value);
+         case '*': return Value.makeScalar(v1.value * v2.value);
+         case '/': return Value.makeScalar(v1.value / v2.value);
          default: throw new Error('Unknown operation:', op);
       }
    }

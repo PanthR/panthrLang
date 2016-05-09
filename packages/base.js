@@ -19,7 +19,7 @@ define(function(require) {
       //
       // Packages may need to load panthrBase like we have
       addBuiltin('sin', function(lst) {
-         return Value.makeNumeric(lst.toVariable().map(Math.sin));
+         return Value.makeScalar(lst.toVariable().map(Math.sin));
       });
       // TODO: Add a whole lot more here.
    };
