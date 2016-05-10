@@ -9,14 +9,20 @@ define(function(require) {
     *
     * Never call this directly. Use makeNode instead.
     */
-   function Node(name, args) {
+   function Node(name, loc, args) {
       this.name = name;
+      this.loc = {
+         first_line: loc.first_line,
+         last_line: loc.last_line,
+         first_column: loc.first_column,
+         last_column: loc.last_column
+      };
       this.args = args;
    }
 
    /* Takes arbitrary many arguments */
-   Node.makeNode = function makeNode(name) {
-      return new Node(name, Array.prototype.slice.call(arguments, 1));
+   Node.makeNode = function makeNode(name, loc) {
+      return new Node(name, loc, Array.prototype.slice.call(arguments, 2));
    };
 
       /**
