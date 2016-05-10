@@ -51,7 +51,16 @@ define(function(require) {
 
       parser.yy.emit = function(nodes) {
          vals = nodes.map(function(node) {
-            return evalInFrame(node, frame);
+            try {
+               return evalInFrame(node, frame);
+            } catch (e) {
+               if (e instanceof Error) {
+                  // An actual javascript/logic error
+                  // Not a language error
+                  throw e;
+               }
+               return Value.makeError(e, node);
+            }
          });
       };
       parser.parse(str);
@@ -62,7 +71,7 @@ define(function(require) {
    // Loads a package into the current evaluation.
    // The package will be stored in the loadedPackages property
    // of the global frame corresponding to the current frame.
-   function loadPackage(packageName, frame) {
+   function loadPackage(packageName, frame, loc) {
       // TODO: Perhaps we should first search through the list of
       // loaded packages. On the other hand, "reloading" a package
       // may be useful.
@@ -72,7 +81,7 @@ define(function(require) {
       newEval = new Evaluate();  // Eval environment for the package
 
       if (!packages.hasOwnProperty(packageName)) {
-         throw new Error('Unknown package: ', packageName);
+         throw errorInfo('Unknown package ' + packageName, loc);
       }
       // Load the package, adding to the newEval's frame.
       packages[packageName](
@@ -103,9 +112,9 @@ define(function(require) {
       case 'arithop':
          return doArith(node.args[0],
                         evalInFrame(node.args[1], frame),
-                        evalInFrame(node.args[2], frame));
+                        evalInFrame(node.args[2], frame), node.args[1].loc);
       case 'var':
-         return lookup(node.args[0], frame);
+         return lookup(node.args[0], frame, node.loc);
       case 'assign':
          return assign(node.args[0].args[0],
                        evalInFrame(node.args[1], frame),
@@ -122,15 +131,15 @@ define(function(require) {
          return evalSeq(node.args[0], frame);
       case 'fun_call':
          return evalCall(evalInFrame(node.args[0], frame),
-                          evalActuals(node.args[1], frame));
+                         evalActuals(node.args[1], frame), node.args[0].loc);
       case 'library':
-         return loadPackage(node.args[0], frame);
+         return loadPackage(node.args[0], frame, node.loc);
       default:
          throw new Error('Unknown node: ' + node.name);
       }
    }
 
-   function lookup(symbol, frame) {
+   function lookup(symbol, frame, loc) {
       var val, pack;
 
       val = frame.lookup(symbol);
@@ -142,7 +151,7 @@ define(function(require) {
             if (val !== null) { return val; }
             pack = pack.next;
          }
-         throw new Error('Unknown property: ', symbol);
+         throw errorInfo('Unknown symbol ' + symbol, loc);
       }
       return val.resolve();
    }
@@ -188,9 +197,9 @@ define(function(require) {
          actuals.push(value);
       }
 
-      function addNamedValue(name, value) {
+      function addNamedValue(name, value, loc) {
          if (actuals.has(name)) {
-            throw new Error('symbol occurred twice');
+            throw errorInfo('symbol occurred twice ' + name, loc);
          }
          actuals.set(name, value);
       }
@@ -200,12 +209,13 @@ define(function(require) {
             addValue(evalInFrame(expr.args[0], frame));
             break;
          case 'actual_named':
-            addNamedValue(expr.args[0], evalInFrame(expr.args[1], frame));
+            addNamedValue(expr.args[0], evalInFrame(expr.args[1], frame), expr.loc);
             break;
          case 'actual_dots':
             // Need to look for a defined dots in the immediate environment
             (function(result) {
                if (result == null) {
+                  // This should never happen
                   throw new Error('Inappropriate use of ...');
                }
                result.value.each(function(value, i, name) {
@@ -215,9 +225,10 @@ define(function(require) {
                      addValue(value);
                   }
                });
-            }(lookup('...', frame)));
+            }(lookup('...', frame, expr.loc))); // TODO: Must ensure it doesn't search further
             break;
          default:
+            // Should never happen
             throw new Error('actual expected, but got' + expr.type);
          }
       });
@@ -226,13 +237,13 @@ define(function(require) {
    }
 
    // "actuals" will be a Base.List
-   function evalCall(clos, actuals) {
+   function evalCall(clos, actuals, loc) {
       if (clos.type === 'closure') {
          return evalClosure(clos, actuals);
       } else if (clos.type === 'builtin') {
          return evalBuiltin(clos, actuals);
       }
-      throw new Error('trying to call non-function');
+      throw errorInfo('trying to call non-function ' + clos.toString(), loc);
    }
 
    // "Builtin" functions are Javascript functions. They expect one argument
@@ -322,9 +333,10 @@ define(function(require) {
       return evalInFrame(body, closExtFrame);
    }
 
-   function doArith(op, v1, v2) {
+   function doArith(op, v1, v2, loc) {
       if (v1.type !== 'scalar' || v2.type !== 'scalar') {
-         throw new Error('operating on non-scalar values');
+         throw errorInfo('arithmetic on non-scalar values. Received ' +
+                           v1.type + ' and ' + v2.type, loc);
       }
       switch (op) {
          case '+': return Value.makeScalar(v1.value + v2.value);
@@ -333,6 +345,10 @@ define(function(require) {
          case '/': return Value.makeScalar(v1.value / v2.value);
          default: throw new Error('Unknown operation:', op);
       }
+   }
+
+   function errorInfo(msg, loc) {
+      return { message: msg, loc: loc };
    }
 
    return Evaluate;

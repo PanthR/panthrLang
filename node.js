@@ -12,10 +12,10 @@ define(function(require) {
    function Node(name, loc, args) {
       this.name = name;
       this.loc = {
-         first_line: loc.first_line,
-         last_line: loc.last_line,
-         first_column: loc.first_column,
-         last_column: loc.last_column
+         firstLine: loc.first_line,
+         lastLine: loc.last_line,
+         firstColumn: loc.first_column,
+         lastColumn: loc.last_column
       };
       this.args = args;
    }

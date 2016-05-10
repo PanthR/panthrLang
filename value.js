@@ -23,6 +23,10 @@ define(function(require) {
       return new Value(type, value);
    };
 
+   Value.makeError = function makeError(err, node) {
+      return Value.makeValue('error', { error: err, node: node });
+   };
+
    Value.makeScalar = function makeScalar(value) {
       return Value.makeValue('scalar', value);
    };
@@ -68,6 +72,17 @@ define(function(require) {
          }
 
          return this;
+      },
+      toString: function() {
+         switch (this.type) {
+         case 'error':
+            return 'Error: ' +
+                   this.value.error.message.toString() + ' near ' +
+                   this.value.error.loc.firstLine + ':' +
+                   this.value.error.loc.firstColumn;
+         default:
+            return '<' + this.type + ': ' + this.value.toString() + '>';
+         }
       }
    };
 
