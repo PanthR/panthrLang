@@ -59,11 +59,15 @@ define(function(require) {
                   // Not a language error
                   throw e;
                }
-               return Value.makeError(e, node);
+               return e;
             }
          });
       };
-      parser.parse(str);
+      try {
+         parser.parse(str);
+      } catch(e) {
+         console.log("Serious parser error:", e);
+      }
 
       return vals;
    }
@@ -134,6 +138,9 @@ define(function(require) {
                          evalActuals(node.args[1], frame), node.args[0].loc);
       case 'library':
          return loadPackage(node.args[0], frame, node.loc);
+      case 'error':
+         // TODO: ADD info to message
+         return errorInfo('unexpected token: ' + node.args[0].hash.text, node.loc);
       default:
          throw new Error('Unknown node: ' + node.name);
       }
@@ -348,7 +355,7 @@ define(function(require) {
    }
 
    function errorInfo(msg, loc) {
-      return { message: msg, loc: loc };
+      return Value.makeError({ message: msg, loc: loc });
    }
 
    return Evaluate;

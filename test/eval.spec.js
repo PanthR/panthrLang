@@ -146,4 +146,12 @@ describe('The evaluator', function() {
          expect(evs[1].toString()).to.match(/23|24|25|26/);
       });
    });
+   describe('handles parse errors', function() {
+      it('for unmatched parens', function() {
+         var evs = main.eval('(3+(4); 3+4');
+         expect(evs.length).to.equal(2);
+         expect(evs[0].type).to.equal('error');
+         expect(evs[1].type).to.equal('scalar');
+      });
+   });
 });

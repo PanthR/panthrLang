@@ -23,8 +23,8 @@ define(function(require) {
       return new Value(type, value);
    };
 
-   Value.makeError = function makeError(err, node) {
-      return Value.makeValue('error', { error: err, node: node });
+   Value.makeError = function makeError(err) {
+      return Value.makeValue('error', err);
    };
 
    Value.makeScalar = function makeScalar(value) {
@@ -77,9 +77,9 @@ define(function(require) {
          switch (this.type) {
          case 'error':
             return 'Error: ' +
-                   this.value.error.message.toString() + ' near ' +
-                   this.value.error.loc.firstLine + ':' +
-                   this.value.error.loc.firstColumn;
+                   this.value.message.toString() + ' near ' +
+                   this.value.loc.firstLine + ':' +
+                   this.value.loc.firstColumn;
          default:
             return '<' + this.type + ': ' + this.value.toString() + '>';
          }

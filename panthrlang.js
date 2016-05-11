@@ -11,11 +11,26 @@ define(function(require) {
     * @author Haris Skiadas <skiadas@hanover.edu>
     */
 
-   var panthrLang, parser, Node, Evaluate;
+   var panthrLang, Parser, parser, Node, Evaluate;
 
    Node = require('./node');
    Evaluate = require('./evaluate');
    parser = require('./parser').parser;
+   Parser = require('./parser').Parser;
+   Parser.prototype.parseError = function parseError(str, hash) {
+       if (hash.recoverable) {
+         this.myError = { str: str, hash: hash };
+         this.trace(str);
+       } else {
+           function _parseError (msg, hash) {
+               this.message = msg;
+               this.hash = hash;
+           }
+           _parseError.prototype = Error;
+
+           throw new _parseError(str, hash);
+       }
+   };
 
    panthrLang = {
       Node: Node,

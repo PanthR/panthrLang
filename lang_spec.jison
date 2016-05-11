@@ -45,6 +45,8 @@ exprList
    : exprList EOL topExpr  { $1.push($3); $$ = $1; }
    | exprList EOL { $$ = $1; }
    | topExpr { $$ = [$1]; }
+   | EOL { $$ = []; }
+   | error { $$ = [makeNode('error', yy.lexer.yylloc, yy.parser.myError)]; }
    ;
 
 topExpr
