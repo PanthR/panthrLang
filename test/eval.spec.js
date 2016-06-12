@@ -24,6 +24,19 @@ describe('The evaluator', function() {
          expect(evs[0].value).to.equal(eval(expr));
       });
    });
+   it('evaluates powers correctly', function() {
+      [['2^3', 8], ['2^3+2', 10],
+       ['2^-2', 0.25], ['-2^2', -4],
+       ['2^2^3', 256]
+      ].forEach(function(pair) {
+         var expr = pair[0];
+         var value = pair[1];
+         var evs = main.eval(expr);
+         expect(evs.length).to.equal(1);
+         expect(evs[0].type).to.equal('scalar');
+         expect(evs[0].value).to.equal(value);
+      });
+   });
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);

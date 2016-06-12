@@ -350,7 +350,8 @@ define(function(require) {
          case '-': return Value.makeScalar(v1.value - v2.value);
          case '*': return Value.makeScalar(v1.value * v2.value);
          case '/': return Value.makeScalar(v1.value / v2.value);
-         default: throw new Error('Unknown operation:', op);
+         case '^': return Value.makeScalar(Math.pow(v1.value, v2.value));
+         default: throw new Error('Unknown operation: ' + op);
       }
    }
 

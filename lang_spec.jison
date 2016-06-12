@@ -5,7 +5,7 @@
 [ \t]+         {/* skip whitespace */}
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
 \n|';'         return 'EOL';
-[:+\-*/\,()\{\}]   return yytext;
+[:+\-*^/\,()\{\}]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
 'library'      return 'LIBRARY';
@@ -30,6 +30,7 @@
 %left '+' '-'
 %left '*' '/'
 %left 'UMINUS'
+%right '^'
 %nonassoc ':'
 %nonassoc '('
 
@@ -68,6 +69,7 @@ expr
    | expr '-' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '-', $1, $3); }
    | expr '*' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '*', $1, $3); }
    | expr '/' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '/', $1, $3); }
+   | expr '^' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '^', $1, $3); }
    | expr '(' ')'  { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, []); }
    | expr '(' actuals ')' { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, $3); }
    | FUN '(' ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, [], $4); }

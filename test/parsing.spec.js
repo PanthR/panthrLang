@@ -28,7 +28,8 @@ describe('The parser', function() {
    });
    it('parses arithmetic operations', function() {
       ['5 + 2', '-23 * -3', '2.34+1.2',
-       '-0.23 * 2 + 3', '-0.23 + 2 * 3'].forEach(function(num) {
+       '-0.23 * 2 + 3', '-0.23 + 2 * 3',
+       '2^3', '2^3+2', '2^-2', '-2^2'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
