@@ -296,13 +296,13 @@ define(function(require) {
       }
       matchNamed(1, 0);
 
-      // At this point named arguments have been matched and removed from
+      // At this point named formals have been matched and removed from
       // both lists.
       // Any remaining named actuals may still be absorbed by "...""
-      // We match remaining arguments by position skipping named
+      // We match remaining formals by position skipping named
       // actuals, until we encounter "..."
-      // If there is a remaining dots argument, we need to bind it to "..."
-      // If there are other remaining arguments they need to be bound to a
+      // If there is a remaining dots formal, we need to bind it to "..."
+      // If there are other remaining formals they need to be bound to a
       // "missing" value, which if accessed should raise error.
       actualPos = 1; // Holds the place in the actuals that contains the
                      // first nonnamed actual.
