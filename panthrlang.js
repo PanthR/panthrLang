@@ -42,7 +42,11 @@ define(function(require) {
          return parser.parse(str);
       },
       eval: function(str) {
-         return (new Evaluate()).parseAndEval(str);
+         var ev = new Evaluate();
+
+         ev.parseAndEval('library(base)');
+
+         return ev.parseAndEval(str);
       }
    };
 
