@@ -113,6 +113,17 @@ describe('The evaluator', function() {
       expect(evs[1].value.values.values).to.deep.equal([Math.sin(3)]);
    });
 
+   it('evaluates range expressions', function() {
+      var evs = main.eval('1:5; 1:(2+3)');
+
+      expect(evs.length).to.equal(2);
+      evs.forEach(function(ev) {
+         expect(ev.type).to.equal('scalar');
+         expect(ev.value.values.values).to.deep.equal([1, 2, 3, 4, 5]);
+      });
+   });
+
+
    describe('errors', function() {
       it('for failed lookups', function() {
          var evs = main.eval('x + y; 2 + y');

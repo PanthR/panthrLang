@@ -157,4 +157,13 @@ describe('The parser', function() {
       });
    });
 
+   it('parses range expressions', function() {
+      ['1:5', '1:(2+3)'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            expect(nodes[0].name).to.equal('range');
+            expect(nodes[0].args.length).to.equal(2);
+         });
+      });
+   });
 });

@@ -4,7 +4,7 @@ define(function(require) {
 // Example of how a package is structured.
    var Base;
 
-   Base = require('panthrBase');
+   Base = require('panthrBase/index');
 // It needs to always return a function with the following signature:
    return function(evalLang, addBuiltin, Value) {
       // It can call on each of these to create new bindings.
@@ -21,13 +21,25 @@ define(function(require) {
       addBuiltin('list', function(lst) {
          return Value.makeList(lst);
       });
+      // TODO: Must concat nonlists as well
       addBuiltin('c', function(lst) {
          return Value.makeVariable(lst.toVariable());
       });
       addBuiltin('sin', function(lst) {
          return Value.makeScalar(lst.toVariable().map(Math.sin));
       });
+      addBuiltin('seq', function(lst) {
+         var from, to, step;
+
+         // TODO: This works for range but not direct seq
+         from = lst.get('from');
+         to = lst.get('to');
+         step = from <= to ? 1 : -1;  // TODO: fix!
+
+         return Value.makeScalar(Base.Variable.seq(from, to, step));
+      });
       // TODO: Add a whole lot more here.
+
    };
 
 });

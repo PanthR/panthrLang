@@ -112,7 +112,10 @@ define(function(require) {
    function evalInFrame(node, frame) {
       switch (node.name) {
       case 'number': return Value.makeScalar(node.args[0]);
-      case 'range': return evalInFrame(node.args[0], frame); // FIXME
+      case 'range':
+         return evalRange(evalInFrame(node.args[0], frame),
+                          evalInFrame(node.args[1], frame),
+                          frame, node.args[0].loc);
       case 'arithop':
          return doArith(node.args[0],
                         evalInFrame(node.args[1], frame),
@@ -182,6 +185,13 @@ define(function(require) {
       return value;
    }
 
+   function evalRange(a, b, frame, loc) {
+      // return 5; // TODO: Need to call seq
+      return evalBuiltin(
+         lookup('seq', frame),
+         new Base.List({ from: a, to: b })
+      );
+   }
    function evalSeq(exprs, frame) {
       var i, val;
 
@@ -255,7 +265,7 @@ define(function(require) {
 
    // "Builtin" functions are Javascript functions. They expect one argument
    // that is a "list" in the panthrBase sense.
-   // We need here to turn "actuals" into that list.
+   // "actuals" needs to turn into such a list.
    function evalBuiltin(builtin, actuals) {
       // Before passing to built-in function, we need to
       // "unvalue" the actuals list.
