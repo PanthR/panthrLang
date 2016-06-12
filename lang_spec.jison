@@ -69,30 +69,30 @@ expr
    | expr '*' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '*', $1, $3); }
    | expr '/' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '/', $1, $3); }
    | expr '(' ')'  { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, []); }
-   | expr '(' callList ')' { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, $3); }
+   | expr '(' actuals ')' { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, $3); }
    | FUN '(' ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, [], $4); }
-   | FUN '(' argList ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, $3, $5); }
+   | FUN '(' formals ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, $3, $5); }
    | '{' exprList '}'     { $$ = makeNode('expr_seq', yy.lexer.yylloc, $2); }
    | LIBRARY '(' VAR ')'  { $$ = makeNode('library', yy.lexer.yylloc, $3); }
    ;
 
-callList
-   : callItem ',' callList   { $3.unshift($1); $$ = $3; }
-   | callItem                { $$ = [$1]; }
+actuals
+   : actual ',' actuals    { $3.unshift($1); $$ = $3; }
+   | actual                { $$ = [$1]; }
    ;
 
-callItem
+actual
    : expr                    { $$ = makeNode('actual', yy.lexer.yylloc, $1); }
    | VAR EQUALS expr         { $$ = makeNode('actual_named', yy.lexer.yylloc, $1, $3); }
    | DOTS                    { $$ = makeNode('actual_dots', yy.lexer.yylloc); }
    ;
 
-argList
-   : argTerm ',' argList { $3.unshift($1); $$ = $3; }
-   | argTerm             { $$ = [$1]; }
+formals
+   : formal ',' formals { $3.unshift($1); $$ = $3; }
+   | formal             { $$ = [$1]; }
    ;
 
-argTerm
+formal
    : VAR                 { $$ = makeNode('arg', yy.lexer.yylloc, $1); }
    | VAR EQUALS expr     { $$ = makeNode('arg_default', yy.lexer.yylloc, $1, $3); }
    | DOTS                { $$ = makeNode('arg_dots', yy.lexer.yylloc); }
