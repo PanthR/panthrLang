@@ -18,18 +18,18 @@ define(function(require) {
    parser = require('./parser').parser;
    Parser = require('./parser').Parser;
    Parser.prototype.parseError = function parseError(str, hash) {
-       if (hash.recoverable) {
+      function _parseError(msg, hash2) {
+         this.message = msg;
+         this.hash = hash2;
+      }
+      if (hash.recoverable) {
          this.myError = { str: str, hash: hash };
          this.trace(str);
-       } else {
-           function _parseError (msg, hash) {
-               this.message = msg;
-               this.hash = hash;
-           }
-           _parseError.prototype = Error;
+      } else {
+         _parseError.prototype = Error;
 
-           throw new _parseError(str, hash);
-       }
+         throw new _parseError(str, hash);
+      }
    };
 
    panthrLang = {
@@ -42,8 +42,9 @@ define(function(require) {
          return parser.parse(str);
       },
       eval: function(str) {
-         var ev = new Evaluate();
+         var ev;
 
+         ev = new Evaluate();
          ev.parseAndEval('library(base)');
 
          return ev.parseAndEval(str);

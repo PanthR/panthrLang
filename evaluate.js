@@ -65,8 +65,8 @@ define(function(require) {
       };
       try {
          parser.parse(str);
-      } catch(e) {
-         console.log("Serious parser error:", e);
+      } catch (e) {
+         console.log('Serious parser error:', e);
       }
 
       return vals;
@@ -109,6 +109,7 @@ define(function(require) {
 
    // "runs" a certain node to completion.
    // Emits the resulting value
+   /* eslint-disable complexity */
    function evalInFrame(node, frame) {
       switch (node.name) {
       case 'number': return Value.makeScalar(node.args[0]);
@@ -148,6 +149,7 @@ define(function(require) {
          throw new Error('Unknown node: ' + node.name);
       }
    }
+   /* eslint-enable complexity */
 
    function lookup(symbol, frame, loc) {
       var val, pack;
