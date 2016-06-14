@@ -4,7 +4,7 @@ define(function(require) {
 // Example of how a package is structured.
    var Base;
 
-   Base = require('panthrBase/index');
+   Base = require('panthrbase/index');
 // It needs to always return a function with the following signature:
    return function(evalLang, addBuiltin, Value) {
       // It can call on each of these to create new bindings.
@@ -17,7 +17,7 @@ define(function(require) {
       // to return an appropriate value of type "Value".
       // All built-in functions should expect a Base.List
       //
-      // Packages may need to load panthrBase like we have
+      // Packages may need to load panthrbase like we have
       addBuiltin('list', function(lst) {
          return Value.makeList(lst);
       });
@@ -29,14 +29,52 @@ define(function(require) {
          return Value.makeScalar(lst.toVariable().map(Math.sin));
       });
       addBuiltin('seq', function(lst) {
-         var from, to, step;
+         var named, unnamed;
 
-         // TODO: This works for range but not direct seq
-         from = lst.get('from');
-         to = lst.get('to');
-         step = from <= to ? 1 : -1;  // TODO: fix!
+         // remove named args from lst and put into an object
+         named = {};
+         unnamed = [];
 
-         return Value.makeScalar(Base.Variable.seq(from, to, step));
+         lst.each(function(val, index, name) {
+            if (!Base.utils.isMissing(name)) {
+               named[name] = val;
+            } else {
+               unnamed.push(val);
+            }
+         });
+
+         ['from', 'to', 'by', 'lengthOut', 'alongWith'].forEach(function(str) {
+            if (!named.hasOwnProperty(str) && unnamed.length > 0) {
+               named[str] = unnamed.shift();
+            }
+         });
+
+         if (Object.keys(named).length === 1 && named.hasOwnProperty('from')) {
+            named.to = named.from instanceof Base.Variable ? named.from.length() : named.from;
+            named.from = 1;
+         }
+         if (!named.hasOwnProperty('from')) { named.from = 1; }
+         if (named.hasOwnProperty('alongWith')) {
+            named.lengthOut =
+               named.alongWith instanceof Base.Variable ? named.alongWith.length()
+                                                        : named.alongWith;
+         }
+         // any two of 'to', 'by', 'lengthOut' determine the third -- or, "too many arguments"
+         // if 'to' and 'by' are set, ignore 'length'
+         if (!named.hasOwnProperty('by')) {
+            named.by = named.hasOwnProperty('to')
+               ? named.hasOwnProperty('lengthOut')
+                  ? named.lengthOut === 1
+                     ? 0 : (named.to - named.from) / (named.lengthOut - 1)
+                  : Math.sign(named.to - named.from)
+               : 1;
+         }
+         if (!named.hasOwnProperty('to')) {
+            named.to = named.hasOwnProperty('lengthOut')
+               ? named.from + (named.lengthOut - 1) * named.by : 1;
+         }
+
+         return Value.makeScalar(Base.Variable.seq(named.from, named.to, named.by));
       });
       // TODO: Add a whole lot more here.
 

@@ -6,7 +6,7 @@ define(function(require) {
 
    Frame = require('./frame');
    Value = require('./value');
-   Base = require('panthrBase/index');
+   Base = require('panthrbase/index');
    parser = require('./parser').parser;
 
    // This is where the external program will "setup" packages bound to names.
@@ -266,7 +266,7 @@ define(function(require) {
    }
 
    // "Builtin" functions are Javascript functions. They expect one argument
-   // that is a "list" in the panthrBase sense.
+   // that is a "list" in the panthrbase sense.
    // "actuals" needs to turn into such a list.
    function evalBuiltin(builtin, actuals) {
       // Before passing to built-in function, we need to
