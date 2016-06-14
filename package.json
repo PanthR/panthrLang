@@ -41,6 +41,6 @@
     "sinon-chai": "^2.5.0"
   },
   "dependencies": {
-    "panthrBase": "*"
+    "panthrbase": "*"
   }
 }
