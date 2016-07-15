@@ -51,7 +51,14 @@ describe('The evaluator', function() {
          expect(evs[0].value).to.equal(value);
       });
    });
-   // TODO test behavior of div and mod on non-integer inputs
+   it('div and mod with divisor of 0 work correctly', function() {
+      expect(main.eval('5 %% 0')[0].value).to.be.NaN;
+      expect(main.eval('5 %/% 0')[0].value).to.equal(Infinity);
+      expect(main.eval('-5 %% 0')[0].value).to.be.NaN;
+      expect(main.eval('-5 %/% 0')[0].value).to.equal(-Infinity);
+      expect(main.eval('0 %% 0')[0].value).to.be.NaN;
+      expect(main.eval('0 %/% 0')[0].value).to.be.NaN;
+   });
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);
