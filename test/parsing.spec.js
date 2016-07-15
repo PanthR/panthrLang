@@ -26,7 +26,7 @@ describe('The parser', function() {
          });
       });
    });
-   it('parses arithmetic operations', function() {
+   it('parses basic arithmetic operations', function() {
       ['5 + 2', '-23 * -3', '2.34+1.2',
        '-0.23 * 2 + 3', '-0.23 + 2 * 3',
        '2^3', '2^3+2', '2^-2', '-2^2'].forEach(function(num) {
@@ -49,6 +49,33 @@ describe('The parser', function() {
       main.parse('-2 ^ 4', function(nodes) {
          expect(nodes[0].args[0]).to.equal('-');
          expect(nodes[0].args[2].args[0]).to.equal('^');
+      });
+   });
+   it('parses div and mod operations', function() {
+      ['5 %% 2', '5 %/% 2', '5 %% 3 %/% 2',
+       '5 %% 4 %% 3',' 5 %/% 4 %/% 3'
+      ].forEach(function(num) {
+         main.parse(num, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            var node = nodes[0];
+            expect(node.name).to.equal('arithop');
+         });
+      });
+      // unary operators handled properly
+      main.parse('-23 %% -3', function(nodes) {
+         expect(nodes[0].args[0]).to.equal('MOD');
+      });
+      main.parse('-23 %/% -3', function(nodes) {
+         expect(nodes[0].args[0]).to.equal('DIV');
+      });
+      // div and mod before multiplication
+      main.parse('23 * 2 %% 3', function(nodes) {
+         expect(nodes[0].args[0]).to.equal('*');
+         expect(nodes[0].args[2].args[0]).to.equal('MOD');
+      });
+      main.parse('23 * 2 %/% 3', function(nodes) {
+         expect(nodes[0].args[0]).to.equal('*');
+         expect(nodes[0].args[2].args[0]).to.equal('DIV');
       });
    });
    it('parses variables', function() {

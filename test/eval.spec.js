@@ -37,6 +37,21 @@ describe('The evaluator', function() {
          expect(evs[0].value).to.equal(value);
       });
    });
+   it('evaluates div and mod correctly', function() {
+      [['5 %% 3', 2], ['5 %/% 3', 1],
+       ['5 %% -3', -1], ['5 %/% -3', -2],
+       ['-5 %% -3', -2], ['-5 %/% -3', 1],
+       ['-5 %% 3', 1], ['-5 %/% 3', -2]
+      ].forEach(function(pair) {
+         var expr = pair[0];
+         var value = pair[1];
+         var evs = main.eval(expr);
+         expect(evs.length).to.equal(1);
+         expect(evs[0].type).to.equal('scalar');
+         expect(evs[0].value).to.equal(value);
+      });
+   });
+   // TODO test behavior of div and mod on non-integer inputs
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);

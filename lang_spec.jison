@@ -31,6 +31,7 @@
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
 %left '+' '-'
 %left '*' '/'
+%left 'DIV' 'MOD'
 %nonassoc ':'
 %left 'UMINUS'
 %right '^'
@@ -72,6 +73,8 @@ expr
    | expr '*' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '*', $1, $3); }
    | expr '/' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '/', $1, $3); }
    | expr '^' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '^', $1, $3); }
+   | expr 'DIV' expr { $$ = makeNode('arithop', yy.lexer.yylloc, 'DIV', $1, $3); }
+   | expr 'MOD' expr { $$ = makeNode('arithop', yy.lexer.yylloc, 'MOD', $1, $3); }
    | expr '(' ')'  { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, []); }
    | expr '(' actuals ')' { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, $3); }
    | FUN '(' ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, [], $4); }

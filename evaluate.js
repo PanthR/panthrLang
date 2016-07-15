@@ -363,8 +363,18 @@ define(function(require) {
          case '*': return Value.makeScalar(v1.value * v2.value);
          case '/': return Value.makeScalar(v1.value / v2.value);
          case '^': return Value.makeScalar(Math.pow(v1.value, v2.value));
+         case 'MOD': return Value.makeScalar(doMod(v1.value, v2.value));
+         case 'DIV': return Value.makeScalar(doDiv(v1.value, v2.value));
          default: throw new Error('Unknown operation: ' + op);
       }
+   }
+
+   function doDiv(v1, v2) {
+      return Math.floor(v1 / v2);
+   }
+
+   function doMod(v1, v2) {
+      return v1 - doDiv(v1, v2) * v2;
    }
 
    function errorInfo(msg, loc) {
