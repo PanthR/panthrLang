@@ -45,6 +45,11 @@ describe('The parser', function() {
          expect(nodes[0].args[0]).to.equal('+');
          expect(nodes[0].args[1].args[0]).to.equal('*');
       });
+      // Exponentiation before unary operations
+      main.parse('-2 ^ 4', function(nodes) {
+         expect(nodes[0].args[0]).to.equal('-');
+         expect(nodes[0].args[2].args[0]).to.equal('^');
+      });
    });
    it('parses variables', function() {
       ['xy23', '_foo', 'test.this'].forEach(function(str) {
