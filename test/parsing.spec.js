@@ -170,5 +170,15 @@ describe('The parser', function() {
             expect(nodes[0].args.length).to.equal(2);
          });
       });
+      main.parse('2 ^ 1 : 4', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].name).to.equal('range');
+         expect(nodes[0].args[0].name).to.equal('arithop');
+      });
+      main.parse('-1 : 4', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].name).to.equal('range');
+         expect(nodes[0].args[0].name).to.equal('arithop');
+      });
    });
 });

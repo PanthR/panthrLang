@@ -13,6 +13,8 @@
 '<<-'          return 'LLARROW';
 '='            return 'EQUALS';
 '...'          return 'DOTS';
+'%%'           return 'MOD';
+'%/%'          return 'DIV';
 \w[\w\.]*      return 'VAR';
 <<EOF>>        return 'EOF';
 
@@ -29,9 +31,9 @@
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
 %left '+' '-'
 %left '*' '/'
+%nonassoc ':'
 %left 'UMINUS'
 %right '^'
-%nonassoc ':'
 %nonassoc '('
 
 %start expression
