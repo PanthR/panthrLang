@@ -55,10 +55,38 @@ describe('The parser handles operators', function() {
          expect(nodes[0].args[2].args[0]).to.equal('DIV');
       });
    });
-   it('', function() {
-
-
-   }
-
-   );
+   it('logical pointwise', function() {
+      main.parse('5 | 3', function(nodes) {
+         expect(nodes[0].name).to.equal('logical-point');
+         expect(nodes[0].args[0]).to.equal('|');
+      });
+      main.parse('5 | 3 | 2', function(nodes) {
+         expect(nodes[0].name).to.equal('logical-point');
+         expect(nodes[0].args[0]).to.equal('|');
+         expect(nodes[0].args[1].name).to.equal('logical-point');
+         expect(nodes[0].args[2].name).to.not.equal('logical-point');
+      });
+      main.parse('5 & 3', function(nodes) {
+         expect(nodes[0].name).to.equal('logical-point');
+         expect(nodes[0].args[0]).to.equal('&');
+      });
+      main.parse('5 & 3 & 2', function(nodes) {
+         expect(nodes[0].name).to.equal('logical-point');
+         expect(nodes[0].args[0]).to.equal('&');
+         expect(nodes[0].args[1].name).to.equal('logical-point');
+         expect(nodes[0].args[2].name).to.not.equal('logical-point');
+      });
+      main.parse('! 3', function(nodes) {
+         expect(nodes[0].name).to.equal('negate-point');
+      });
+      main.parse('! ! 3', function(nodes) {
+         expect(nodes[0].name).to.equal('negate-point');
+         expect(nodes[0].args[0].name).to.equal('negate-point');
+      });
+      main.parse('!5 | 3 & 2', function(nodes) {
+         expect(nodes[0].args[0]).to.equal('|');
+         expect(nodes[0].args[1].name).to.equal('negate-point');
+         expect(nodes[0].args[2].args[0]).to.equal('&');
+      });
+   });
 });

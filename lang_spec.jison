@@ -5,7 +5,7 @@
 [ \t]+         {/* skip whitespace */}
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
 \n|';'         return 'EOL';
-[:+\-*^/\,()\{\}]   return yytext;
+[:+\-*^/\,()\{\}\!\|\&]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
 'library'      return 'LIBRARY';
@@ -29,6 +29,9 @@
 %nonassoc 'FUN'
 %nonassoc 'VAR'
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
+%left '|'
+%left '&'
+%right '!'
 %left '+' '-'
 %left '*' '/'
 %left 'DIV' 'MOD'
@@ -68,6 +71,9 @@ expr
    | EOL expr      { $$ = $2; }
    | '(' expr ')'  { $$ = $2; }
    | expr ':' expr { $$ = makeNode('range', yy.lexer.yylloc, $1, $3); }
+   | '!' expr      { $$ = makeNode('negate-point', yy.lexer.yylloc, $2); }
+   | expr '|' expr { $$ = makeNode('logical-point', yy.lexer.yylloc, '|', $1, $3); }
+   | expr '&' expr { $$ = makeNode('logical-point', yy.lexer.yylloc, '&', $1, $3); }
    | expr '+' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '+', $1, $3); }
    | expr '-' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '-', $1, $3); }
    | expr '*' expr { $$ = makeNode('arithop', yy.lexer.yylloc, '*', $1, $3); }
