@@ -62,16 +62,18 @@ define(function(require) {
          // any two of 'to', 'by', 'lengthOut' determine the third -- or, "too many arguments"
          // if 'to' and 'by' are set, ignore 'length'
          if (!named.hasOwnProperty('by')) {
-            named.by = named.hasOwnProperty('to')
-               ? named.hasOwnProperty('lengthOut')
-                  ? named.lengthOut === 1
-                     ? 0 : (named.to - named.from) / (named.lengthOut - 1)
-                  : Math.sign(named.to - named.from)
-               : 1;
+            named.by = named.hasOwnProperty('to') ?
+               named.hasOwnProperty('lengthOut') ?
+                  named.lengthOut === 1 ?
+                     0
+                     : (named.to - named.from) / (named.lengthOut - 1)
+                     : Math.sign(named.to - named.from)
+                     : 1;
          }
          if (!named.hasOwnProperty('to')) {
-            named.to = named.hasOwnProperty('lengthOut')
-               ? named.from + (named.lengthOut - 1) * named.by : 1;
+            named.to = named.hasOwnProperty('lengthOut') ?
+               named.from + (named.lengthOut - 1) * named.by
+               : 1;
          }
 
          return Value.makeScalar(Base.Variable.seq(named.from, named.to, named.by));
