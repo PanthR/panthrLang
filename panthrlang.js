@@ -13,10 +13,10 @@ define(function(require) {
 
    var panthrLang, Parser, parser, Node, Evaluate;
 
-   Node = require('./node');
-   Evaluate = require('./evaluate');
-   parser = require('./parser').parser;
-   Parser = require('./parser').Parser;
+   Node = require('./panthrLang/node');
+   Evaluate = require('./panthrLang/evaluate');
+   parser = require('./panthrLang/parser').parser;
+   Parser = require('./panthrLang/parser').Parser;
    Parser.prototype.parseError = function parseError(str, hash) {
       function _parseError(msg, hash2) {
          this.message = msg;

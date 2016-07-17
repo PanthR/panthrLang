@@ -7,7 +7,7 @@
     "test": "mocha --reporter=progress --recursive",
     "lint": "eslint .",
     "doc": "node ./node_modules/panthrdoc/run.js .",
-    "parser": "jison -o parser.js lang_spec.jison",
+    "parser": "jison -o panthrLang/parser.js panthrLang/lang_spec.jison",
     "build": "browserify bundlePre.js | uglifyjs -c > panthrLang.min.js"
   },
   "repository": {
