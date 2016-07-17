@@ -2,12 +2,12 @@ var main = require('../..');
 var chai = require('chai');
 var expect = chai.expect;
 
-describe('The parser', function() {
+describe('The parser parses', function() {
    it('is accessible via parse', function() {
       expect(main).to.respondTo('parse');
       expect(function() { main.parse('2', function() {}); }).to.not.throw();
    });
-   it('parses integers correctly', function() {
+   it('integers correctly', function() {
       ['5', '23', '0'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
@@ -16,7 +16,7 @@ describe('The parser', function() {
          });
       });
    });
-   it('parses floats correctly', function() {
+   it('floats correctly', function() {
       ['2.34', '0.23', '0.1e-10'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
@@ -26,7 +26,7 @@ describe('The parser', function() {
          });
       });
    });
-   it('parses variables', function() {
+   it('variables', function() {
       ['xy23', '_foo', 'test.this'].forEach(function(str) {
          main.parse(str, function(nodes) {
             expect(nodes.length).to.equal(1);
@@ -35,7 +35,7 @@ describe('The parser', function() {
          });
       });
    });
-   it('parses parenthetical expressions', function() {
+   it('parenthetical expressions', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
@@ -45,7 +45,7 @@ describe('The parser', function() {
          });
       });
    });
-   it('parses assignments', function() {
+   it('assignments', function() {
       ['x<- 3 + 4', 'y23 = 3 * 5'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
@@ -54,7 +54,7 @@ describe('The parser', function() {
          });
       });
    });
-   it('parses "<<-" assignments', function() {
+   it('"<<-" assignments', function() {
       ['g <<- 2; f <- function(x, y) { g <<- 5 }\n f(2, 4)\n g'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(4);
@@ -64,7 +64,7 @@ describe('The parser', function() {
       });
    });
 
-   it('parses package-loading', function() {
+   it('package-loading', function() {
       ['library(base)'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
@@ -74,7 +74,7 @@ describe('The parser', function() {
       });
    });
 
-   it('parses range expressions', function() {
+   it('range expressions', function() {
       ['1:5', '1:(2+3)'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
