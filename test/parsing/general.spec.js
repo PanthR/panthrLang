@@ -26,6 +26,16 @@ describe('The parser parses', function() {
          });
       });
    });
+   it('boolean literals', function() {
+      main.parse('TRUE', function(nodes) {
+         expect(nodes[0].name).to.equal('boolean');
+         expect(nodes[0].args[0]).to.equal(true);
+      });
+      main.parse('FALSE', function(nodes) {
+         expect(nodes[0].name).to.equal('boolean');
+         expect(nodes[0].args[0]).to.equal(false);
+      });
+   });
    it('variables', function() {
       ['xy23', '_foo', 'test.this'].forEach(function(str) {
          main.parse(str, function(nodes) {

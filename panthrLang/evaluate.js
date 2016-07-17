@@ -113,6 +113,7 @@ define(function(require) {
    function evalInFrame(node, frame) {
       switch (node.name) {
       case 'number': return Value.makeScalar(node.args[0]);
+      case 'boolean': return Value.makeLogical(node.args[0]);
       case 'range':
          return evalRange(evalInFrame(node.args[0], frame),
                           evalInFrame(node.args[1], frame),

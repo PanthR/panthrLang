@@ -8,6 +8,8 @@
 [:+\-*^/\,()\{\}\!\|\&]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
+'TRUE'         return 'TRUE';
+'FALSE'        return 'FALSE';
 'library'      return 'LIBRARY';
 '<-'           return 'LARROW';
 '<<-'          return 'LLARROW';
@@ -63,6 +65,8 @@ topExpr
 
 expr
    : NUM           { $$ = makeNode('number', yy.lexer.yylloc, parseFloat($1)); }
+   | TRUE          { $$ = makeNode('boolean', yy.lexer.yylloc, true); }
+   | FALSE         { $$ = makeNode('boolean', yy.lexer.yylloc, false); }
    | VAR           { $$ = makeNode('var', yy.lexer.yylloc, $1); }
    | VAR LARROW expr { $$ = makeNode('assign', yy.lexer.yylloc, makeNode('lvar', yy.lexer.yylloc, $1), $3); }
    | VAR LLARROW expr { $$ = makeNode('assign_inherit', yy.lexer.yylloc, makeNode('lvar', yy.lexer.yylloc, $1), $3); }

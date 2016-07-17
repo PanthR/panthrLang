@@ -15,6 +15,14 @@ describe('The evaluator', function() {
          expect(evs[0].value).to.equal(parseFloat(num));
       });
    });
+   it('evaluates boolean literals', function() {
+      var evs = main.eval('TRUE;FALSE');
+      expect(evs.length).to.equal(2);
+      expect(evs[0].type).to.equal('logical');
+      expect(evs[0].value).to.equal(true);
+      expect(evs[1].type).to.equal('logical');
+      expect(evs[1].value).to.equal(false);
+   });
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);

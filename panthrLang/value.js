@@ -31,6 +31,10 @@ define(function(require) {
       return Value.makeValue('scalar', value);
    };
 
+   Value.makeLogical = function makeLogical(value) {
+      return Value.makeValue('logical', value);
+   };
+
    // Creates the appropriate type from a provided variable
    // depending on the variable's mode.
    Value.makeVariable = function makeVariable(value) {
