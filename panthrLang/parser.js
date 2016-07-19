@@ -101,7 +101,7 @@ break;
 case 6:
  this.$ = [makeNode('error', yy.lexer.yylloc, yy.parser.myError)]; 
 break;
-case 7: case 15: case 17:
+case 7: case 15: case 17: case 38:
  this.$ = $$[$0]; 
 break;
 case 8: case 13:
@@ -178,9 +178,6 @@ case 35:
 break;
 case 36: case 41:
  $$[$0].unshift($$[$0-2]); this.$ = $$[$0]; 
-break;
-case 38:
- this.$ = makeNode('actual', yy.lexer.yylloc, $$[$0]); 
 break;
 case 39:
  this.$ = makeNode('actual_named', yy.lexer.yylloc, $$[$0-2], $$[$0]); 

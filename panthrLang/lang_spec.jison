@@ -99,7 +99,7 @@ actuals
    ;
 
 actual
-   : expr                    { $$ = makeNode('actual', yy.lexer.yylloc, $1); }
+   : expr                    { $$ = $1; }
    | VAR EQUALS expr         { $$ = makeNode('actual_named', yy.lexer.yylloc, $1, $3); }
    | DOTS                    { $$ = makeNode('actual_dots', yy.lexer.yylloc); }
    ;

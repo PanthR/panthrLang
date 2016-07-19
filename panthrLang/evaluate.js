@@ -225,9 +225,6 @@ define(function(require) {
       }
       exprs.forEach(function(expr) {
          switch (expr.name) {
-         case 'actual':
-            addValue(evalInFrame(expr.args[0], frame));
-            break;
          case 'actual_named':
             addNamedValue(expr.args[0], evalInFrame(expr.args[1], frame), expr.loc);
             break;
@@ -248,8 +245,7 @@ define(function(require) {
             }(lookup('...', frame, expr.loc))); // TODO: Must ensure it doesn't search further
             break;
          default:
-            // Should never happen
-            throw new Error('actual expected, but got' + expr.type);
+            addValue(evalInFrame(expr, frame));
          }
       });
 

@@ -52,7 +52,7 @@ describe('The parser', function() {
             var node = nodes[0];
             var actuals = node.args[1];
             expect(actuals.length).to.equal(3);
-            expect(actuals[0].name).to.equal('actual');
+            expect(actuals[0].name).to.equal('number');
             expect(actuals[1].name).to.equal('actual_named');
             expect(actuals[2].name).to.equal('actual_dots');
          });
