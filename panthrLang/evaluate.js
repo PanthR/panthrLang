@@ -118,10 +118,6 @@ define(function(require) {
          return evalRange(evalInFrame(node.args[0], frame),
                           evalInFrame(node.args[1], frame),
                           frame, node.args[0].loc);
-      case 'arithop':
-         return doArith(node.args[0],
-                        evalInFrame(node.args[1], frame),
-                        evalInFrame(node.args[2], frame), node.args[1].loc);
       case 'var':
          return lookup(node.args[0], frame, node.loc);
       case 'assign':
@@ -347,31 +343,6 @@ define(function(require) {
       }
 
       return evalInFrame(body, closExtFrame);
-   }
-
-   function doArith(op, v1, v2, loc) {
-      if (v1.type !== 'scalar' || v2.type !== 'scalar') {
-         throw errorInfo('arithmetic on non-scalar values. Received ' +
-                           v1.type + ' and ' + v2.type, loc);
-      }
-      switch (op) {
-         case '+': return Value.makeScalar(v1.value + v2.value);
-         case '-': return Value.makeScalar(v1.value - v2.value);
-         case '*': return Value.makeScalar(v1.value * v2.value);
-         case '/': return Value.makeScalar(v1.value / v2.value);
-         case '^': return Value.makeScalar(Math.pow(v1.value, v2.value));
-         case 'MOD': return Value.makeScalar(doMod(v1.value, v2.value));
-         case 'DIV': return Value.makeScalar(doDiv(v1.value, v2.value));
-         default: throw new Error('Unknown operation: ' + op);
-      }
-   }
-
-   function doDiv(v1, v2) {
-      return Math.floor(v1 / v2);
-   }
-
-   function doMod(v1, v2) {
-      return v1 - doDiv(v1, v2) * v2;
    }
 
    function errorInfo(msg, loc) {

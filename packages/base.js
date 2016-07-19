@@ -17,6 +17,31 @@ define(function(require) {
       // to return an appropriate value of type "Value".
       // All built-in functions should expect a Base.List
       //
+      addBuiltin('`+`', function(lst) {
+         return Value.makeScalar(lst.get(1) + lst.get(2));
+      });
+      addBuiltin('`-`', function(lst) {
+         return Value.makeScalar(lst.get(1) - lst.get(2));
+      });
+      addBuiltin('`*`', function(lst) {
+         return Value.makeScalar(lst.get(1) * lst.get(2));
+      });
+      addBuiltin('`/`', function(lst) {
+         return Value.makeScalar(lst.get(1) / lst.get(2));
+      });
+      addBuiltin('`^`', function(lst) {
+         return Value.makeScalar(Math.pow(lst.get(1), lst.get(2)));
+      });
+      addBuiltin('`%/%`', function(lst) {
+         return Value.makeScalar(doDiv(lst.get(1), lst.get(2)));
+      });
+      addBuiltin('`%%`', function(lst) {
+         return Value.makeScalar(doMod(lst.get(1), lst.get(2)));
+      });
+      // Negation
+      // Or
+      // And
+
       // Packages may need to load panthrbase like we have
       addBuiltin('list', function(lst) {
          return Value.makeList(lst);
@@ -81,6 +106,15 @@ define(function(require) {
       // TODO: Add a whole lot more here.
 
    };
+
+   // Helper functions
+   function doDiv(v1, v2) {
+      return Math.floor(v1 / v2);
+   }
+
+   function doMod(v1, v2) {
+      return v1 - doDiv(v1, v2) * v2;
+   }
 
 });
 
