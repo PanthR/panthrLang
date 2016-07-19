@@ -49,9 +49,7 @@ describe('The parser parses', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
-            var node = nodes[0];
-            expect(node.name).to.equal('arithop');
-            expect(node.args[0]).to.equal('*');
+            expect(nodes[0].args[0].args[0]).to.equal('`*`');
          });
       });
    });
@@ -95,12 +93,12 @@ describe('The parser parses', function() {
       main.parse('2 ^ 1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
          expect(nodes[0].name).to.equal('range');
-         expect(nodes[0].args[0].name).to.equal('arithop');
+         expect(nodes[0].args[0].args[0].args[0]).to.equal('`^`');
       });
       main.parse('-1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
          expect(nodes[0].name).to.equal('range');
-         expect(nodes[0].args[0].name).to.equal('arithop');
+         expect(nodes[0].args[0].args[0].args[0]).to.equal('`-`');
       });
    });
 });

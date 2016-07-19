@@ -123,40 +123,40 @@ case 14:
  this.$ = makeNode('assign_inherit', yy.lexer.yylloc, makeNode('lvar', yy.lexer.yylloc, $$[$0-2]), $$[$0]); 
 break;
 case 16:
- this.$ = makeNode('arithop', yy.lexer.yylloc, '-', makeNode('number', yy.lexer.yylloc, 0), $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`-`'), [makeNode('number', yy.lexer.yylloc, 0), $$[$0]]); 
 break;
 case 19:
  this.$ = makeNode('range', yy.lexer.yylloc, $$[$0-2], $$[$0]); 
 break;
 case 20:
- this.$ = makeNode('negate-point', yy.lexer.yylloc, $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`!`'), [$$[$0]]); 
 break;
 case 21:
- this.$ = makeNode('logical-point', yy.lexer.yylloc, '|', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`|`'), [$$[$0-2], $$[$0]]); 
 break;
 case 22:
- this.$ = makeNode('logical-point', yy.lexer.yylloc, '&', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`&`'), [$$[$0-2], $$[$0]]); 
 break;
 case 23:
- this.$ = makeNode('arithop', yy.lexer.yylloc, '+', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`+`'), [$$[$0-2], $$[$0]]); 
 break;
 case 24:
- this.$ = makeNode('arithop', yy.lexer.yylloc, '-', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`-`'), [$$[$0-2], $$[$0]]); 
 break;
 case 25:
- this.$ = makeNode('arithop', yy.lexer.yylloc, '*', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`*`'), [$$[$0-2], $$[$0]]); 
 break;
 case 26:
- this.$ = makeNode('arithop', yy.lexer.yylloc, '/', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`/`'), [$$[$0-2], $$[$0]]); 
 break;
 case 27:
- this.$ = makeNode('arithop', yy.lexer.yylloc, '^', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`^`'), [$$[$0-2], $$[$0]]); 
 break;
 case 28:
- this.$ = makeNode('arithop', yy.lexer.yylloc, 'DIV', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`%/%`'), [$$[$0-2], $$[$0]]); 
 break;
 case 29:
- this.$ = makeNode('arithop', yy.lexer.yylloc, 'MOD', $$[$0-2], $$[$0]); 
+ this.$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`%%`'), [$$[$0-2], $$[$0]]); 
 break;
 case 30:
  this.$ = makeNode('fun_call', yy.lexer.yylloc, $$[$0-2], []); 
