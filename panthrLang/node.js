@@ -53,6 +53,9 @@ define(function(require) {
    };
 
    Node.funCall = function makeFunCall(loc, f, args) {
+      if (typeof f === 'string') {
+         f = Node.variable(loc, f);
+      }
       return new Node('fun_call', loc, { fun: f, args: args });
    };
 
