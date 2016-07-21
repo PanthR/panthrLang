@@ -21,7 +21,9 @@ define(function(require) {
       };
       if (obj != null) {
          for (key in obj) {
-            this[key] = obj[key];
+            if (obj.hasOwnProperty(key)) {
+               this[key] = obj[key];
+            }
         }
       }
    }
