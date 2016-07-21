@@ -25,30 +25,6 @@ define(function(require) {
       return new Node(name, loc, Array.prototype.slice.call(arguments, 2));
    };
 
-      /**
-       * Recurses a function over a node structure.
-       *
-       * For a given node, it first recurses on all
-       * arguments that are themselves nodes, creating an
-       * array of the results. It then calls `f` with first argument
-       * the node's name, followed by the array of arguments
-       * as further arguments (i.e. using Function.prototype.apply)
-       */
-   Node.recurse = function recurse(f) {
-      var func;
-
-      func = function(o) {
-         var evaledArgs;
-
-         if (!(o instanceof Node)) { return o; }
-         evaledArgs = o.args.map(func);
-         evaledArgs.unshift(o.name);
-         return f.apply(null, evaledArgs);
-      };
-
-      return func;
-   };
-
    return Node;
 
 });
