@@ -28,11 +28,6 @@ define(function(require) {
       }
    }
 
-   // /* Takes arbitrary many arguments */
-   // Node.makeNode = function makeNode(name, loc) {
-   //    return new Node(name, loc, Array.prototype.slice.call(arguments, 2));
-   // };
-
    Node.error = function makeError(loc, err) {
       return new Node('error', loc, { error: err });
    };
