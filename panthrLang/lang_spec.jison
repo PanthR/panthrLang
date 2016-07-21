@@ -24,7 +24,6 @@
 
 %{
    Node = require('./node');
-   makeNode = Node.makeNode;
 %}
 
 %left 'EOL'
@@ -55,42 +54,42 @@ exprList
    | exprList EOL { $$ = $1; }
    | topExpr { $$ = [$1]; }
    | EOL { $$ = []; }
-   | error { $$ = [makeNode('error', yy.lexer.yylloc, yy.parser.myError)]; }
+   | error { $$ = [Node.error(yy.lexer.yylloc, yy.parser.myError)]; }
    ;
 
 topExpr
    : expr { $$ = $1; }
-   | VAR EQUALS expr { $$ = makeNode('assign', yy.lexer.yylloc, makeNode('lvar', yy.lexer.yylloc, $1), $3); }
+   | lvalue EQUALS expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    ;
 
 expr
-   : NUM           { $$ = makeNode('number', yy.lexer.yylloc, parseFloat($1)); }
-   | TRUE          { $$ = makeNode('boolean', yy.lexer.yylloc, true); }
-   | FALSE         { $$ = makeNode('boolean', yy.lexer.yylloc, false); }
-   | VAR           { $$ = makeNode('var', yy.lexer.yylloc, $1); }
-   | VAR LARROW expr { $$ = makeNode('assign', yy.lexer.yylloc, makeNode('lvar', yy.lexer.yylloc, $1), $3); }
-   | VAR LLARROW expr { $$ = makeNode('assign_inherit', yy.lexer.yylloc, makeNode('lvar', yy.lexer.yylloc, $1), $3); }
+   : NUM           { $$ = Node.number(yy.lexer.yylloc, parseFloat($1)); }
+   | TRUE          { $$ = Node.boolean(yy.lexer.yylloc, true); }
+   | FALSE         { $$ = Node.boolean(yy.lexer.yylloc, false); }
+   | lvalue        { $$ = $1; }
+   | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
+   | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }
    | '+' expr  %prec UMINUS { $$ = $2; }
-   | '-' expr  %prec UMINUS { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`-`'), [makeNode('number', yy.lexer.yylloc, 0), $2]); }
+   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`-`'), [Node.number(yy.lexer.yylloc, 0), $2]); }
    | EOL expr      { $$ = $2; }
    | '(' expr ')'  { $$ = $2; }
-   | expr ':' expr { $$ = makeNode('range', yy.lexer.yylloc, $1, $3); }
-   | '!' expr      { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`!`'), [$2]); }
-   | expr '|' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`|`'), [$1, $3]); }
-   | expr '&' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`&`'), [$1, $3]); }
-   | expr '+' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`+`'), [$1, $3]); }
-   | expr '-' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`-`'), [$1, $3]); }
-   | expr '*' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`*`'), [$1, $3]); }
-   | expr '/' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`/`'), [$1, $3]); }
-   | expr '^' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`^`'), [$1, $3]); }
-   | expr 'DIV' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`%/%`'), [$1, $3]); }
-   | expr 'MOD' expr { $$ = makeNode('fun_call', yy.lexer.yylloc, makeNode('var', yy.lexer.yylloc, '`%%`'), [$1, $3]); }
-   | expr '(' ')'  { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, []); }
-   | expr '(' actuals ')' { $$ = makeNode('fun_call', yy.lexer.yylloc, $1, $3); }
-   | FUN '(' ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, [], $4); }
-   | FUN '(' formals ')' expr { $$ = makeNode('fun_def', yy.lexer.yylloc, $3, $5); }
-   | '{' exprList '}'     { $$ = makeNode('expr_seq', yy.lexer.yylloc, $2); }
-   | LIBRARY '(' VAR ')'  { $$ = makeNode('library', yy.lexer.yylloc, $3); }
+   | expr ':' expr { $$ = Node.range(yy.lexer.yylloc, $1, $3); }
+   | '!' expr      { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`!`'), [$2]); }
+   | expr '|' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`|`'), [$1, $3]); }
+   | expr '&' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`&`'), [$1, $3]); }
+   | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`+`'), [$1, $3]); }
+   | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`-`'), [$1, $3]); }
+   | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`*`'), [$1, $3]); }
+   | expr '/' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`/`'), [$1, $3]); }
+   | expr '^' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`^`'), [$1, $3]); }
+   | expr 'DIV' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`%/%`'), [$1, $3]); }
+   | expr 'MOD' expr { $$ = Node.funCall(yy.lexer.yylloc, Node.variable(yy.lexer.yylloc, '`%%`'), [$1, $3]); }
+   | expr '(' ')'  { $$ = Node.funCall(yy.lexer.yylloc, $1, []); }
+   | expr '(' actuals ')' { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
+   | FUN '(' ')' expr { $$ = Node.funDef(yy.lexer.yylloc, [], $4); }
+   | FUN '(' formals ')' expr { $$ = Node.funDef(yy.lexer.yylloc, $3, $5); }
+   | '{' exprList '}'     { $$ = Node.block(yy.lexer.yylloc, $2); }
+   | LIBRARY '(' VAR ')'  { $$ = Node.library(yy.lexer.yylloc, $3); }
    ;
 
 actuals
@@ -100,8 +99,8 @@ actuals
 
 actual
    : expr                    { $$ = $1; }
-   | VAR EQUALS expr         { $$ = makeNode('actual_named', yy.lexer.yylloc, $1, $3); }
-   | DOTS                    { $$ = makeNode('actual_dots', yy.lexer.yylloc); }
+   | VAR EQUALS expr         { $$ = Node.argNamed(yy.lexer.yylloc, $1, $3); }
+   | DOTS                    { $$ = Node.argDots(yy.lexer.yylloc); }
    ;
 
 formals
@@ -110,7 +109,11 @@ formals
    ;
 
 formal
-   : VAR                 { $$ = makeNode('arg', yy.lexer.yylloc, $1); }
-   | VAR EQUALS expr     { $$ = makeNode('arg_default', yy.lexer.yylloc, $1, $3); }
-   | DOTS                { $$ = makeNode('arg_dots', yy.lexer.yylloc); }
+   : VAR                 { $$ = Node.param(yy.lexer.yylloc, $1); }
+   | VAR EQUALS expr     { $$ = Node.paramDefault(yy.lexer.yylloc, $1, $3); }
+   | DOTS                { $$ = Node.paramDots(yy.lexer.yylloc); }
+   ;
+
+lvalue
+   : VAR                 { $$ = Node.variable(yy.lexer.yylloc, $1); }
    ;

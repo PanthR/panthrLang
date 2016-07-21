@@ -124,15 +124,15 @@ define(function(require) {
          return assign(node.args[0].args[0],
                        evalInFrame(node.args[1], frame),
                        frame);
-      case 'assign_inherit':
-         return assignInherit(node.args[0].args[0],
+      case 'assign_existing':
+         return assignExisting(node.args[0].args[0],
                               evalInFrame(node.args[1], frame),
                               frame);
       case 'fun_def':
          // TODO: Need to do some checking to ensure argument list
          // is valid
          return Value.makeClosure(node, frame);
-      case 'expr_seq':
+      case 'block':
          return evalSeq(node.args[0], frame);
       case 'fun_call':
          return evalCall(evalInFrame(node.args[0], frame),
@@ -174,7 +174,7 @@ define(function(require) {
    // value is defined. If the value is not defined in a previous
    // frame, it will be created as a global value.
    // TODO: What about protecting functions like "c"?
-   function assignInherit(symbol, value, frame) {
+   function assignExisting(symbol, value, frame) {
       while (!frame.hasOwnProperty(symbol) &&
              frame.getParent() !== null) {
          frame = frame.getParent();
@@ -221,10 +221,10 @@ define(function(require) {
       }
       exprs.forEach(function(expr) {
          switch (expr.name) {
-         case 'actual_named':
+         case 'arg_named':
             addNamedValue(expr.args[0], evalInFrame(expr.args[1], frame), expr.loc);
             break;
-         case 'actual_dots':
+         case 'arg_dots':
             // Need to look for a defined dots in the immediate environment
             (function(result) {
                if (result == null) {
@@ -287,8 +287,8 @@ define(function(require) {
          name = actuals.names(i);
          if (!name) { return matchNamed(i + 1, 0); }
          if (j >= formals.length) { return matchNamed(i + 1, 0); }
-         if ((formals[j].name === 'arg' ||
-              formals[j].name === 'arg_default') &&
+         if ((formals[j].name === 'param' ||
+              formals[j].name === 'param_default') &&
              formals[j].args[0] === name) {
             // found match
             closExtFrame.store(formals[j].args[0], actual);
@@ -316,7 +316,7 @@ define(function(require) {
                 actuals.names(actualPos)) {
             actualPos += 1; // Find first unnamed argument
          }
-         if (formals[0].name === 'arg_dots') {
+         if (formals[0].name === 'param_dots') {
             // Need to eat up all remaining actuals.
             closExtFrame.store('...', Value.makeList(actuals));
             actuals = new Base.List();
@@ -324,7 +324,7 @@ define(function(require) {
             // There is a value to read
             closExtFrame.store(formals[0].args[0], actuals.get(actualPos));
             actuals.delete(actualPos);
-         } else if (formals[0].name === 'arg_default') {
+         } else if (formals[0].name === 'param_default') {
             // Need to evaluate the default value
             // Cannot evaluate right away because it might depend on
             // later defaults. Must create a promise. It will not be

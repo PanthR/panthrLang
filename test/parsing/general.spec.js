@@ -13,6 +13,7 @@ describe('The parser parses', function() {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
             expect(node.name).to.equal('number');
+            expect(node.value).to.be.a('number');
          });
       });
    });
@@ -22,26 +23,26 @@ describe('The parser parses', function() {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
             expect(node.name).to.equal('number');
-            expect(node.args[0]).to.equal(parseFloat(num));
+            expect(node.value).to.equal(parseFloat(num));
          });
       });
    });
    it('boolean literals', function() {
       main.parse('TRUE', function(nodes) {
          expect(nodes[0].name).to.equal('boolean');
-         expect(nodes[0].args[0]).to.equal(true);
+         expect(nodes[0].value).to.equal(true);
       });
       main.parse('FALSE', function(nodes) {
          expect(nodes[0].name).to.equal('boolean');
-         expect(nodes[0].args[0]).to.equal(false);
+         expect(nodes[0].value).to.equal(false);
       });
    });
    it('variables', function() {
       ['xy23', '_foo', 'test.this'].forEach(function(str) {
          main.parse(str, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].name).to.equal('var');
-            expect(nodes[0].args[0]).to.equal(str);
+            expect(nodes[0].name).to.equal('variable');
+            expect(nodes[0].id).to.equal(str);
          });
       });
    });
@@ -49,7 +50,9 @@ describe('The parser parses', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].args[0].args[0]).to.equal('`*`');
+            expect(nodes[0].name).to.equal('fun_call');
+            expect(nodes[0].fun.name).to.equal('variable');
+            expect(nodes[0].fun.id).to.equal('`*`');
          });
       });
    });
@@ -67,7 +70,7 @@ describe('The parser parses', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(4);
             var node = nodes[0];
-            expect(node.name).to.equal('assign_inherit');
+            expect(node.name).to.equal('assign_existing');
          });
       });
    });
@@ -77,7 +80,7 @@ describe('The parser parses', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             expect(nodes[0].name).to.equal('library');
-            expect(nodes[0].args[0]).to.equal('base');
+            expect(nodes[0].id).to.equal('base');
          });
       });
    });
@@ -87,18 +90,20 @@ describe('The parser parses', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             expect(nodes[0].name).to.equal('range');
-            expect(nodes[0].args.length).to.equal(2);
+            expect(nodes[0]).to.contain.keys(['from', 'to']);
          });
       });
       main.parse('2 ^ 1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
          expect(nodes[0].name).to.equal('range');
-         expect(nodes[0].args[0].args[0].args[0]).to.equal('`^`');
+         expect(nodes[0].from.name).to.equal('fun_call');
+         expect(nodes[0].from.fun.id).to.equal('`^`');
       });
       main.parse('-1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
          expect(nodes[0].name).to.equal('range');
-         expect(nodes[0].args[0].args[0].args[0]).to.equal('`-`');
+         expect(nodes[0].from.name).to.equal('fun_call');
+         expect(nodes[0].from.fun.id).to.equal('`-`');
       });
    });
 });

@@ -8,9 +8,8 @@ describe('The parser', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('expr_seq');
-            expect(node.args.length).to.equal(1);
-            expect(node.args[0].length).to.equal(3);
+            expect(node.name).to.equal('block');
+            expect(node.exprs.length).to.equal(3);
          });
       });
    });
@@ -20,6 +19,8 @@ describe('The parser', function() {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
             expect(node.name).to.equal('fun_def');
+            expect(node.body.name).to.equal('block');
+            expect(node.params.length).to.equal(2);
          });
       });
    });
@@ -28,11 +29,10 @@ describe('The parser', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            var formals = node.args[0];
-            expect(formals.length).to.equal(3);
-            expect(formals[0].name).to.equal('arg');
-            expect(formals[1].name).to.equal('arg_default');
-            expect(formals[2].name).to.equal('arg_dots');
+            expect(node.params.length).to.equal(3);
+            expect(node.params[0].name).to.equal('param');
+            expect(node.params[1].name).to.equal('param_default');
+            expect(node.params[2].name).to.equal('param_dots');
          });
       });
    });
@@ -42,6 +42,9 @@ describe('The parser', function() {
             expect(nodes.length).to.equal(2);
             var node = nodes[1];
             expect(node.name).to.equal('fun_call');
+            expect(node.fun.name).to.equal('variable');
+            expect(node.fun.id).to.equal('f');
+            expect(node.args.length).to.equal(2);
          });
       });
    });
@@ -50,11 +53,12 @@ describe('The parser', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            var actuals = node.args[1];
-            expect(actuals.length).to.equal(3);
-            expect(actuals[0].name).to.equal('number');
-            expect(actuals[1].name).to.equal('actual_named');
-            expect(actuals[2].name).to.equal('actual_dots');
+            expect(node.args.length).to.equal(3);
+            expect(node.args[0].name).to.equal('number');
+            expect(node.args[1].name).to.equal('arg_named');
+            expect(node.args[1].id).to.equal('y');
+            expect(node.args[1].value.name).to.equal('fun_call');
+            expect(node.args[2].name).to.equal('arg_dots');
          });
       });
    });
@@ -62,6 +66,8 @@ describe('The parser', function() {
       ['f(); function() { 2 }'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(2);
+            expect(nodes[0].args.length).to.equal(0);
+            expect(nodes[1].params.length).to.equal(0);
          });
       });
    });
