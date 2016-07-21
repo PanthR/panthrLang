@@ -112,36 +112,36 @@ define(function(require) {
    /* eslint-disable complexity */
    function evalInFrame(node, frame) {
       switch (node.name) {
-      case 'number': return Value.makeScalar(node.args[0]);
-      case 'boolean': return Value.makeLogical(node.args[0]);
+      case 'number': return Value.makeScalar(node.value);
+      case 'boolean': return Value.makeLogical(node.value);
       case 'range':
-         return evalRange(evalInFrame(node.args[0], frame),
-                          evalInFrame(node.args[1], frame),
-                          frame, node.args[0].loc);
-      case 'var':
-         return lookup(node.args[0], frame, node.loc);
+         return evalRange(evalInFrame(node.from, frame),
+                          evalInFrame(node.to, frame),
+                          frame, node.from.loc);
+      case 'variable':
+         return lookup(node.id, frame, node.loc);
       case 'assign':
-         return assign(node.args[0].args[0],
-                       evalInFrame(node.args[1], frame),
+         return assign(node.lvalue.id,
+                       evalInFrame(node.rvalue, frame),
                        frame);
       case 'assign_existing':
-         return assignExisting(node.args[0].args[0],
-                              evalInFrame(node.args[1], frame),
+         return assignExisting(node.lvalue.id,
+                              evalInFrame(node.rvalue, frame),
                               frame);
       case 'fun_def':
          // TODO: Need to do some checking to ensure argument list
          // is valid
          return Value.makeClosure(node, frame);
       case 'block':
-         return evalSeq(node.args[0], frame);
+         return evalSeq(node.exprs, frame);
       case 'fun_call':
-         return evalCall(evalInFrame(node.args[0], frame),
-                         evalActuals(node.args[1], frame), node.args[0].loc);
+         return evalCall(evalInFrame(node.fun, frame),
+                         evalActuals(node.args, frame), node.fun.loc);
       case 'library':
-         return loadPackage(node.args[0], frame, node.loc);
+         return loadPackage(node.id, frame, node.loc);
       case 'error':
          // TODO: ADD info to message
-         return errorInfo('unexpected token: ' + node.args[0].hash.text, node.loc);
+         return errorInfo('unexpected token: ' + node.error.hash.text, node.loc);
       default:
          throw new Error('Unknown node: ' + node.name);
       }
@@ -222,7 +222,7 @@ define(function(require) {
       exprs.forEach(function(expr) {
          switch (expr.name) {
          case 'arg_named':
-            addNamedValue(expr.args[0], evalInFrame(expr.args[1], frame), expr.loc);
+            addNamedValue(expr.id, evalInFrame(expr.value, frame), expr.loc);
             break;
          case 'arg_dots':
             // Need to look for a defined dots in the immediate environment
@@ -271,8 +271,8 @@ define(function(require) {
       var formals, body, closExtFrame, actualPos;
 
       // Will be messing with the array of formals, so need to copy it
-      formals = clos.value.func.args[0].slice();
-      body = clos.value.func.args[1];
+      formals = clos.value.func.params.slice();
+      body = clos.value.func.body;
       closExtFrame = clos.value.env.extend();
 
       // Go through actuals, see if they are named and match a formal
@@ -289,9 +289,9 @@ define(function(require) {
          if (j >= formals.length) { return matchNamed(i + 1, 0); }
          if ((formals[j].name === 'param' ||
               formals[j].name === 'param_default') &&
-             formals[j].args[0] === name) {
+             formals[j].id === name) {
             // found match
-            closExtFrame.store(formals[j].args[0], actual);
+            closExtFrame.store(formals[j].id, actual);
             formals.splice(j, 1);
             actuals.delete(i);
             // i-th spot now contains the next entry
@@ -322,7 +322,7 @@ define(function(require) {
             actuals = new Base.List();
          } else if (actualPos <= actuals.length()) {
             // There is a value to read
-            closExtFrame.store(formals[0].args[0], actuals.get(actualPos));
+            closExtFrame.store(formals[0].id, actuals.get(actualPos));
             actuals.delete(actualPos);
          } else if (formals[0].name === 'param_default') {
             // Need to evaluate the default value
@@ -330,14 +330,14 @@ define(function(require) {
             // later defaults. Must create a promise. It will not be
             // executed unless needed.
             closExtFrame.store(
-               formals[0].args[0],
+               formals[0].id,
                Value.makePromise(
-                  evalInFrame.bind(null, formals[0].args[1], closExtFrame)
+                  evalInFrame.bind(null, formals[0].default, closExtFrame)
                )
             );
          } else {
             // Need to set to missing value
-            closExtFrame.store(formals[0].args[0], Value.makeMissing());
+            closExtFrame.store(formals[0].id, Value.makeMissing());
          }
          formals.splice(0, 1);
       }
