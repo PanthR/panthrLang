@@ -18,25 +18,53 @@ define(function(require) {
       // All built-in functions should expect a Base.List
       //
       addBuiltin('`+`', function(lst) {
-         return Value.makeScalar(lst.get(1) + lst.get(2));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x + y;
+            }, 'scalar')
+         );
       });
       addBuiltin('`-`', function(lst) {
-         return Value.makeScalar(lst.get(1) - lst.get(2));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x - y;
+            }, 'scalar')
+         );
       });
       addBuiltin('`*`', function(lst) {
-         return Value.makeScalar(lst.get(1) * lst.get(2));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x * y;
+            }, 'scalar')
+         );
       });
       addBuiltin('`/`', function(lst) {
-         return Value.makeScalar(lst.get(1) / lst.get(2));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x / y;
+            }, 'scalar')
+         );
       });
       addBuiltin('`^`', function(lst) {
-         return Value.makeScalar(Math.pow(lst.get(1), lst.get(2)));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return Math.pow(x, y);
+            }, 'scalar')
+         );
       });
       addBuiltin('`%/%`', function(lst) {
-         return Value.makeScalar(doDiv(lst.get(1), lst.get(2)));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return doDiv(x, y);
+            }, 'scalar')
+         );
       });
       addBuiltin('`%%`', function(lst) {
-         return Value.makeScalar(doMod(lst.get(1), lst.get(2)));
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return doMod(x, y);
+            }, 'scalar')
+         );
       });
       // Negation
       // Or
@@ -51,7 +79,11 @@ define(function(require) {
          return Value.makeVariable(lst.toVariable());
       });
       addBuiltin('sin', function(lst) {
-         return Value.makeScalar(lst.toVariable().map(Math.sin));
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.sin(x);
+            }, 'scalar')
+         );
       });
       addBuiltin('seq', function(lst) {
          var named, unnamed;
@@ -78,7 +110,13 @@ define(function(require) {
             named.to = named.from instanceof Base.Variable ? named.from.length() : named.from;
             named.from = 1;
          }
-         if (!named.hasOwnProperty('from')) { named.from = 1; }
+         named.from = named.hasOwnProperty('from') ? named.from.get(1) : 1;
+         if (named.hasOwnProperty('to')) {
+            named.to = named.to.get(1);
+         }
+         if (named.hasOwnProperty('lengthOut')) {
+            named.lengthOut = named.lengthOut.get(1);
+         }
          if (named.hasOwnProperty('alongWith')) {
             named.lengthOut =
                named.alongWith instanceof Base.Variable ? named.alongWith.length()
@@ -86,22 +124,24 @@ define(function(require) {
          }
          // any two of 'to', 'by', 'lengthOut' determine the third -- or, "too many arguments"
          // if 'to' and 'by' are set, ignore 'length'
-         if (!named.hasOwnProperty('by')) {
-            named.by = named.hasOwnProperty('to') ?
+         named.by = named.hasOwnProperty('by') ?
+            named.by.get(1)
+            : named.hasOwnProperty('to') ?
                named.hasOwnProperty('lengthOut') ?
                   named.lengthOut === 1 ?
                      0
                      : (named.to - named.from) / (named.lengthOut - 1)
                      : Math.sign(named.to - named.from)
                      : 1;
-         }
          if (!named.hasOwnProperty('to')) {
             named.to = named.hasOwnProperty('lengthOut') ?
                named.from + (named.lengthOut - 1) * named.by
                : 1;
          }
 
-         return Value.makeScalar(Base.Variable.seq(named.from, named.to, named.by));
+         return Value.makeVariable(
+            Base.Variable.seq(named.from, named.to, named.by)
+         );
       });
       // TODO: Add a whole lot more here.
 

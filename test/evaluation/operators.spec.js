@@ -9,7 +9,7 @@ describe('The evaluator', function() {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
-         expect(evs[0].value).to.equal(eval(expr));
+         expect(evs[0].value.get(1)).to.equal(eval(expr));
       });
    });
    it('evaluates powers correctly', function() {
@@ -22,7 +22,7 @@ describe('The evaluator', function() {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
-         expect(evs[0].value).to.equal(value);
+         expect(evs[0].value.get(1)).to.equal(value);
       });
    });
    it('evaluates div and mod correctly', function() {
@@ -36,16 +36,16 @@ describe('The evaluator', function() {
          var evs = main.eval(expr);
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
-         expect(evs[0].value).to.equal(value);
+         expect(evs[0].value.get(1)).to.equal(value);
       });
    });
    it('div and mod with divisor of 0 work correctly', function() {
-      expect(main.eval('5 %% 0')[0].value).to.be.NaN;
-      expect(main.eval('5 %/% 0')[0].value).to.equal(Infinity);
-      expect(main.eval('-5 %% 0')[0].value).to.be.NaN;
-      expect(main.eval('-5 %/% 0')[0].value).to.equal(-Infinity);
-      expect(main.eval('0 %% 0')[0].value).to.be.NaN;
-      expect(main.eval('0 %/% 0')[0].value).to.be.NaN;
+      expect(main.eval('5 %% 0')[0].value.get(1)).to.be.NaN;
+      expect(main.eval('5 %/% 0')[0].value.get(1)).to.equal(Infinity);
+      expect(main.eval('-5 %% 0')[0].value.get(1)).to.be.NaN;
+      expect(main.eval('-5 %/% 0')[0].value.get(1)).to.equal(-Infinity);
+      expect(main.eval('0 %% 0')[0].value.get(1)).to.be.NaN;
+      expect(main.eval('0 %/% 0')[0].value.get(1)).to.be.NaN;
    });
    it('evaluates pointwise logical operators', function() {
    });

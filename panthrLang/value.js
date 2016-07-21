@@ -2,6 +2,9 @@
 'use strict';
 define(function(require) {
 
+   var Base;
+
+   Base = require('panthrbase/index');
    /**
     * Kinds of values produced by the interpreter
     *
@@ -28,17 +31,17 @@ define(function(require) {
    };
 
    Value.makeScalar = function makeScalar(value) {
-      return Value.makeValue('scalar', value);
+      return Value.makeVariable(new Base.Variable([value]));
    };
 
    Value.makeLogical = function makeLogical(value) {
-      return Value.makeValue('logical', value);
+      return Value.makeVariable(new Base.Variable([value]));
    };
 
    // Creates the appropriate type from a provided variable
    // depending on the variable's mode.
    Value.makeVariable = function makeVariable(value) {
-      return Value.makeValue(value.mode, value);
+      return Value.makeValue(value.mode(), value);
    };
 
    Value.makeList = function makeList(value) {
