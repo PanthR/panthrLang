@@ -66,9 +66,27 @@ define(function(require) {
             }, 'scalar')
          );
       });
-      // Negation
-      // Or
-      // And
+      addBuiltin('`!`', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) { return !x; }, 'logical')
+         );
+      });
+
+      addBuiltin('`|`', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x || y;
+            }, 'logical')
+         );
+      });
+
+      addBuiltin('`&`', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x && y;
+            }, 'logical')
+         );
+      });
 
       // Packages may need to load panthrbase like we have
       addBuiltin('list', function(lst) {

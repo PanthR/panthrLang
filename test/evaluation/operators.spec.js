@@ -48,5 +48,9 @@ describe('The evaluator', function() {
       expect(main.eval('0 %/% 0')[0].value.get(1)).to.be.NaN;
    });
    it('evaluates pointwise logical operators', function() {
+      expect(main.eval('TRUE & FALSE')[0].value.get(1)).to.equal(false);
+      expect(main.eval('TRUE | FALSE')[0].value.get(1)).to.equal(true);
+      expect(main.eval('! TRUE')[0].value.get(1)).to.equal(false);
+      expect(main.eval('! FALSE')[0].value.get(1)).to.equal(true);
    });
 });
