@@ -48,12 +48,12 @@ define(function(require) {
       return Value.makeValue('list', value);
    };
 
-   Value.makeClosure = function makeClosure(func, env) {
-      return Value.makeValue('closure', { func: func, env: env });
+   Value.makeClosure = function makeClosure(fun, env) {
+      return Value.makeValue('closure', { fun: fun, env: env });
    };
 
-   Value.makeBuiltin = function makeBuiltin(f) {
-      return Value.makeValue('builtin', { f: f });
+   Value.makeBuiltin = function makeBuiltin(fun) {
+      return Value.makeValue('builtin', { fun: fun });
    };
 
    Value.makeMissing = function makeMissing() {

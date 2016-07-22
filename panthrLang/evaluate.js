@@ -272,8 +272,8 @@ define(function(require) {
       var formals, body, closExtFrame, actualPos;
 
       // Will be messing with the array of formals, so need to copy it
-      formals = clos.value.func.params.slice();
-      body = clos.value.func.body;
+      formals = clos.value.fun.params.slice();
+      body = clos.value.fun.body;
       closExtFrame = clos.value.env.extend();
 
       // Go through actuals, see if they are named and match a formal
