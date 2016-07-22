@@ -88,6 +88,22 @@ define(function(require) {
          );
       });
 
+      addBuiltin('`||`', function(lst) {
+         return Value.makeVariable(
+            new Base.Variable([lst.get(1).get(1) || lst.get(2).get(1)],
+               { mode: 'logical' }
+            )
+         );
+      });
+
+      addBuiltin('`&&`', function(lst) {
+         return Value.makeVariable(
+            new Base.Variable([lst.get(1).get(1) && lst.get(2).get(1)],
+               { mode: 'logical' }
+            )
+         );
+      });
+
       // Packages may need to load panthrbase like we have
       addBuiltin('list', function(lst) {
          return Value.makeList(lst);

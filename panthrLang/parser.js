@@ -791,33 +791,33 @@ case 1:return 11;
 break;
 case 2:return 6;
 break;
-case 3:return yy_.yytext;
+case 3:return 25;
 break;
-case 4:return 32;
+case 4:return 24;
 break;
-case 5:return 32;
+case 5:return yy_.yytext;
 break;
-case 6:return 12;
+case 6:return 32;
 break;
-case 7:return 13;
+case 7:return 32;
 break;
-case 8:return 36;
+case 8:return 12;
 break;
-case 9:return 14;
+case 9:return 13;
 break;
-case 10:return 15;
+case 10:return 36;
 break;
-case 11:return 10;
+case 11:return 14;
 break;
-case 12:return 40;
+case 12:return 15;
 break;
-case 13:return 30;
+case 13:return 10;
 break;
-case 14:return 29;
+case 14:return 40;
 break;
-case 15:return 25;
+case 15:return 30;
 break;
-case 16:return 24;
+case 16:return 29;
 break;
 case 17:return 37;
 break;
@@ -825,7 +825,7 @@ case 18:return 5;
 break;
 }
 },
-rules: [/^(?:[ \t]+)/,/^(?:((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)/,/^(?:\n|;)/,/^(?:[:+\-*^\/\,()\{\}\!\|\&])/,/^(?:function\b)/,/^(?:fun\b)/,/^(?:TRUE\b)/,/^(?:FALSE\b)/,/^(?:library\b)/,/^(?:<-)/,/^(?:<<-)/,/^(?:=)/,/^(?:\.\.\.)/,/^(?:%%)/,/^(?:%\/%)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:\w[\w\.]*)/,/^(?:$)/],
+rules: [/^(?:[ \t]+)/,/^(?:((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)/,/^(?:\n|;)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:[:+\-*^\/\,()\{\}\!\|\&])/,/^(?:function\b)/,/^(?:fun\b)/,/^(?:TRUE\b)/,/^(?:FALSE\b)/,/^(?:library\b)/,/^(?:<-)/,/^(?:<<-)/,/^(?:=)/,/^(?:\.\.\.)/,/^(?:%%)/,/^(?:%\/%)/,/^(?:\w[\w\.]*)/,/^(?:$)/],
 conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],"inclusive":true}}
 });
 return lexer;

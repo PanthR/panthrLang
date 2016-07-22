@@ -5,6 +5,8 @@
 [ \t]+         {/* skip whitespace */}
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
 \n|';'         return 'EOL';
+'&&'           return '&&';
+'||'           return '||';
 [:+\-*^/\,()\{\}\!\|\&]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
@@ -17,8 +19,6 @@
 '...'          return 'DOTS';
 '%%'           return 'MOD';
 '%/%'          return 'DIV';
-'&&'           return '&&';
-'||'           return '||';
 \w[\w\.]*      return 'VAR';
 <<EOF>>        return 'EOF';
 
@@ -32,8 +32,8 @@
 %nonassoc 'FUN'
 %nonassoc 'VAR'
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
-%left '|'
-%left '&'
+%left '|' '||'
+%left '&' '&&'
 %right '!'
 %left '+' '-'
 %left '*' '/'
@@ -79,6 +79,8 @@ expr
    | '!' expr      { $$ = Node.funCall(yy.lexer.yylloc, '`!`', [$2]); }
    | expr '|' expr { $$ = Node.funCall(yy.lexer.yylloc, '`|`', [$1, $3]); }
    | expr '&' expr { $$ = Node.funCall(yy.lexer.yylloc, '`&`', [$1, $3]); }
+   | expr '||' expr { $$ = Node.funCall(yy.lexer.yylloc, '`||`', [$1, $3]); }
+   | expr '&&' expr { $$ = Node.funCall(yy.lexer.yylloc, '`&&`', [$1, $3]); }
    | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, '`+`', [$1, $3]); }
    | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, '`-`', [$1, $3]); }
    | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, '`*`', [$1, $3]); }

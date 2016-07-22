@@ -53,4 +53,8 @@ describe('The evaluator', function() {
       expect(main.eval('! TRUE')[0].value.get(1)).to.equal(false);
       expect(main.eval('! FALSE')[0].value.get(1)).to.equal(true);
    });
+   it('evaluates non-pointwise logical operators', function() {
+      expect(main.eval('TRUE && FALSE')[0].value.get(1)).to.equal(false);
+      expect(main.eval('TRUE || FALSE')[0].value.get(1)).to.equal(true);
+   });
 });

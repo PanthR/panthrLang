@@ -94,5 +94,10 @@ describe('The parser handles operators', function() {
          expect(nodes[0].args[0].name).to.equal('fun_call');
          expect(nodes[0].args[1].fun.id).to.equal('`&`');
       });
+      main.parse('!5 || 3 && 2', function(nodes) {
+         expect(nodes[0].fun.id).to.equal('`||`');
+         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[1].fun.id).to.equal('`&&`');
+      });
    });
 });
