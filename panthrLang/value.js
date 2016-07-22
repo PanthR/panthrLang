@@ -52,8 +52,8 @@ define(function(require) {
       return Value.makeValue('closure', { fun: fun, env: env });
    };
 
-   Value.makeBuiltin = function makeBuiltin(fun) {
-      return Value.makeValue('builtin', { fun: fun });
+   Value.makeBuiltin = function makeBuiltin(fun, resolver) {
+      return Value.makeValue('builtin', { fun: fun, resolver: resolver });
    };
 
    Value.makeMissing = function makeMissing() {

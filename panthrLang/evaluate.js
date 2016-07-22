@@ -2,12 +2,13 @@
 'use strict';
 define(function(require) {
 
-   var Frame, Value, Base, parser, packages;
+   var Frame, Value, Base, parser, Resolver, packages;
 
    Frame = require('./frame');
    Value = require('./value');
    Base = require('panthrbase/index');
    parser = require('./parser').parser;
+   Resolver = require('./resolver');
 
    // This is where the external program will "setup" packages bound to names.
    // These do not get loaded at this point, but they can be found later.
@@ -92,8 +93,12 @@ define(function(require) {
          function evalLang(str) {
             newEval.parseAndEval(str);
          },
-         function addBuiltin(name, f) {
-            assign(name, Value.makeBuiltin(f), newEval.global);
+         function addBuiltin(name, f, config) {
+            var resolver;
+
+            resolver = new Resolver();
+            if (config != null) { config(resolver); }
+            assign(name, Value.makeBuiltin(f, resolver), newEval.global);
          },
          Value
       );
@@ -265,7 +270,10 @@ define(function(require) {
    function evalBuiltin(builtin, actuals) {
       // Before passing to built-in function, we need to
       // "unvalue" the actuals list.
-      return builtin.value.f(actuals.map(function(v) { return v.value; }));
+      var resolvedActuals;
+
+      resolvedActuals = builtin.value.resolver.resolve(actuals);
+      return builtin.value.fun(resolvedActuals);
    }
 
    function evalClosure(clos, actuals) {
