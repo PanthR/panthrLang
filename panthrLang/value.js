@@ -31,11 +31,11 @@ define(function(require) {
    };
 
    Value.makeScalar = function makeScalar(value) {
-      return Value.makeVariable(new Base.Variable([value]));
+      return Value.makeVariable(new Base.Variable([value], { mode: 'scalar' }));
    };
 
    Value.makeLogical = function makeLogical(value) {
-      return Value.makeVariable(new Base.Variable([value]));
+      return Value.makeVariable(new Base.Variable([value], { mode: 'logical' }));
    };
 
    // Creates the appropriate type from a provided variable
