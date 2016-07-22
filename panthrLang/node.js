@@ -48,6 +48,10 @@ define(function(require) {
       return new Node('boolean', loc, { value: b });
    };
 
+   Node.missing = function makeMissing(loc) {
+      return new Node('missing', loc);
+   };
+
    Node.variable = function makeVariable(loc, id) {
       return new Node('variable', loc, { id: id });
    };

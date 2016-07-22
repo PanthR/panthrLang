@@ -37,6 +37,12 @@ describe('The parser parses', function() {
          expect(nodes[0].value).to.equal(false);
       });
    });
+   it('missing values', function() {
+      main.parse('NA; NaN', function(nodes) {
+         expect(nodes[0].name).to.equal('missing');
+         expect(nodes[1].name).to.equal('missing');
+      });
+   });
    it('variables', function() {
       ['xy23', '_foo', 'test.this'].forEach(function(str) {
          main.parse(str, function(nodes) {

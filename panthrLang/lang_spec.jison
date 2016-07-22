@@ -12,6 +12,7 @@
 'fun'          return 'FUN';
 'TRUE'         return 'TRUE';
 'FALSE'        return 'FALSE';
+'NA'|'NaN'     return 'MISSING';
 'library'      return 'LIBRARY';
 '<-'           return 'LARROW';
 '<<-'          return 'LLARROW';
@@ -68,6 +69,7 @@ expr
    : NUM           { $$ = Node.number(yy.lexer.yylloc, parseFloat($1)); }
    | TRUE          { $$ = Node.boolean(yy.lexer.yylloc, true); }
    | FALSE         { $$ = Node.boolean(yy.lexer.yylloc, false); }
+   | MISSING       { $$ = Node.missing(yy.lexer.yylloc); }
    | lvalue        { $$ = $1; }
    | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }

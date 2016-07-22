@@ -1,4 +1,5 @@
 var main = require('../..');
+var Base = require('panthrbase/index');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -22,6 +23,14 @@ describe('The evaluator', function() {
       expect(evs[0].value.get(1)).to.equal(true);
       expect(evs[1].type).to.equal('logical');
       expect(evs[1].value.get(1)).to.equal(false);
+   });
+   it('evaluates missing values', function() {
+      var evs = main.eval('NA;NaN');
+      expect(evs.length).to.equal(2);
+      expect(evs[0].type).to.equal('logical');
+      expect(Base.utils.isMissing(evs[0].value.get(1))).to.be.ok;
+      expect(evs[1].type).to.equal('logical');
+      expect(Base.utils.isMissing(evs[1].value.get(1))).to.be.ok;
    });
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {

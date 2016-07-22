@@ -114,6 +114,7 @@ define(function(require) {
       switch (node.name) {
       case 'number': return Value.makeScalar(node.value);
       case 'boolean': return Value.makeLogical(node.value);
+      case 'missing': return Value.makeLogical(Base.utils.missing);
       case 'range':
          return evalRange(evalInFrame(node.from, frame),
                           evalInFrame(node.to, frame),
