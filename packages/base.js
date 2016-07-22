@@ -88,6 +88,16 @@ define(function(require) {
          );
       });
 
+      addBuiltin('xor', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return Base.utils.isMissing(x) || Base.utils.isMissing(y) ?
+                  Base.utils.missing
+                  : x !== y;
+            }, 'logical')
+         );
+      });
+
       addBuiltin('`||`', function(lst) {
          return Value.makeVariable(
             new Base.Variable([lst.get(1).get(1) || lst.get(2).get(1)],
