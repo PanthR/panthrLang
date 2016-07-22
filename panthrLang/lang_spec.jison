@@ -1,6 +1,12 @@
 %lex
 
+%x backtick
+
 %%
+
+'`'            this.begin('backtick');
+<backtick>[^` \t\n]+       return 'VAR';
+<backtick>'`'  this.popState();
 
 [ \t]+         {/* skip whitespace */}
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
@@ -74,22 +80,22 @@ expr
    | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }
    | '+' expr  %prec UMINUS { $$ = $2; }
-   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '`-`', [Node.number(yy.lexer.yylloc, 0), $2]); }
+   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '-', [Node.number(yy.lexer.yylloc, 0), $2]); }
    | EOL expr      { $$ = $2; }
    | '(' expr ')'  { $$ = $2; }
    | expr ':' expr { $$ = Node.range(yy.lexer.yylloc, $1, $3); }
-   | '!' expr      { $$ = Node.funCall(yy.lexer.yylloc, '`!`', [$2]); }
-   | expr '|' expr { $$ = Node.funCall(yy.lexer.yylloc, '`|`', [$1, $3]); }
-   | expr '&' expr { $$ = Node.funCall(yy.lexer.yylloc, '`&`', [$1, $3]); }
-   | expr '||' expr { $$ = Node.funCall(yy.lexer.yylloc, '`||`', [$1, $3]); }
-   | expr '&&' expr { $$ = Node.funCall(yy.lexer.yylloc, '`&&`', [$1, $3]); }
-   | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, '`+`', [$1, $3]); }
-   | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, '`-`', [$1, $3]); }
-   | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, '`*`', [$1, $3]); }
-   | expr '/' expr { $$ = Node.funCall(yy.lexer.yylloc, '`/`', [$1, $3]); }
-   | expr '^' expr { $$ = Node.funCall(yy.lexer.yylloc, '`^`', [$1, $3]); }
-   | expr 'DIV' expr { $$ = Node.funCall(yy.lexer.yylloc, '`%/%`', [$1, $3]); }
-   | expr 'MOD' expr { $$ = Node.funCall(yy.lexer.yylloc, '`%%`', [$1, $3]); }
+   | '!' expr      { $$ = Node.funCall(yy.lexer.yylloc, '!', [$2]); }
+   | expr '|' expr { $$ = Node.funCall(yy.lexer.yylloc, '|', [$1, $3]); }
+   | expr '&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&', [$1, $3]); }
+   | expr '||' expr { $$ = Node.funCall(yy.lexer.yylloc, '||', [$1, $3]); }
+   | expr '&&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&&', [$1, $3]); }
+   | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, '+', [$1, $3]); }
+   | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, '-', [$1, $3]); }
+   | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, '*', [$1, $3]); }
+   | expr '/' expr { $$ = Node.funCall(yy.lexer.yylloc, '/', [$1, $3]); }
+   | expr '^' expr { $$ = Node.funCall(yy.lexer.yylloc, '^', [$1, $3]); }
+   | expr 'DIV' expr { $$ = Node.funCall(yy.lexer.yylloc, '%/%', [$1, $3]); }
+   | expr 'MOD' expr { $$ = Node.funCall(yy.lexer.yylloc, '%%', [$1, $3]); }
    | expr '(' ')'  { $$ = Node.funCall(yy.lexer.yylloc, $1, []); }
    | expr '(' actuals ')' { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
    | FUN '(' ')' expr { $$ = Node.funDef(yy.lexer.yylloc, [], $4); }

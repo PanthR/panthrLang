@@ -123,46 +123,46 @@ case 15:
  this.$ = Node.assignExisting(yy.lexer.yylloc, $$[$0-2], $$[$0]); 
 break;
 case 17:
- this.$ = Node.funCall(yy.lexer.yylloc, '`-`', [Node.number(yy.lexer.yylloc, 0), $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '-', [Node.number(yy.lexer.yylloc, 0), $$[$0]]); 
 break;
 case 20:
  this.$ = Node.range(yy.lexer.yylloc, $$[$0-2], $$[$0]); 
 break;
 case 21:
- this.$ = Node.funCall(yy.lexer.yylloc, '`!`', [$$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '!', [$$[$0]]); 
 break;
 case 22:
- this.$ = Node.funCall(yy.lexer.yylloc, '`|`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '|', [$$[$0-2], $$[$0]]); 
 break;
 case 23:
- this.$ = Node.funCall(yy.lexer.yylloc, '`&`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '&', [$$[$0-2], $$[$0]]); 
 break;
 case 24:
- this.$ = Node.funCall(yy.lexer.yylloc, '`||`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '||', [$$[$0-2], $$[$0]]); 
 break;
 case 25:
- this.$ = Node.funCall(yy.lexer.yylloc, '`&&`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '&&', [$$[$0-2], $$[$0]]); 
 break;
 case 26:
- this.$ = Node.funCall(yy.lexer.yylloc, '`+`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '+', [$$[$0-2], $$[$0]]); 
 break;
 case 27:
- this.$ = Node.funCall(yy.lexer.yylloc, '`-`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '-', [$$[$0-2], $$[$0]]); 
 break;
 case 28:
- this.$ = Node.funCall(yy.lexer.yylloc, '`*`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '*', [$$[$0-2], $$[$0]]); 
 break;
 case 29:
- this.$ = Node.funCall(yy.lexer.yylloc, '`/`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '/', [$$[$0-2], $$[$0]]); 
 break;
 case 30:
- this.$ = Node.funCall(yy.lexer.yylloc, '`^`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '^', [$$[$0-2], $$[$0]]); 
 break;
 case 31:
- this.$ = Node.funCall(yy.lexer.yylloc, '`%/%`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '%/%', [$$[$0-2], $$[$0]]); 
 break;
 case 32:
- this.$ = Node.funCall(yy.lexer.yylloc, '`%%`', [$$[$0-2], $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '%%', [$$[$0-2], $$[$0]]); 
 break;
 case 33:
  this.$ = Node.funCall(yy.lexer.yylloc, $$[$0-2], []); 
@@ -788,50 +788,56 @@ options: {},
 performAction: function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
 var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
-case 0:/* skip whitespace */
+case 0:this.begin('backtick');
 break;
-case 1:return 11;
+case 1:return 38;
 break;
-case 2:return 6;
+case 2:this.popState();
 break;
-case 3:return 26;
+case 3:/* skip whitespace */
 break;
-case 4:return 25;
+case 4:return 11;
 break;
-case 5:return yy_.yytext;
+case 5:return 6;
 break;
-case 6:return 33;
+case 6:return 26;
 break;
-case 7:return 33;
+case 7:return 25;
 break;
-case 8:return 12;
+case 8:return yy_.yytext;
 break;
-case 9:return 13;
+case 9:return 33;
 break;
-case 10:return 14;
+case 10:return 33;
 break;
-case 11:return 37;
+case 11:return 12;
 break;
-case 12:return 15;
+case 12:return 13;
 break;
-case 13:return 16;
+case 13:return 14;
 break;
-case 14:return 10;
+case 14:return 37;
 break;
-case 15:return 41;
+case 15:return 15;
 break;
-case 16:return 31;
+case 16:return 16;
 break;
-case 17:return 30;
+case 17:return 10;
 break;
-case 18:return 38;
+case 18:return 41;
 break;
-case 19:return 5;
+case 19:return 31;
+break;
+case 20:return 30;
+break;
+case 21:return 38;
+break;
+case 22:return 5;
 break;
 }
 },
-rules: [/^(?:[ \t]+)/,/^(?:((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)/,/^(?:\n|;)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:[:+\-*^\/\,()\{\}\!\|\&])/,/^(?:function\b)/,/^(?:fun\b)/,/^(?:TRUE\b)/,/^(?:FALSE\b)/,/^(?:NA|NaN\b)/,/^(?:library\b)/,/^(?:<-)/,/^(?:<<-)/,/^(?:=)/,/^(?:\.\.\.)/,/^(?:%%)/,/^(?:%\/%)/,/^(?:\w[\w\.]*)/,/^(?:$)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],"inclusive":true}}
+rules: [/^(?:`)/,/^(?:[^` \t\n]+)/,/^(?:`)/,/^(?:[ \t]+)/,/^(?:((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)/,/^(?:\n|;)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:[:+\-*^\/\,()\{\}\!\|\&])/,/^(?:function\b)/,/^(?:fun\b)/,/^(?:TRUE\b)/,/^(?:FALSE\b)/,/^(?:NA|NaN\b)/,/^(?:library\b)/,/^(?:<-)/,/^(?:<<-)/,/^(?:=)/,/^(?:\.\.\.)/,/^(?:%%)/,/^(?:%\/%)/,/^(?:\w[\w\.]*)/,/^(?:$)/],
+conditions: {"backtick":{"rules":[1,2],"inclusive":false},"INITIAL":{"rules":[0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],"inclusive":true}}
 });
 return lexer;
 })();

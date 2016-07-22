@@ -17,62 +17,62 @@ define(function(require) {
       // to return an appropriate value of type "Value".
       // All built-in functions should expect a Base.List
       //
-      addBuiltin('`+`', function(lst) {
+      addBuiltin('+', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x + y;
             }, 'scalar')
          );
       });
-      addBuiltin('`-`', function(lst) {
+      addBuiltin('-', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x - y;
             }, 'scalar')
          );
       });
-      addBuiltin('`*`', function(lst) {
+      addBuiltin('*', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x * y;
             }, 'scalar')
          );
       });
-      addBuiltin('`/`', function(lst) {
+      addBuiltin('/', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x / y;
             }, 'scalar')
          );
       });
-      addBuiltin('`^`', function(lst) {
+      addBuiltin('^', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return Math.pow(x, y);
             }, 'scalar')
          );
       });
-      addBuiltin('`%/%`', function(lst) {
+      addBuiltin('%/%', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return doDiv(x, y);
             }, 'scalar')
          );
       });
-      addBuiltin('`%%`', function(lst) {
+      addBuiltin('%%', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return doMod(x, y);
             }, 'scalar')
          );
       });
-      addBuiltin('`!`', function(lst) {
+      addBuiltin('!', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) { return !x; }, 'logical')
          );
       });
 
-      addBuiltin('`|`', function(lst) {
+      addBuiltin('|', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x || y;
@@ -80,7 +80,7 @@ define(function(require) {
          );
       });
 
-      addBuiltin('`&`', function(lst) {
+      addBuiltin('&', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x && y;
@@ -98,7 +98,7 @@ define(function(require) {
          );
       });
 
-      addBuiltin('`||`', function(lst) {
+      addBuiltin('||', function(lst) {
          return Value.makeVariable(
             new Base.Variable([lst.get(1).get(1) || lst.get(2).get(1)],
                { mode: 'logical' }
@@ -106,7 +106,7 @@ define(function(require) {
          );
       });
 
-      addBuiltin('`&&`', function(lst) {
+      addBuiltin('&&', function(lst) {
          return Value.makeVariable(
             new Base.Variable([lst.get(1).get(1) && lst.get(2).get(1)],
                { mode: 'logical' }

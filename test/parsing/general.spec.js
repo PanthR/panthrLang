@@ -52,13 +52,22 @@ describe('The parser parses', function() {
          });
       });
    });
+   it('backticked variables', function() {
+      ['`xy23`', '`_foo`', '`test.this`', '`+`', '`%/%`'].forEach(function(str) {
+         main.parse(str, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            expect(nodes[0].name).to.equal('variable');
+            expect(nodes[0].id).to.equal(str.replace(/`/g, ''));
+         });
+      });
+   });
    it('parenthetical expressions', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
             expect(nodes[0].name).to.equal('fun_call');
             expect(nodes[0].fun.name).to.equal('variable');
-            expect(nodes[0].fun.id).to.equal('`*`');
+            expect(nodes[0].fun.id).to.equal('*');
          });
       });
    });
@@ -103,13 +112,13 @@ describe('The parser parses', function() {
          expect(nodes.length).to.equal(1);
          expect(nodes[0].name).to.equal('range');
          expect(nodes[0].from.name).to.equal('fun_call');
-         expect(nodes[0].from.fun.id).to.equal('`^`');
+         expect(nodes[0].from.fun.id).to.equal('^');
       });
       main.parse('-1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
          expect(nodes[0].name).to.equal('range');
          expect(nodes[0].from.name).to.equal('fun_call');
-         expect(nodes[0].from.fun.id).to.equal('`-`');
+         expect(nodes[0].from.fun.id).to.equal('-');
       });
    });
 });

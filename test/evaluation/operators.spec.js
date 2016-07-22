@@ -59,4 +59,7 @@ describe('The evaluator', function() {
       expect(main.eval('TRUE && FALSE')[0].value.get(1)).to.equal(false);
       expect(main.eval('TRUE || FALSE')[0].value.get(1)).to.equal(true);
    });
+   it('evaluates backticked operators', function() {
+      expect(main.eval('`+`(4, 5)')[0].value.get(1)).to.equal(9);
+   });
 });
