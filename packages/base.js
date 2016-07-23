@@ -129,63 +129,56 @@ define(function(require) {
             }, 'scalar')
          );
       });
+      /*
+       * Supported expressions:
+       *
+       * - seq(5) = 1:5                  (to)
+       * - seq(-2) = 1:-2                (to)
+       * - seq(-2, by=1) = -2:1          (from, by)
+       * - seq(3, 1) = 3:1               (from, to)
+       * - seq(3, 7, 2) = c(3, 5, 7)     (from, to, by)
+       * - seq(4, along.with=1:4)
+       * - seq(4, 5, along.with=1:4)
+       * - seq(4, 5, length.out=4)
+       */
       addBuiltin('seq', function(lst) {
-         var named, unnamed;
-
-         // remove named args from lst and put into an object
-         named = {};
-         unnamed = [];
-
-         lst.each(function(val, index, name) {
-            if (!Base.utils.isMissing(name)) {
-               named[name] = val;
-            } else {
-               unnamed.push(val);
-            }
-         });
-
-         ['from', 'to', 'by', 'lengthOut', 'alongWith'].forEach(function(str) {
-            if (!named.hasOwnProperty(str) && unnamed.length > 0) {
-               named[str] = unnamed.shift();
-            }
-         });
-
-         if (Object.keys(named).length === 1 && named.hasOwnProperty('from')) {
-            named.to = named.from instanceof Base.Variable ? named.from.length() : named.from;
-            named.from = 1;
-         }
-         named.from = named.hasOwnProperty('from') ? named.from.get(1) : 1;
-         if (named.hasOwnProperty('to')) {
-            named.to = named.to.get(1);
-         }
-         if (named.hasOwnProperty('lengthOut')) {
-            named.lengthOut = named.lengthOut.get(1);
-         }
-         if (named.hasOwnProperty('alongWith')) {
-            named.lengthOut =
-               named.alongWith instanceof Base.Variable ? named.alongWith.length()
-                                                        : named.alongWith;
-         }
-         // any two of 'to', 'by', 'lengthOut' determine the third -- or, "too many arguments"
-         // if 'to' and 'by' are set, ignore 'length'
-         named.by = named.hasOwnProperty('by') ?
-            named.by.get(1)
-            : named.hasOwnProperty('to') ?
-               named.hasOwnProperty('lengthOut') ?
-                  named.lengthOut === 1 ?
-                     0
-                     : (named.to - named.from) / (named.lengthOut - 1)
-                     : Math.sign(named.to - named.from)
-                     : 1;
-         if (!named.hasOwnProperty('to')) {
-            named.to = named.hasOwnProperty('lengthOut') ?
-               named.from + (named.lengthOut - 1) * named.by
-               : 1;
-         }
-
          return Value.makeVariable(
-            Base.Variable.seq(named.from, named.to, named.by)
+            Base.Variable.seq(lst.get('from'), lst.get('to'), lst.get('by'))
          );
+      }, function config(resolver) {
+         resolver.addParameter('from', 'number', true)
+            .addParameter('to', 'number', true)
+            .addParameter('by', 'number', true)
+            .addParameter('lengthOut', 'number')
+            .addParameter('alongWith', 'variable')
+            .addDefault('from', function(lst) { return 1; })
+            .addDependent('lengthOut', 'alongWith', function(alongWith) {
+               return alongWith.length();
+            })
+            .addNormalize(function(lst) {
+               if (!lst.has('to') && !lst.has('by') && !lst.has('lengthOut') &&
+                   !lst.has('alongWith')) {
+                  lst.set('to', lst.get('from'));
+                  lst.set('from', 1);
+               }
+            })
+            .addDefault('by', function(lst) {
+               if (lst.has('to')) {
+                  if (lst.has('lengthOut')) {
+                     return lst.get('lengthOut') === 1 ?
+                        0
+                        : (lst.get('to') - lst.get('from')) / (lst.get('lengthOut') - 1);
+                  }
+                  return Math.sign(lst.get('to') - lst.get('from'));
+               }
+               return Math.sign(lst.get('from'));
+            })
+            .addDefault('to', function(lst) {
+               if (lst.has('lengthOut')) {
+                  return lst.get('from') + (lst.get('lengthOut') - 1) * lst.get('by');
+               }
+               return 1;
+            });
       });
       // TODO: Add a whole lot more here.
 
