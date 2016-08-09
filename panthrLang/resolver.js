@@ -2,7 +2,7 @@
 'use strict';
 define(function(require) {
 
-   var Value, Base, knownTypes, checkers, missingValue;
+   var Value, Base, missingValue;
 
    Value = require('./value');
    Base = require('panthrbase/index');
@@ -46,7 +46,6 @@ define(function(require) {
 
    // TODO: Add standard types and conversions, checkers
 
-
    /*
     * Adds a new type based on the string `type`. The predicate `check`
     * can take any value and must return a boolean indicating if that value is
@@ -68,7 +67,7 @@ define(function(require) {
 
    Resolver.hasType = function(type) {
       return Resolver.types.hasOwnProperty(type);
-   }
+   };
 
    /*
     * Sets up a new type conversion based on `fun`, if one does not already exist.
@@ -91,7 +90,7 @@ define(function(require) {
 
    Resolver.getConversion = function(from, to) {
       if (!Resolver.hasType(to) || !Resolver.hasType(from) ||
-          !Resolver.types[from].conversions.hasOwnProperty(to) {
+          !Resolver.types[from].conversions.hasOwnProperty(to)) {
          return null;
       }
 
@@ -136,7 +135,7 @@ define(function(require) {
       }
 
       return null;
-   }
+   };
 
    /*
     * The function `fun` takes as input the processed actuals list and needs
@@ -191,6 +190,7 @@ define(function(require) {
       return false;
    };
 
+   /* eslint-disable complexity, max-statements */
    /*
     * When this method is called, it is provided an "actuals" list
     * for the function call to be evaluated. This list is then compared to
@@ -258,7 +258,7 @@ define(function(require) {
       this.rules.forEach(function(rule) {
          switch (rule.type) {
          case 'default':
-            if (processed.get(rule.param) == missingValue) {
+            if (processed.get(rule.param) === missingValue) {
                processed.set(rule.param, rule.fun(processed));
             }
             break;
@@ -273,21 +273,21 @@ define(function(require) {
             break;
          default:
             throw new Error('Unknown resolver rule type: ' + rule.type);
-            break;
          }
       });
       // Check required have been provided
       for (i = 0; i < params.length; i += 1) {
-         if (params[i].required && processed.get(params[i].name) == missingValue) {
+         if (params[i].required && processed.get(params[i].name) === missingValue) {
             throw new Error('Parameter required but not provided: ' + params[i].name);
          }
-      };
+      }
 
       return {
          processed: processed,
          dots: dots
       };
    };
+   /* eslint-enable complexity, max-statements */
 
    Resolver.prototype.resolveValue = function(formal, value) {
       var i, j, valueTypes, conversion;
@@ -307,8 +307,8 @@ define(function(require) {
             }
          }
       }
-      throw new Error('Conversion error: ' + value + ' could not be converted to any of: '
-         + formal.types.join(', '));
+      throw new Error('Conversion error: ' + value + ' could not be converted to any of: ' +
+         formal.types.join(', '));
    };
 
    Resolver.getValueTypes = function(value) {
