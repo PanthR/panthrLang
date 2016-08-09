@@ -290,9 +290,33 @@ define(function(require) {
    };
 
    Resolver.prototype.resolveValue = function(formal, value) {
-      // TODO
-      // Check type and unwrap
+      var i, j, valueTypes, conversion;
+
+      valueTypes = Resolver.getValueTypes(value);
+
+      for (i = 0; i < formal.types.length; i += 1) {
+         if (valueTypes.indexOf(formal.types[i]) !== -1) {
+            return Resolver.types[formal.types[i]].unwrap(value);
+         }
+      }
+      for (i = 0; i < formal.types.length; i += 1) {
+         for (j = 0; j < valueTypes.length; j += 1) {
+            conversion = Resolver.getConversion(formal.types[i], valueTypes[j]);
+            if (conversion != null) {
+               return conversion(Resolver.types[valueTypes[j]].unwrap(value));
+            }
+         }
+      }
+      throw new Error('Conversion error: ' + value + ' could not be converted to any of: '
+         + formal.types.join(', '));
    };
+
+   Resolver.getValueTypes = function(value) {
+      return Object.keys(Resolver.types).filter(function(type) {
+         return Resolver.types[type].check(value);
+      });
+   };
+
    return Resolver;
 
 });
