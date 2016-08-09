@@ -90,14 +90,9 @@ define(function(require) {
    };
 
    Resolver.getConversion = function(from, to) {
-      if (!Resolver.hasType(to)) {
-         throw new Error('Unknown type: ' + to);
-      }
-      if (!Resolver.hasType(from)) {
-         throw new Error('Unknown type: ' + from);
-      }
-      if (!Resolver.types[from].conversions.hasOwnProperty(to)) {
-         throw new Error('Unknown conversion from ' + from + ' to ' + to);
+      if (!Resolver.hasType(to) || !Resolver.hasType(from) ||
+          !Resolver.types[from].conversions.hasOwnProperty(to) {
+         return null;
       }
 
       return Resolver.types[from].conversions[to];
