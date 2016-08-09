@@ -2,10 +2,13 @@
 'use strict';
 define(function(require) {
 
-   var Value, Base, knownTypes, checkers;
+   var Value, Base, knownTypes, checkers, missingValue;
 
    Value = require('./value');
    Base = require('panthrbase/index');
+
+   // Used to indicate a parameter was not matched.
+   missingValue = {};
 
    /*
     * Instantiates a resolver object. The object will then be loaded with
@@ -128,6 +131,18 @@ define(function(require) {
       this.parameters.push({ name: '...' });
    };
 
+   Resolver.prototype.getParam = function(param) {
+      var i;
+
+      for (i = 0; i < this.parameters.length; i += 1) {
+         if (this.parameters[i].name === param) {
+            return this.parameters[i];
+         }
+      }
+
+      return null;
+   }
+
    /*
     * The function `fun` takes as input the processed actuals list and needs
     * to return the new value for the parameter.
@@ -189,15 +204,100 @@ define(function(require) {
     * This produces a new list, which is then transformed using the `rules` one
     * at a time in the order in which they were inserted in the array.
     *
-    * Returns the resulting list of processed actuals values.
+    * Returns an object containing two keys:
+    * - `processed`: the resulting list of processed actuals values
+    * - `dots`: the list of arguments that matched the dots.
+    *
+    * Caution: This method will change the `actuals` list.
     */
    Resolver.prototype.resolve = function(actuals) {
-      // TODO
-      // BIG TODO
-      // LOTS OF STUFF HERE
-      return actuals.map(function(v) { return v.value; });
+      var processed, i, j, name, formal, params, dots;
+
+      processed = new Base.List();
+      params = this.parameters;
+      dots = new Base.List();
+
+      // Find named actuals, match them and remove them
+      i = 1;
+      while (i < actuals.length()) {
+         name = actuals.names(i);
+         if (Base.utils.isMissing(name)) {
+            i += 1;
+         } else {
+            if (processed.has(name)) {
+               throw new Error('Duplicate parameter name in function call: ' + name);
+            }
+            formal = this.getParam(name);
+            if (formal != null) {
+               processed.set(name, this.resolveValue(formal, actuals.get(i)));
+               actuals.delete(i);
+            } else {
+               i += 1;
+            }
+         }
+      }
+      // No matching named actuals past this point
+      j = 1; // corresponds to next unnamed value
+      for (i = 0; i < params.length; i += 1) {
+         // Move past named actuals
+         while (j <= actuals.length() && !Base.utils.isMissing(actuals.names(j))) {
+            j += 1;
+         }
+         formal = params[i];
+         if (formal.name === '...') {
+            dots = actuals;
+            actuals = new Base.List();
+         } else if (j > actuals.length()) {
+            processed.set(formal.name, missingValue);
+         } else {
+            processed.set(formal.name, this.resolveValue(formal, actuals.get(j)));
+            actuals.delete(j);
+         }
+      }
+      // At this point, parameters are processed. Any remaining actuals
+      // are an error
+      if (actuals.length() > 0) {
+         throw new Error('Too many arguments passed to function call');
+      }
+      // Apply rules
+      this.rules.forEach(function(rule) {
+         switch (rule.type) {
+         case 'default':
+            if (processed.get(rule.param) == missingValue) {
+               processed.set(rule.param, rule.fun(processed));
+            }
+            break;
+         case 'dependency':
+            if (processed.get(rule.dependent) === missingValue &&
+                processed.get(rule.parent) !== missingValue) {
+               processed.set(rule.dependent, rule.fun(processed.get(rule.parent)));
+            }
+            break;
+         case 'normalize':
+            rule.fun(processed);
+            break;
+         default:
+            throw new Error('Unknown resolver rule type: ' + rule.type);
+            break;
+         }
+      });
+      // Check required have been provided
+      for (i = 0; i < params.length; i += 1) {
+         if (params[i].required && processed.get(params[i].name) == missingValue) {
+            throw new Error('Parameter required but not provided: ' + params[i].name);
+         }
+      };
+
+      return {
+         processed: processed,
+         dots: dots
+      };
    };
 
+   Resolver.prototype.resolveValue = function(formal, value) {
+      // TODO
+      // Check type and unwrap
+   };
    return Resolver;
 
 });
