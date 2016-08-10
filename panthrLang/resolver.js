@@ -44,8 +44,6 @@ define(function(require) {
     */
    Resolver.types = {};
 
-   // TODO: Add standard types and conversions, checkers
-
    /*
     * Adds a new type based on the string `type`. The predicate `check`
     * can take any value and must return a boolean indicating if that value is
@@ -54,6 +52,9 @@ define(function(require) {
     *
     */
    Resolver.addType = function(type, check, unwrap) {
+      if (unwrap == null) {
+         unwrap = function(v) { return v.value; };
+      }
       if (!Resolver.types.hasOwnProperty(type)) {
          Resolver.types[type] = {
             check: check,
@@ -63,6 +64,13 @@ define(function(require) {
       }
 
       return this;
+   };
+
+   /* Used for types that are detected by simply checking the value's type property */
+   Resolver.addStandardType = function(type) {
+      return Resolver.addType(type, function(v) {
+         return v.type === type;
+      });
    };
 
    Resolver.hasType = function(type) {
@@ -182,8 +190,8 @@ define(function(require) {
    Resolver.prototype.has = function(param) {
       var i;
 
-      for (i = 0; i < this.params.length; i += 1) {
-         if (this.params[i].name === param) {
+      for (i = 0; i < this.parameters.length; i += 1) {
+         if (this.parameters[i].name === param) {
             return true;
          }
       }
@@ -254,6 +262,7 @@ define(function(require) {
       if (actuals.length() > 0) {
          throw new Error('Too many arguments passed to function call');
       }
+
       // Apply rules
       this.rules.forEach(function(rule) {
          switch (rule.type) {
@@ -316,6 +325,27 @@ define(function(require) {
          return Resolver.types[type].check(value);
       });
    };
+
+   // STANDARD TYPES
+   Resolver.addStandardType('scalar')
+      .addStandardType('logical')
+      .addStandardType('string')
+      .addStandardType('factor')
+      .addStandardType('datetime')
+      .addStandardType('ordinal')
+      .addStandardType('list')
+      .addType('function', function check(v) {
+         return v.type === 'builtin' || v.type === 'closure';
+      }, Value.functionFromValue)
+      .addType('number', function check(v) {
+         return v.type === 'scalar' && v.value.length() === 1;
+      }, function unwrap(v) { return v.value.get(1); })
+      .addType('boolean', function check(v) {
+         return v.type === 'logical' && v.value.length() === 1;
+      }, function unwrap(v) { return v.value.get(1); })
+      .addType('variable', function check(v) {
+         return v.value instanceof Base.Variable;
+      });
 
    return Resolver;
 
