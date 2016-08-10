@@ -5,6 +5,7 @@ define(function(require) {
    var Base;
 
    Base = require('panthrbase/index');
+
 // It needs to always return a function with the following signature:
    return function(evalLang, addBuiltin, Value) {
       // It can call on each of these to create new bindings.
@@ -23,53 +24,55 @@ define(function(require) {
                return x + y;
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('-', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x - y;
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('*', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x * y;
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('/', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x / y;
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('^', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return Math.pow(x, y);
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('%/%', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return doDiv(x, y);
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('%%', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return doMod(x, y);
             }, 'scalar')
          );
-      });
+      }, configArithOp);
       addBuiltin('!', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) { return !x; }, 'logical')
          );
+      }, function(resolver) {
+         resolver.addParameter('x', 'logical', true);
       });
 
       addBuiltin('|', function(lst) {
@@ -78,7 +81,7 @@ define(function(require) {
                return x || y;
             }, 'logical')
          );
-      });
+      }, configLogicOp);
 
       addBuiltin('&', function(lst) {
          return Value.makeVariable(
@@ -86,7 +89,7 @@ define(function(require) {
                return x && y;
             }, 'logical')
          );
-      });
+      }, configLogicOp);
 
       addBuiltin('xor', function(lst) {
          return Value.makeVariable(
@@ -96,22 +99,28 @@ define(function(require) {
                   : x !== y;
             }, 'logical')
          );
-      });
+      }, configLogicOp);
 
       addBuiltin('||', function(lst) {
          return Value.makeVariable(
-            new Base.Variable([lst.get(1).get(1) || lst.get(2).get(1)],
+            new Base.Variable([lst.get(1) || lst.get(2)],
                { mode: 'logical' }
             )
          );
+      }, function(resolver) {
+         resolver.addParameter('x', 'boolean', true)
+            .addParameter('y', 'boolean', true);
       });
 
       addBuiltin('&&', function(lst) {
          return Value.makeVariable(
-            new Base.Variable([lst.get(1).get(1) && lst.get(2).get(1)],
+            new Base.Variable([lst.get(1) && lst.get(2)],
                { mode: 'logical' }
             )
          );
+      }, function(resolver) {
+         resolver.addParameter('x', 'boolean', true)
+            .addParameter('y', 'boolean', true);
       });
 
       // Packages may need to load panthrbase like we have
@@ -128,7 +137,7 @@ define(function(require) {
                return Math.sin(x);
             }, 'scalar')
          );
-      });
+      }, configSingleScalar);
       /*
        * Supported expressions:
        *
@@ -193,6 +202,20 @@ define(function(require) {
       return v1 - doDiv(v1, v2) * v2;
    }
 
+   // Configuration for binary operators
+   function configArithOp(resolver) {
+      resolver.addParameter('x', 'scalar', true)
+         .addParameter('y', 'scalar', true);
+   }
+
+   function configLogicOp(resolver) {
+      resolver.addParameter('x', 'logical', true)
+         .addParameter('y', 'logical', true);
+   }
+
+   function configSingleScalar(resolver) {
+      resolver.addParameter('x', 'scalar', true);
+   }
 });
 
 }(typeof define === 'function' && define.amd ? define : function(factory) {
