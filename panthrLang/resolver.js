@@ -222,7 +222,7 @@ define(function(require) {
 
       // Find named actuals, match them and remove them
       i = 1;
-      while (i < actuals.length()) {
+      while (i <= actuals.length()) {
          name = actuals.names(i);
          if (Base.utils.isMissing(name)) {
             i += 1;
@@ -239,6 +239,7 @@ define(function(require) {
             }
          }
       }
+
       // No matching named actuals past this point
       j = 1; // corresponds to next unnamed value
       for (i = 0; i < params.length; i += 1) {
@@ -247,6 +248,7 @@ define(function(require) {
             j += 1;
          }
          formal = params[i];
+         if (processed.has(formal.name)) { continue; }
          if (formal.name === '...') {
             dots = actuals;
             actuals = new Base.List();
