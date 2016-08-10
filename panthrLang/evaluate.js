@@ -191,12 +191,11 @@ define(function(require) {
    }
 
    function evalRange(a, b, frame, loc) {
-      // return 5; // TODO: Need to call seq
-      return evalBuiltin(
-         lookup('seq', frame),
-         new Base.List({ from: a, to: b })
-      );
+      return evalCall(lookup('seq', frame), new Base.List({
+         from: a, to: b
+      }), loc);
    }
+
    function evalSeq(exprs, frame) {
       var i, val;
 
