@@ -206,8 +206,9 @@ define(function(require) {
          case 'error':
             return 'Error: ' +
                    this.value.message.toString() + ' near ' +
-                   this.value.loc.firstLine + ':' +
-                   this.value.loc.firstColumn;
+                   (this.value.loc == null ? ''
+                     : this.value.loc.firstLine + ':' +
+                        this.value.loc.firstColumn);
          default:
             return '<' + this.type + ': ' + this.value.toString() + '>';
          }
