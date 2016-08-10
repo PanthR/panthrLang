@@ -2,9 +2,14 @@
 'use strict';
 define(function(require) {
 
-   var Base;
+   var Base, evalInFrame;
 
    Base = require('panthrbase/index');
+
+   evalInFrame = function(body, frame) {
+      throw new Error('Need to call call Value.setEvalInFrame first');
+   };
+
    /**
     * Kinds of values produced by the interpreter
     *
@@ -20,6 +25,122 @@ define(function(require) {
       this.type = type;
       this.value = value;
    }
+
+   Value.setEvalInFrame = function(f) {
+      evalInFrame = f;
+
+      return Value;
+   };
+
+   Value.functionFromValue = function(value) {
+      if (value.type === 'closure') {
+         return evalClosure(value);
+      } else if (value.type === 'builtin') {
+         return evalBuiltin(value);
+      }
+      throw new Error('Attempting to make function from non-function value.' +
+         'This should not be happening');
+   };
+
+   // "Builtin" functions are Javascript functions. They expect one argument
+   // that is a "list" in the panthrbase sense.
+   // "actuals" needs to turn into such a list.
+   function evalBuiltin(builtin) {
+      return function(actuals) {
+         // Before passing to built-in function, we need to
+         // "unvalue" the actuals list.
+         var resolvedActuals;
+
+         try {
+            resolvedActuals = builtin.value.resolver.resolve(actuals);
+         } catch (e) {
+            return Value.makeError({ message: e.toString(), loc: null });
+         }
+
+         return builtin.value.fun(resolvedActuals.processed);
+      };
+   }
+
+   function evalClosure(clos) {
+      return function(actuals) {
+         var formals, body, closExtFrame, actualPos;
+
+         // Will be messing with the array of formals, so need to copy it
+         formals = clos.value.fun.params.slice();
+         body = clos.value.fun.body;
+         closExtFrame = clos.value.env.extend();
+         // Go through actuals, see if they are named and match a formal
+         // Compares the i-th element in the actuals list to the j-th element
+         // in the formals list. It adjusts the arrays if necessary.
+         // Since actuals are a Base.List, their indexing starts at 1.
+         function matchNamed(i, j) {
+            var actual, name;
+
+            if (i > actuals.length()) { return null; }
+            actual = actuals.get(i);
+            name = actuals.names(i);
+            if (!name) { return matchNamed(i + 1, 0); }
+            if (j >= formals.length) { return matchNamed(i + 1, 0); }
+            if ((formals[j].name === 'param' ||
+                 formals[j].name === 'param_default') &&
+                formals[j].id === name) {
+               // found match
+               closExtFrame.store(formals[j].id, actual);
+               formals.splice(j, 1);
+               actuals.delete(i);
+               // i-th spot now contains the next entry
+               return matchNamed(i, 0);
+            }
+            return matchNamed(i, j + 1);
+         }
+         matchNamed(1, 0);
+
+         // At this point named formals have been matched and removed from
+         // both lists.
+         // Any remaining named actuals may still be absorbed by "...""
+         // We match remaining formals by position skipping named
+         // actuals, until we encounter "..."
+         // If there is a remaining dots formal, we need to bind it to "..."
+         // If there are other remaining formals they need to be bound to a
+         // "missing" value, which if accessed should raise error.
+         actualPos = 1; // Holds the place in the actuals that contains the
+                        // first nonnamed actual.
+         while (formals.length !== 0) {
+            while (actualPos <= actuals.length() &&
+                   actuals.names(actualPos)) {
+               actualPos += 1; // Find first unnamed argument
+            }
+            if (formals[0].name === 'param_dots') {
+               // Need to eat up all remaining actuals.
+               closExtFrame.store('...', Value.makeList(actuals));
+               actuals = new Base.List();
+            } else if (actualPos <= actuals.length()) {
+               // There is a value to read
+               closExtFrame.store(formals[0].id, actuals.get(actualPos));
+               actuals.delete(actualPos);
+            } else if (formals[0].name === 'param_default') {
+               // Need to evaluate the default value
+               // Cannot evaluate right away because it might depend on
+               // later defaults. Must create a promise. It will not be
+               // executed unless needed.
+               closExtFrame.store(
+                  formals[0].id,
+                  Value.makePromise(
+                     evalInFrame.bind(null, formals[0].default, closExtFrame)
+                  )
+               );
+            } else {
+               // Need to set to missing value
+               closExtFrame.store(formals[0].id, Value.makeMissing());
+            }
+            formals.splice(0, 1);
+         }
+
+         return evalInFrame(body, closExtFrame);
+      };
+   }
+
+   // The different value implementations follow
 
    /* Takes arbitrary many arguments */
    Value.makeValue = function makeValue(type, value) {
