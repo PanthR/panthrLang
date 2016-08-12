@@ -2,13 +2,10 @@
 'use strict';
 define(function(require) {
 
-   var Value, Base, missingValue;
+   var Value, Base;
 
    Value = require('./value');
    Base = require('panthrbase/index');
-
-   // Used to indicate a parameter was not matched.
-   missingValue = {};
 
    /*
     * Instantiates a resolver object. The object will then be loaded with
@@ -248,15 +245,14 @@ define(function(require) {
             j += 1;
          }
          formal = params[i];
-         if (processed.has(formal.name)) { continue; }
-         if (formal.name === '...') {
-            dots = actuals;
-            actuals = new Base.List();
-         } else if (j > actuals.length()) {
-            processed.set(formal.name, missingValue);
-         } else {
-            processed.set(formal.name, this.resolveValue(formal, actuals.get(j)));
-            actuals.delete(j);
+         if (!processed.has(formal.name)) {
+            if (formal.name === '...') {
+               dots = actuals;
+               actuals = new Base.List();
+            } else if (j <= actuals.length()) {
+               processed.set(formal.name, this.resolveValue(formal, actuals.get(j)));
+               actuals.delete(j);
+            }
          }
       }
       // At this point, parameters are processed. Any remaining actuals
@@ -269,13 +265,13 @@ define(function(require) {
       this.rules.forEach(function(rule) {
          switch (rule.type) {
          case 'default':
-            if (processed.get(rule.param) === missingValue) {
+            if (!processed.has(rule.param)) {
                processed.set(rule.param, rule.fun(processed));
             }
             break;
          case 'dependency':
-            if (processed.get(rule.dependent) === missingValue &&
-                processed.get(rule.parent) !== missingValue) {
+            if (!processed.has(rule.dependent) &&
+                processed.has(rule.parent)) {
                processed.set(rule.dependent, rule.fun(processed.get(rule.parent)));
             }
             break;
@@ -288,7 +284,7 @@ define(function(require) {
       });
       // Check required have been provided
       for (i = 0; i < params.length; i += 1) {
-         if (params[i].required && processed.get(params[i].name) === missingValue) {
+         if (params[i].required && !processed.has(params[i].name)) {
             throw new Error('Parameter required but not provided: ' + params[i].name);
          }
       }
