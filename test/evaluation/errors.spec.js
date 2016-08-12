@@ -49,6 +49,12 @@ describe('The evaluator', function() {
          // expect(evs[1].toString()).to.contain('non-scalar');
          // expect(evs[1].toString()).to.match(/23|24|25|26/);
       });
+      it('for pointwise binary operations on incompatible vector lengths', function() {
+         main.eval('1:3 + 1:2; 1:3 - 1:2; 1:3 * 1:2; 1:3 / 1:2; 1:3 ^ 1:2; 1:3 %/% 1:2; 1:3 %% 1:2')
+            .forEach(function(ev) {
+               expect(ev.type).to.equal('error');
+            });
+      });
    });
    describe('handles parse errors', function() {
       it('for unmatched parens', function() {

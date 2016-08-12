@@ -62,4 +62,8 @@ describe('The evaluator', function() {
    it('evaluates backticked operators', function() {
       expect(main.eval('`+`(4, 5)')[0].value.get(1)).to.equal(9);
    });
+   it('extends length-one vectors as needed', function() {
+      expect(main.eval('1:5 + 1')[0].value.toArray()).to.deep.equal([2, 3, 4, 5, 6]);
+      expect(main.eval('1 - 1:3')[0].value.toArray()).to.deep.equal([0, -1, -2]);
+   });
 });
