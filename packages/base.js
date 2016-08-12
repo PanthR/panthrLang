@@ -158,33 +158,33 @@ define(function(require) {
          resolver.addParameter('from', 'number', true)
             .addParameter('to', 'number', true)
             .addParameter('by', 'number', true)
-            .addParameter('lengthOut', 'number')
-            .addParameter('alongWith', 'variable')
+            .addParameter('length.out', 'number')
+            .addParameter('along.with', 'variable')
             .addDefault('from', function(lst) { return 1; })
-            .addDependent('lengthOut', 'alongWith', function(alongWith) {
+            .addDependent('length.out', 'along.with', function(alongWith) {
                return alongWith.length();
             })
             .addNormalize(function(lst) {
-               if (!lst.has('to') && !lst.has('by') && !lst.has('lengthOut') &&
-                   !lst.has('alongWith')) {
+               if (!lst.has('to') && !lst.has('by') && !lst.has('length.out') &&
+                   !lst.has('along.with')) {
                   lst.set('to', lst.get('from'));
                   lst.set('from', 1);
                }
             })
             .addDefault('by', function(lst) {
                if (lst.has('to')) {
-                  if (lst.has('lengthOut')) {
-                     return lst.get('lengthOut') === 1 ?
+                  if (lst.has('length.out')) {
+                     return lst.get('length.out') === 1 ?
                         0
-                        : (lst.get('to') - lst.get('from')) / (lst.get('lengthOut') - 1);
+                        : (lst.get('to') - lst.get('from')) / (lst.get('length.out') - 1);
                   }
                   return Math.sign(lst.get('to') - lst.get('from'));
                }
                return Math.sign(lst.get('from'));
             })
             .addDefault('to', function(lst) {
-               if (lst.has('lengthOut')) {
-                  return lst.get('from') + (lst.get('lengthOut') - 1) * lst.get('by');
+               if (lst.has('length.out')) {
+                  return lst.get('from') + (lst.get('length.out') - 1) * lst.get('by');
                }
                return 1;
             });
