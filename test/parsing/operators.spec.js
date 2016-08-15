@@ -100,4 +100,9 @@ describe('The parser handles operators', function() {
          expect(nodes[0].args[1].fun.id).to.equal('&&');
       });
    });
+   it('combined with ranges', function() {
+      main.parse('1:3 + 1:2; 1:3 - 1:2; 1:3 * 1:2; 1:3 / 1:2; (1:3) ^ (1:2); 1:3 %/% 1:2; 1:3 %% 1:2', function(nodes) {
+         expect(nodes.length).to.equal(7);
+      });
+   });
 });
