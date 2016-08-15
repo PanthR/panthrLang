@@ -158,7 +158,6 @@ define(function(require) {
       case 'library':
          return loadPackage(node.id, frame, node.loc);
       case 'error':
-         // TODO: ADD info to message
          return errorInfo('unexpected token: ' + node.error.hash.text, node.loc);
       default:
          throw new Error('Unknown node: ' + node.name);
@@ -191,7 +190,6 @@ define(function(require) {
    // Assigns value to whichever frame in the inheritance chain the
    // value is defined. If the value is not defined in a previous
    // frame, it will be created as a global value.
-   // TODO: What about protecting functions like "c"?
    function assignExisting(symbol, value, frame) {
       while (!frame.hasOwnProperty(symbol) &&
              frame.getParent() !== null) {
@@ -271,7 +269,7 @@ define(function(require) {
                      addValue(value);
                   }
                });
-            }(lookup('...', frame, expr.loc))); // TODO: Must ensure it doesn't search further
+            }(lookup('...', frame, expr.loc)));
             break;
          default:
             addValue(evalInFrame(expr, frame));

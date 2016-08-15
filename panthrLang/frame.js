@@ -2,7 +2,13 @@
 'use strict';
 define(function(require) {
 
-   // TODO comment
+   /*
+    * Constructor for an evaluation frame/activation record. It contains:
+    * - A `parent` pointer to its parent frame. Variable lookups will traverse
+    *     this parent chain. The global frame has `null` parent.
+    * - A `values` object containing the bindings for the frame. `Frame#store` method
+    *     can be used to create bindings.
+    */
    function Frame(parent) {
       this.parent = parent;
       this.values = {};
