@@ -23,7 +23,8 @@ define(function(require) {
    // expecting arguments "evalLang", "addBuiltin", "Value" (see issue #16)
    Evaluate.addPackage = function addPackage(name, func) {
       if (packages.hasOwnProperty(name)) {
-         // TODO: Should do something safer than silently overwriting.
+         console.log('Warning: A package with name ' + name + ' already exists.' +
+            ' The old package will no longer be accessible.');
       }
       packages[name] = func;
 
@@ -73,41 +74,54 @@ define(function(require) {
       return vals;
    }
 
+   // Search in the loaded packages starting from "current"
+   function findPackage(packageName, current) {
+      while (current != null) {
+         if (current.name === packageName) {
+            return current.package;
+         }
+      }
+
+      return null;
+   }
+
    // Loads a package into the current evaluation.
    // The package will be stored in the loadedPackages property
    // of the global frame corresponding to the current frame.
    function loadPackage(packageName, frame, loc) {
-      // TODO: Perhaps we should first search through the list of
-      // loaded packages. On the other hand, "reloading" a package
-      // may be useful.
       var global, newEval;
 
       global = frame.getGlobal();  // The global frame
-      newEval = new Evaluate();  // Eval environment for the package
 
       if (!packages.hasOwnProperty(packageName)) {
          throw errorInfo('Unknown package ' + packageName, loc);
       }
-      // Load the package, adding to the newEval's frame.
-      packages[packageName](
-         function evalLang(str) {
-            newEval.parseAndEval(str);
-         },
-         function addBuiltin(name, f, config) {
-            var resolver;
 
-            resolver = new Resolver();
-            if (config != null) { config(resolver); }
-            assign(name, Value.makeBuiltin(f, resolver), newEval.global);
-         },
-         Value
-      );
-      // Now we need to prepend to the global's package list
-      global.loadedPackages = {
-         name: packageName,
-         package: newEval,
-         next: global.loadedPackages
-      };
+      // Search for existing package first
+      newEval = findPackage(packageName, global.loadedPackages);
+      if (newEval == null) {
+         newEval = new Evaluate();  // Eval environment for the package
+         // Load the package, adding to the newEval's frame.
+         packages[packageName](
+            function evalLang(str) {
+               newEval.parseAndEval(str);
+            },
+            function addBuiltin(name, f, config) {
+               var resolver;
+
+               resolver = new Resolver();
+               if (config != null) { config(resolver); }
+               assign(name, Value.makeBuiltin(f, resolver), newEval.global);
+            },
+            Value
+         );
+         // Now we need to prepend to the global's package list
+         global.loadedPackages = {
+            name: packageName,
+            package: newEval,
+            next: global.loadedPackages
+         };
+      }
 
       return Value.makePackage(newEval);
    }
