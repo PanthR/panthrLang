@@ -42,6 +42,15 @@ describe('The evaluator', function() {
          expect(evs[1].toString()).to.contain('non-function');
          expect(evs[1].toString()).to.match(/4|5|6|7|8|9/);
       });
+      it('for duplicate formal parameter', function() {
+         var evs = main.eval('function(x, y, x) {}; function(x, ..., y, ...) {}');
+         expect(evs[0].type).to.equal('error');
+         expect(evs[0].toString()).to.contain('repeated formal');
+         expect(evs[0].toString()).to.contain('x');
+         expect(evs[1].type).to.equal('error');
+         expect(evs[1].toString()).to.contain('repeated formal');
+         expect(evs[1].toString()).to.contain('...');
+      });
       it('for arithmetic on non-scalars', function() {
          var evs = main.eval('f <- function() { x }; f + 3');
          expect(evs[1].type).to.equal('error');

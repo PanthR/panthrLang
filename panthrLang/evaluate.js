@@ -149,9 +149,7 @@ define(function(require) {
                               evalInFrame(node.rvalue, frame),
                               frame);
       case 'fun_def':
-         // TODO: Need to do some checking to ensure argument list
-         // is valid
-         return Value.makeClosure(node, frame);
+         return evalFunDef(node, frame);
       case 'block':
          return evalSeq(node.exprs, frame);
       case 'fun_call':
@@ -217,6 +215,22 @@ define(function(require) {
          val = evalInFrame(exprs[i], frame);
       }
       return val;
+   }
+
+   function evalFunDef(node, frame) {
+      var formals, i, formal;
+
+      formals = {};
+
+      for(i = 0; i < node.params.length; i += 1) {
+         formal = node.params[i].name === 'param_dots' ? '...' : node.params[i].id;
+         if (formals.hasOwnProperty(formal)) {
+            return errorInfo('repeated formal argument: ' + formal, node.loc);
+         }
+         formals[formal] = true;
+      }
+
+      return Value.makeClosure(node, frame);
    }
 
    // Evaluates the actuals represented by the array of exprs
