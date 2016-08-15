@@ -34,7 +34,7 @@ describe('The evaluator', function() {
          expect(evs[0].type).to.equal('error');
          expect(evs[0].toString()).to.contain('package');
          expect(evs[0].toString()).to.contain('fwegt2t');
-         // expect(evs[0].toString()).to.match(/8|9|10|11|12|13|14|15/);
+         expect(evs[0].toString()).to.match(/8|9|10|11|12|13|14|15|16/);
       });
       it('for calling non-function', function() {
          var evs = main.eval('3+4; (2+3)(4)');
@@ -46,8 +46,8 @@ describe('The evaluator', function() {
          var evs = main.eval('f <- function() { x }; f + 3');
          expect(evs[1].type).to.equal('error');
          // TODO: Would be nice to recover these tests at some point
-         // expect(evs[1].toString()).to.contain('non-scalar');
-         // expect(evs[1].toString()).to.match(/23|24|25|26/);
+         expect(evs[1].toString()).to.contain('scalar');
+         expect(evs[1].toString()).to.match(/23|24|25|26|27|28/);
       });
       it('for pointwise binary operations on incompatible vector lengths', function() {
          main.eval('1:3 + 1:2; 1:3 - 1:2; 1:3 * 1:2; 1:3 / 1:2; (1:3) ^ (1:2); 1:3 %/% 1:2; 1:3 %% 1:2')

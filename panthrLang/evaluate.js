@@ -256,7 +256,11 @@ define(function(require) {
    // "actuals" will be a Base.List
    function evalCall(clos, actuals, loc) {
       if (clos.type === 'closure' || clos.type === 'builtin') {
-         return Value.functionFromValue(clos)(actuals);
+         try {
+            return Value.functionFromValue(clos)(actuals);
+         } catch (e) {
+            throw errorInfo(e.message || e.toString(), loc);
+         }
       }
       throw errorInfo('trying to call non-function ' + clos.toString(), loc);
    }

@@ -51,12 +51,8 @@ define(function(require) {
          // "unvalue" the actuals list.
          var resolvedActuals;
 
-         try {
-            resolvedActuals = builtin.value.resolver.resolve(actuals);
-            return builtin.value.fun(resolvedActuals.processed);
-         } catch (e) {
-            return Value.makeError({ message: e.toString(), loc: null });
-         }
+         resolvedActuals = builtin.value.resolver.resolve(actuals);
+         return builtin.value.fun(resolvedActuals.processed);
       };
    }
 
