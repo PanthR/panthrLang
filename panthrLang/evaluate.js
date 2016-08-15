@@ -222,7 +222,7 @@ define(function(require) {
 
       formals = {};
 
-      for(i = 0; i < node.params.length; i += 1) {
+      for (i = 0; i < node.params.length; i += 1) {
          formal = node.params[i].name === 'param_dots' ? '...' : node.params[i].id;
          if (formals.hasOwnProperty(formal)) {
             return errorInfo('repeated formal argument: ' + formal, node.loc);
