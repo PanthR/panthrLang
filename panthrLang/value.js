@@ -52,7 +52,7 @@ define(function(require) {
          var resolvedActuals;
 
          resolvedActuals = builtin.value.resolver.resolve(actuals);
-         return builtin.value.fun(resolvedActuals.processed);
+         return builtin.value.fun(resolvedActuals);
       };
    }
 

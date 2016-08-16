@@ -128,6 +128,8 @@ define(function(require) {
 
    Resolver.prototype.addDots = function() {
       this.parameters.push({ name: '...' });
+
+      return this;
    };
 
    Resolver.prototype.getParam = function(param) {
@@ -211,11 +213,10 @@ define(function(require) {
     * Caution: This method will change the `actuals` list.
     */
    Resolver.prototype.resolve = function(actuals) {
-      var processed, i, j, name, formal, params, dots;
+      var processed, i, j, name, formal, params;
 
       processed = new Base.List();
       params = this.parameters;
-      dots = new Base.List();
 
       // Find named actuals, match them and remove them
       i = 1;
@@ -247,7 +248,7 @@ define(function(require) {
          formal = params[i];
          if (!processed.has(formal.name)) {
             if (formal.name === '...') {
-               dots = actuals;
+               processed.set('...', this.resolveDots(actuals));
                actuals = new Base.List();
             } else if (j <= actuals.length()) {
                processed.set(formal.name, this.resolveValue(formal, actuals.get(j)));
@@ -289,10 +290,7 @@ define(function(require) {
          }
       }
 
-      return {
-         processed: processed,
-         dots: dots
-      };
+      return processed;
    };
    /* eslint-enable complexity, max-statements */
 
@@ -316,6 +314,14 @@ define(function(require) {
       }
       throw new Error('Conversion error: ' + value + ' could not be converted to any of: ' +
          formal.types.join(', '));
+   };
+
+   Resolver.prototype.resolveDots = function(actuals) {
+      function resolveAny(anyFormal, that) {
+         return function(v) { return that.resolveValue(anyFormal, v)};
+      }
+
+      return actuals.map(resolveAny({ types: ['any'] }, this));
    };
 
    Resolver.getValueTypes = function(value) {
