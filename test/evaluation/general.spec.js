@@ -67,4 +67,12 @@ describe('The evaluator', function() {
          expect(ev.value.toArray()).to.deep.equal([1, 2, 3, 4, 5]);
       });
    });
+
+   it('evaluates concatenations', function() {
+      var evs = main.eval('c(1:2, 3, 9:8)');
+
+      expect(evs.length).to.equal(1);
+      expect(evs[0].type).to.equal('scalar');
+      expect(evs[0].value.toArray()).to.deep.equal([1, 2, 3, 9, 8]);
+   });
 });

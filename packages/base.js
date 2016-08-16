@@ -123,13 +123,22 @@ define(function(require) {
             .addParameter('y', 'boolean', true);
       });
 
-      // Packages may need to load panthrbase like we have
+      // TODO: Packages may need to load panthrbase like we have
       addBuiltin('list', function(lst) {
          return Value.makeList(lst);
       });
-      // TODO: Must concat nonlists as well
       addBuiltin('c', function(lst) {
-         return Value.makeVariable(lst.toVariable());
+         var res;
+
+         res = lst.get('...').concat(lst.get('recursive'));
+         if (res instanceof Base.Variable) {
+            return Value.makeVariable(res);
+         }
+         return Value.makeList(res);
+      }, function(resolver) {
+         resolver.addDots()
+            .addParameter('recursive', 'boolean', false)
+            .addDefault('recursive', function() { return false; });
       });
       addBuiltin('sin', function(lst) {
          return Value.makeVariable(
