@@ -324,8 +324,9 @@ define(function(require) {
       });
    };
 
-   // STANDARD TYPES
-   Resolver.addStandardType('scalar')
+   // STANDARD TYPES AND FRIENDS
+   Resolver
+      .addStandardType('scalar')
       .addStandardType('logical')
       .addStandardType('string')
       .addStandardType('factor')
@@ -343,7 +344,8 @@ define(function(require) {
       }, function unwrap(v) { return v.value.get(1); })
       .addType('variable', function check(v) {
          return v.value instanceof Base.Variable;
-      });
+      })
+      .addType('any', function check(v) { return true; });
 
    return Resolver;
 
