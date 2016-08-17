@@ -123,10 +123,10 @@ define(function(require) {
             .addParameter('y', 'boolean', true);
       });
 
-      // TODO: Packages may need to load panthrbase like we have
       addBuiltin('list', function(lst) {
-         return Value.makeList(lst);
-      });
+         return Value.makeList(lst.get('...').clone());
+      }, function(resolver) { resolver.addDots(); });
+
       addBuiltin('c', function(lst) {
          var res;
 
