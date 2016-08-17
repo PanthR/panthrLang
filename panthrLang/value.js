@@ -36,37 +36,35 @@ define(function(require) {
    };
 
    Value.functionFromValue = function(value) {
-      if (value.type === 'closure') {
-         return evalClosure(value);
-      } else if (value.type === 'builtin') {
-         return evalBuiltin(value);
+      if (value.type === 'closure' || value.type === 'builtin') {
+         return value.value;
       }
       throw new Error('Attempting to make function from non-function value.' +
          'This should not be happening');
    };
 
-   // "Builtin" functions are Javascript functions. They expect one argument
-   // that is a "list" in the panthrbase sense.
-   // "actuals" needs to turn into such a list.
-   function evalBuiltin(builtin) {
+   function evalBuiltin(fun, resolver) {
+      // "Builtin" functions are Javascript functions. They expect one argument
+      // that is a "list" in the panthrBase sense.
+      // "actuals" needs to turn into such a list.
       return function(actuals) {
          // Before passing to built-in function, we need to
          // "unvalue" the actuals list.
          var resolvedActuals;
 
-         resolvedActuals = builtin.value.resolver.resolve(actuals);
-         return builtin.value.fun(resolvedActuals);
+         resolvedActuals = resolver.resolve(actuals);
+         return fun(resolvedActuals);
       };
    }
 
-   function evalClosure(clos) {
+   function evalClosure(fun, env) {
       return function(actuals) {
          var formals, body, closExtFrame, actualPos;
 
          // Will be messing with the array of formals, so need to copy it
-         formals = clos.value.fun.params.slice();
-         body = clos.value.fun.body;
-         closExtFrame = clos.value.env.extend();
+         formals = fun.params.slice();
+         body = fun.body;
+         closExtFrame = env.extend();
          // Go through actuals, see if they are named and match a formal
          // Compares the i-th element in the actuals list to the j-th element
          // in the formals list. It adjusts the arrays if necessary.
@@ -168,11 +166,23 @@ define(function(require) {
    };
 
    Value.makeClosure = function makeClosure(fun, env) {
-      return Value.makeValue('closure', { fun: fun, env: env });
+      var f;
+
+      f = evalClosure(fun, env);
+      f.fun = fun;
+      f.env = env;
+
+      return Value.makeValue('closure', f);
    };
 
    Value.makeBuiltin = function makeBuiltin(fun, resolver) {
-      return Value.makeValue('builtin', { fun: fun, resolver: resolver });
+      var f;
+
+      f = evalBuiltin(fun, resolver);
+      f.fun = fun;
+      f.resolver = resolver;
+
+      return Value.makeValue('builtin', f);
    };
 
    Value.makeMissing = function makeMissing() {
