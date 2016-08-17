@@ -43,6 +43,11 @@ describe('The parser parses', function() {
          expect(nodes[1].name).to.equal('missing');
       });
    });
+   it('null', function() {
+      main.parse('NULL', function(nodes) {
+         expect(nodes[0].name).to.equal('null');
+      });
+   });
    it('variables', function() {
       ['xy23', '_foo', 'test.this'].forEach(function(str) {
          main.parse(str, function(nodes) {

@@ -52,6 +52,10 @@ define(function(require) {
       return new Node('missing', loc);
    };
 
+   Node.null = function makeNull(loc) {
+      return new Node('null', loc);
+   };
+
    Node.variable = function makeVariable(loc, id) {
       return new Node('variable', loc, { id: id });
    };

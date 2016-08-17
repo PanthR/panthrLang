@@ -342,6 +342,7 @@ define(function(require) {
       .addStandardType('datetime')
       .addStandardType('ordinal')
       .addStandardType('list')
+      .addStandardType('null')
       .addType('function', function check(v) {
          return v.type === 'builtin' || v.type === 'closure';
       }, Value.functionFromValue)

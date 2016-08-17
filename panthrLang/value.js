@@ -26,6 +26,9 @@ define(function(require) {
       this.value = value;
    }
 
+   Value.null = new Value('null', null);
+   Value.null.value = Value.null;
+
    Value.setEvalInFrame = function(f) {
       evalInFrame = f;
 
@@ -174,6 +177,10 @@ define(function(require) {
 
    Value.makeMissing = function makeMissing() {
       return Value.makeValue('missing', {});
+   };
+
+   Value.makeNull = function makeNull() {
+      return Value.null;
    };
 
    Value.makePromise = function makePromise(thunk) {

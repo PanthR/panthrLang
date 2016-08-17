@@ -32,6 +32,10 @@ describe('The evaluator', function() {
       expect(evs[1].type).to.equal('logical');
       expect(Base.utils.isMissing(evs[1].value.get(1))).to.be.ok;
    });
+   it('evaluates NULL correctly', function() {
+      var evs = main.eval('NULL');
+      expect(evs[0].type).to.equal('null');
+   });
    it('evaluates parenthetical expressions correctly', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(expr) {
          var evs = main.eval(expr);

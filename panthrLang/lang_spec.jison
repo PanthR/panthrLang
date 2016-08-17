@@ -16,6 +16,7 @@
 [:+\-*^/\,()\{\}\!\|\&]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
+'NULL'         return 'NULL';
 'TRUE'         return 'TRUE';
 'FALSE'        return 'FALSE';
 'NA'|'NaN'     return 'MISSING';
@@ -76,6 +77,7 @@ expr
    | TRUE          { $$ = Node.boolean(yy.lexer.yylloc, true); }
    | FALSE         { $$ = Node.boolean(yy.lexer.yylloc, false); }
    | MISSING       { $$ = Node.missing(yy.lexer.yylloc); }
+   | NULL          { $$ = Node.null(yy.lexer.yylloc); }
    | lvalue        { $$ = $1; }
    | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }
