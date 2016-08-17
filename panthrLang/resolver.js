@@ -317,11 +317,14 @@ define(function(require) {
    };
 
    Resolver.prototype.resolveDots = function(actuals) {
-      function resolveAny(anyFormal, that) {
-         return function(v) { return that.resolveValue(anyFormal, v)};
-      }
+      var that, anyFormal;
 
-      return actuals.map(resolveAny({ types: ['any'] }, this));
+      that = this;
+      anyFormal = { types: ['any'] };
+
+      return actuals.map(function(v) {
+         return that.resolveValue(anyFormal, v);
+      });
    };
 
    Resolver.getValueTypes = function(value) {
