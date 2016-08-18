@@ -201,6 +201,42 @@ define(function(require) {
       return Value.makeValue('pack', { package: pack });
    };
 
+   /* Attempts to create a Value out of `v`. Typically `v` was obtained via
+    * unwrapping a Value, and this method is the inverse process.
+    *
+    * Cases handled:
+    * - A `Value` object is simply returned.
+    * - A `Base.Variable` object is passed to `Value.makeVariable`.
+    * - A `Base.List` object is passed to `Value.makeList`.
+    * - A function with either fun & env properties or fun & resolver properties
+    *     will become a `closure` or `builtin` value accordingly.
+    * - Numbers, booleans and string literals will be converted to appropriate
+    *     Variable values.
+    * - Arrays will be passed to the `Base.Variable` constructor.
+    * - The null value `Value.null` will be returned as itself.
+    * - Other values will result in an exception.
+    */
+   Value.wrap = function wrap(v) {
+      if (v === null) { return Value.null; }
+      if (v instanceof Value) { return v; }
+      if (v instanceof Base.Variable) { return Value.makeVariable(v); }
+      if (v instanceof Base.List) { return Value.makeList(v); }
+      if (v instanceof Function) {
+         if (v.hasOwnProperty('env')) {
+            return Value.makeValue('closure', v);
+         } else if (v.hasOwnProperty('resolver')) {
+            return Value.makeValue('builtin', v);
+         } else {
+            throw new Error('Do not know how to convert arbitrary functions to Value');
+         }
+      }
+      if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') {
+         return Value.makeVariable(new Base.Variable([v]));
+      }
+      if (Array.isArray(v)) { return Value.makeVariable(new Base.Variable(v)); }
+      throw new Error('Do not know how to convert this kind of value to Value: ' + v);
+   };
+
    Value.prototype.resolve = function resolve() {
       var val;
 
