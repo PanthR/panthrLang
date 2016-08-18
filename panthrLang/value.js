@@ -201,6 +201,7 @@ define(function(require) {
       return Value.makeValue('pack', { package: pack });
    };
 
+   /* eslint-disable complexity */
    /* Attempts to create a Value out of `v`. Typically `v` was obtained via
     * unwrapping a Value, and this method is the inverse process.
     *
@@ -226,9 +227,8 @@ define(function(require) {
             return Value.makeValue('closure', v);
          } else if (v.hasOwnProperty('resolver')) {
             return Value.makeValue('builtin', v);
-         } else {
-            throw new Error('Do not know how to convert arbitrary functions to Value');
          }
+         throw new Error('Do not know how to convert arbitrary functions to Value');
       }
       if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') {
          return Value.makeVariable(new Base.Variable([v]));
@@ -236,6 +236,7 @@ define(function(require) {
       if (Array.isArray(v)) { return Value.makeVariable(new Base.Variable(v)); }
       throw new Error('Do not know how to convert this kind of value to Value: ' + v);
    };
+   /* eslint-enable complexity */
 
    Value.prototype.resolve = function resolve() {
       var val;
