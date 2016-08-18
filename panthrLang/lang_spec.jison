@@ -81,8 +81,6 @@ expr
    | lvalue        { $$ = $1; }
    | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }
-   | '+' expr  %prec UMINUS { $$ = $2; }
-   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '-', [Node.number(yy.lexer.yylloc, 0), $2]); }
    | EOL expr      { $$ = $2; }
    | '(' expr ')'  { $$ = $2; }
    | expr ':' expr { $$ = Node.range(yy.lexer.yylloc, $1, $3); }
@@ -91,6 +89,8 @@ expr
    | expr '&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&', [$1, $3]); }
    | expr '||' expr { $$ = Node.funCall(yy.lexer.yylloc, '||', [$1, $3]); }
    | expr '&&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&&', [$1, $3]); }
+   | '+' expr  %prec UMINUS { $$ = $2; }
+   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '-', [Node.number(yy.lexer.yylloc, 0), $2]); }
    | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, '+', [$1, $3]); }
    | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, '-', [$1, $3]); }
    | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, '*', [$1, $3]); }
