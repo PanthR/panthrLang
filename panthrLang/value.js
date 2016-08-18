@@ -201,29 +201,28 @@ define(function(require) {
       return Value.makeValue('pack', { package: pack });
    };
 
-   Value.prototype = {
-      resolve: function() {
-         var val;
+   Value.prototype.resolve = function resolve() {
+      var val;
 
-         if (this.type === 'promise') {
-            val = this.value.thunk();
-            this.type = val.type;
-            this.value = val.value;
-         }
+      if (this.type === 'promise') {
+         val = this.value.thunk();
+         this.type = val.type;
+         this.value = val.value;
+      }
 
-         return this;
-      },
-      toString: function() {
-         switch (this.type) {
-         case 'error':
-            return 'Error: ' +
-                   this.value.message.toString() + ' near ' +
-                   (this.value.loc == null ? ''
-                     : this.value.loc.firstLine + ':' +
-                        this.value.loc.firstColumn);
-         default:
-            return '<' + this.type + ': ' + this.value.toString() + '>';
-         }
+      return this;
+   };
+
+   Value.prototype.toString = function toString() {
+      switch (this.type) {
+      case 'error':
+         return 'Error: ' +
+                this.value.message.toString() + ' near ' +
+                (this.value.loc == null ? ''
+                  : this.value.loc.firstLine + ':' +
+                     this.value.loc.firstColumn);
+      default:
+         return '<' + this.type + ': ' + this.value.toString() + '>';
       }
    };
 
