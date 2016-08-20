@@ -230,7 +230,7 @@ define(function(require) {
             }
             formal = this.getParam(name);
             if (formal != null) {
-               processed.set(name, this.resolveValue(formal, actuals.get(i)));
+               processed.set(name, Resolver.resolveValue(formal.types)(actuals.get(i)));
                actuals.delete(i);
             } else {
                i += 1;
@@ -251,7 +251,7 @@ define(function(require) {
                processed.set('...', this.resolveDots(actuals));
                actuals = new Base.List();
             } else if (j <= actuals.length()) {
-               processed.set(formal.name, this.resolveValue(formal, actuals.get(j)));
+               processed.set(formal.name, Resolver.resolveValue(formal.types)(actuals.get(j)));
                actuals.delete(j);
             }
          }
@@ -294,43 +294,39 @@ define(function(require) {
    };
    /* eslint-enable complexity, max-statements */
 
-   Resolver.prototype.resolveValue = function(formal, value) {
-      var i, j, valueTypes, conversion;
-
-      valueTypes = Resolver.getValueTypes(value);
-
-      for (i = 0; i < formal.types.length; i += 1) {
-         if (valueTypes.indexOf(formal.types[i]) !== -1) {
-            return Resolver.types[formal.types[i]].unwrap(value);
-         }
-      }
-      for (i = 0; i < formal.types.length; i += 1) {
-         for (j = 0; j < valueTypes.length; j += 1) {
-            conversion = Resolver.getConversion(formal.types[i], valueTypes[j]);
-            if (conversion != null) {
-               return conversion(Resolver.types[valueTypes[j]].unwrap(value));
-            }
-         }
-      }
-      throw new Error('Conversion error: ' + value + ' could not be converted to any of: ' +
-         formal.types.join(', '));
-   };
-
    Resolver.prototype.resolveDots = function(actuals) {
-      var that, anyFormal;
-
-      that = this;
-      anyFormal = { types: ['any'] };
-
-      return actuals.map(function(v) {
-         return that.resolveValue(anyFormal, v);
-      });
+      return actuals.map(Resolver.resolveValue(['any']));
    };
 
    Resolver.getValueTypes = function(value) {
       return Object.keys(Resolver.types).filter(function(type) {
          return Resolver.types[type].check(value);
       });
+   };
+
+   // `targetTypes` is an array of type names
+   Resolver.resolveValue = function(targetTypes) {
+      return function(value) {
+         var i, j, valueTypes, conversion;
+
+         valueTypes = Resolver.getValueTypes(value);
+
+         for (i = 0; i < targetTypes.length; i += 1) {
+            if (valueTypes.indexOf(targetTypes[i]) !== -1) {
+               return Resolver.types[targetTypes[i]].unwrap(value);
+            }
+         }
+         for (i = 0; i < targetTypes.length; i += 1) {
+            for (j = 0; j < valueTypes.length; j += 1) {
+               conversion = Resolver.getConversion(targetTypes[i], valueTypes[j]);
+               if (conversion != null) {
+                  return conversion(Resolver.types[valueTypes[j]].unwrap(value));
+               }
+            }
+         }
+         throw new Error('Conversion error: ' + value + ' could not be converted to any of: ' +
+            targetTypes.join(', '));
+      };
    };
 
    // STANDARD TYPES AND FRIENDS
