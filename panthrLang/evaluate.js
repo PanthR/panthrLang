@@ -149,6 +149,10 @@ define(function(require) {
          return assignExisting(node.lvalue.id,
                               evalInFrame(node.rvalue, frame),
                               frame);
+      case 'dollar_access':
+         return evalListAccess(evalInFrame(node.object, frame),
+                               Value.makeString(node.index),
+                               node.loc);
       case 'fun_def':
          return evalFunDef(node, frame);
       case 'block':
@@ -214,6 +218,14 @@ define(function(require) {
          val = evalInFrame(exprs[i], frame);
       }
       return val;
+   }
+
+   // `index` is a variable Value of some sort
+   function evalListAccess(lst, index, loc) {
+      // TODO
+      // typecheck lst and index
+
+      // call some Base.List method if types are appropriate
    }
 
    function evalFunDef(node, frame) {

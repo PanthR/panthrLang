@@ -60,6 +60,10 @@ define(function(require) {
       return new Node('variable', loc, { id: id });
    };
 
+   Node.dollarAccess = function makeVariable(loc, object, index) {
+      return new Node('dollar_access', loc, { object: object, index: index });
+   };
+
    Node.funCall = function makeFunCall(loc, f, args) {
       if (typeof f === 'string') {
          f = Node.variable(loc, f);

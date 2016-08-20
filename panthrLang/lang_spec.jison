@@ -25,6 +25,7 @@
 '<<-'          return 'LLARROW';
 '='            return 'EQUALS';
 '...'          return 'DOTS';
+'$'            return 'DOLLAR';
 '%%'           return 'MOD';
 '%/%'          return 'DIV';
 \w[\w\.]*      return 'VAR';
@@ -49,6 +50,7 @@
 %nonassoc ':'
 %left 'UMINUS'
 %right '^'
+%left 'DOLLAR'
 %nonassoc '('
 
 %start expression
@@ -130,4 +132,5 @@ formal
 
 lvalue
    : VAR                 { $$ = Node.variable(yy.lexer.yylloc, $1); }
+   | expr DOLLAR VAR { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
    ;
