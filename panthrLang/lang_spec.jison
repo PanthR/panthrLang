@@ -13,7 +13,7 @@
 \n|';'         return 'EOL';
 '&&'           return '&&';
 '||'           return '||';
-[:+\-*^/\,()\{\}\!\|\&]   return yytext;
+[:+\-*^/\,()\[\]\{\}\!\|\&]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
 'NULL'         return 'NULL';
@@ -51,6 +51,7 @@
 %left 'UMINUS'
 %right '^'
 %left 'DOLLAR'
+%nonassoc '['
 %nonassoc '('
 
 %start expression
@@ -133,4 +134,5 @@ formal
 lvalue
    : VAR                 { $$ = Node.variable(yy.lexer.yylloc, $1); }
    | expr DOLLAR VAR { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
+   | expr '[' '[' expr ']' ']' { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1, $4); }
    ;

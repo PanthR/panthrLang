@@ -151,6 +151,10 @@ define(function(require) {
       return Value.makeVariable(new Base.Variable([value], { mode: 'scalar' }));
    };
 
+   Value.makeString = function makeString(value) {
+      return Value.makeVariable(new Base.Variable([value], { mode: 'string' }));
+   };
+
    Value.makeLogical = function makeLogical(value) {
       return Value.makeVariable(new Base.Variable([value], { mode: 'logical' }));
    };

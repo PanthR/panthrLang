@@ -153,6 +153,10 @@ define(function(require) {
          return evalListAccess(evalInFrame(node.object, frame),
                                Value.makeString(node.index),
                                node.loc);
+      case 'dbl_bracket_access':
+         return evalListAccess(evalInFrame(node.object, frame),
+                               evalInFrame(node.index, frame),
+                               node.loc);
       case 'fun_def':
          return evalFunDef(node, frame);
       case 'block':
@@ -220,12 +224,17 @@ define(function(require) {
       return val;
    }
 
+   // Handles $ access and [[]] access
    // `index` is a variable Value of some sort
+   // returns a single component from somewhere in the list
    function evalListAccess(lst, index, loc) {
-      // TODO
-      // typecheck lst and index
-
-      // call some Base.List method if types are appropriate
+      try {
+         lst = Resolver.resolveValue(['list'])(lst);
+         index = Resolver.resolveValue(['scalar', 'string'])(index);
+         return Value.wrap(lst.deepGet(index));
+      } catch (e) {
+         throw errorInfo(e.message || e.toString(), loc);
+      }
    }
 
    function evalFunDef(node, frame) {
