@@ -49,4 +49,34 @@ describe('The parser parses', function() {
          expect(nodes[0].index.name).to.equal('dbl_bracket_access');
       });
    });
+   it('single bracket indexing', function() {
+      main.parse('x[]; x[1+2]; x[,]; x[,3]; x[1+2,]\n x[4, 4, 5]', function(nodes) {
+         expect(nodes[0].name).to.equal('single_bracket_access');
+         expect(nodes[0].components.length).to.equal(1);
+         expect(nodes[0].components[0]).to.equal(null);
+         expect(nodes[1].name).to.equal('single_bracket_access');
+         expect(nodes[1].components.length).to.equal(1);
+         expect(nodes[1].components[0].name).to.equal('fun_call');
+         expect(nodes[2].name).to.equal('single_bracket_access');
+         expect(nodes[2].components.length).to.equal(2);
+         expect(nodes[2].components[0]).to.equal(null);
+         expect(nodes[2].components[1]).to.equal(null);
+         expect(nodes[3].name).to.equal('single_bracket_access');
+         expect(nodes[3].components.length).to.equal(2);
+         expect(nodes[3].components[0]).to.equal(null);
+         expect(nodes[3].components[1].name).to.equal('number');
+         expect(nodes[4].name).to.equal('single_bracket_access');
+         expect(nodes[4].components.length).to.equal(2);
+         expect(nodes[4].components[0].name).to.equal('fun_call');
+         expect(nodes[4].components[1]).to.equal(null);
+         expect(nodes[5].name).to.equal('single_bracket_access');
+         expect(nodes[5].components.length).to.equal(3);
+         expect(nodes[5].components[0].name).to.equal('number');
+         expect(nodes[5].components[0].value).to.equal(4);
+         expect(nodes[5].components[1].name).to.equal('number');
+         expect(nodes[5].components[1].value).to.equal(4);
+         expect(nodes[5].components[2].name).to.equal('number');
+         expect(nodes[5].components[2].value).to.equal(5);
+      });
+   });
 });

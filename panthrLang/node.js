@@ -81,6 +81,13 @@ define(function(require) {
       return new Node('dbl_bracket_access', loc, { object: object, index: index });
    };
 
+   Node.singleBracketAccess = function singleBracketAccess(loc, object, components) {
+      return new Node('single_bracket_access', loc, {
+         object: object,
+         components: components
+      });
+   };
+
    Node.funCall = function makeFunCall(loc, f, args) {
       if (typeof f === 'string') {
          f = Node.variable(loc, f);
