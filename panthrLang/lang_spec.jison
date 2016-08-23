@@ -1,12 +1,21 @@
 %lex
 
 %x backtick
+%x doublequote
+%x singlequote
 
 %%
 
-'`'            this.begin('backtick');
+'`'                        this.begin('backtick');
 <backtick>[^` \t\n]+       return 'VAR';
-<backtick>'`'  this.popState();
+<backtick>'`'              this.popState();
+
+'"'                        this.begin('doublequote');
+<doublequote>'"'           this.popState();
+<doublequote>(\\.|[^"])*   return 'STRING';
+"'"                        this.begin('singlequote');
+<singlequote>"'"           this.popState();
+<singlequote>(\\.|[^'])*   return 'STRING';
 
 [ \t]+         {/* skip whitespace */}
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
@@ -77,6 +86,7 @@ topExpr
 
 expr
    : NUM           { $$ = Node.number(yy.lexer.yylloc, parseFloat($1)); }
+   | STRING        { $$ = Node.string(yy.lexer.yylloc, $1); }
    | TRUE          { $$ = Node.boolean(yy.lexer.yylloc, true); }
    | FALSE         { $$ = Node.boolean(yy.lexer.yylloc, false); }
    | MISSING       { $$ = Node.missing(yy.lexer.yylloc); }

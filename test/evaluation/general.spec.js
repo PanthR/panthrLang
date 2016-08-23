@@ -24,6 +24,25 @@ describe('The evaluator', function() {
       expect(evs[1].type).to.equal('logical');
       expect(evs[1].value.get(1)).to.equal(false);
    });
+   it('evaluates string literals', function() {
+      var evs = main.eval('"a"; "\\\\n\\n\n"; "\\\'\\"\t"');
+
+      expect(evs[0].type).to.equal('string');
+      expect(evs[0].value.get(1)).to.equal('a');
+      expect(evs[1].type).to.equal('string');
+      expect(evs[1].value.get(1)).to.equal('\\n\n\n');
+      expect(evs[2].type).to.equal('string');
+      expect(evs[2].value.get(1)).to.equal('\'"\t');
+
+      evs = main.eval("'a'; '\\\\n\\n\n'; '\\'\\\"\t'");
+
+      expect(evs[0].type).to.equal('string');
+      expect(evs[0].value.get(1)).to.equal('a');
+      expect(evs[1].type).to.equal('string');
+      expect(evs[1].value.get(1)).to.equal('\\n\n\n');
+      expect(evs[2].type).to.equal('string');
+      expect(evs[2].value.get(1)).to.equal('\'"\t');
+   });
    it('evaluates missing values', function() {
       var evs = main.eval('NA;NaN');
       expect(evs.length).to.equal(2);

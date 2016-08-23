@@ -37,6 +37,24 @@ describe('The parser parses', function() {
          expect(nodes[0].value).to.equal(false);
       });
    });
+   it('string literals', function() {
+      main.parse('"a"; "\\\\n\\n\n"; "\\\'\\"\t"', function(nodes) {
+         expect(nodes[0].name).to.equal('string');
+         expect(nodes[0].value).to.equal('a');
+         expect(nodes[1].name).to.equal('string');
+         expect(nodes[1].value).to.equal('\\n\n\n');
+         expect(nodes[2].name).to.equal('string');
+         expect(nodes[2].value).to.equal('\'"\t');
+      });
+      main.parse("'a'; '\\\\n\\n\n'; '\\'\\\"\t'", function(nodes) {
+         expect(nodes[0].name).to.equal('string');
+         expect(nodes[0].value).to.equal('a');
+         expect(nodes[1].name).to.equal('string');
+         expect(nodes[1].value).to.equal('\\n\n\n');
+         expect(nodes[2].name).to.equal('string');
+         expect(nodes[2].value).to.equal('\'"\t');
+      });
+   });
    it('missing values', function() {
       main.parse('NA; NaN', function(nodes) {
          expect(nodes[0].name).to.equal('missing');

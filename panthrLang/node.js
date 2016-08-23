@@ -44,6 +44,19 @@ define(function(require) {
       return new Node('number', loc, { value: n });
    };
 
+   Node.string = function makeString(loc, s) {
+      s = s.replace(/\\(.)/g, function(m, c) {
+         switch (c) {
+         case 't': return '\t';
+         case 'n': return '\n';
+         case 'r': return '\r';
+         default: return c;
+         }
+      });
+
+      return new Node('string', loc, { value: s });
+   };
+
    Node.boolean = function makeBoolean(loc, b) {
       return new Node('boolean', loc, { value: b });
    };
