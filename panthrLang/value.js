@@ -224,8 +224,8 @@ define(function(require) {
    Value.wrap = function wrap(v) {
       if (v === null) { return Value.null; }
       if (v instanceof Value) { return v; }
-      if (v instanceof Base.Variable) { return Value.makeVariable(v); }
-      if (v instanceof Base.List) { return Value.makeList(v); }
+      if (v instanceof Base.Variable) { return Value.makeVariable(v.clone()); }
+      if (v instanceof Base.List) { return Value.makeList(v.clone()); }
       if (v instanceof Function) {
          if (v.hasOwnProperty('env')) {
             return Value.makeValue('closure', v);

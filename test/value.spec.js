@@ -14,14 +14,16 @@ describe('Value objects', function() {
          var w = Base.Variable([1, 3, 4]);
          var v = Value.wrap(w);
          expect(v.type).to.equal('scalar');
-         expect(v.value).to.equal(w);
+         expect(v.value).to.not.equal(w);
+         expect(v.value.toArray()).to.deep.equal(w.toArray());
       });
       it('list objects', function() {
          var w = Base.List({ a: 1, b: 4 });
          var v = Value.wrap(w);
          expect(v.type).to.equal('list');
-         expect(v.value).to.equal(w);
-
+         expect(v.value).to.not.equal(w);
+         expect(v.value.get('a')).to.equal(1);
+         expect(v.value.get('b')).to.equal(4);
       });
       it('arrays', function() {
          var w = [1, 3, 4];
