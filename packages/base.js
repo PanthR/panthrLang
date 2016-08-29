@@ -140,6 +140,34 @@ define(function(require) {
             .addParameter('recursive', 'boolean', false)
             .addDefault('recursive', function() { return false; });
       });
+
+      addBuiltin('[', function(lst) {
+         var x, dots;
+
+         x = lst.get('x');
+         dots = lst.get('...');
+         // x is either a list, a variable, or null
+         if (x == null) { return Value.null; }
+         return Value.wrap(x.index(dots));
+      }, function(resolver) {
+         resolver.addParameter('x', ['list', 'variable', 'null'], true)
+            .addDots()
+            .addParameter('drop', 'boolean', false)
+            .addDefault('drop', function() { return true; })
+            .addNormalize(function(lst) {
+               // lst is the processed actuals
+               lst.each(function(v, i) {
+                  if (v === undefined) { return; }
+                  if (v === Value.null) {
+                     lst.set(i, null);
+                     return;
+                  }
+                  if (v instanceof Base.Variable) { return; }
+                  throw new Error('inappropriate index ' + v);
+               });
+            });
+      });
+
       addBuiltin('sin', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) {
