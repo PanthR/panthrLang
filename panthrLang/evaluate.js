@@ -189,8 +189,13 @@ define(function(require) {
          }
          throw errorInfo('Unknown symbol ' + symbol, loc);
       }
-      return val.resolve();
+      try {
+         return val.resolve();
+      } catch (e) {
+         throw errorInfo((e.message || e.toString()) + ' when accessing symbol ' + symbol, loc);
+      }
    }
+
    // Assigns value in the current frame (possibly shadowing existing value)
    function assign(symbol, value, frame) {
       frame.store(symbol, value);
