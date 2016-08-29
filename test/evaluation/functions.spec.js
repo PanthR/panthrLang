@@ -43,6 +43,13 @@ describe('The evaluator', function() {
       expect(evs[4].value.get(1)).to.equal(2 / 4);
       expect(evs[5].value.get(1)).to.equal(4);
    });
+   it('allows empty arguments in function calls if the empty value is not accessed', function() {
+      var evs = main.eval('f <- function(x, y, z) { x + z }\n f(1,, 2)');
+      expect(evs.length).to.equal(2);
+      console.log('evs', evs[1]);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([3]);
+   });
    it('passes dotted arguments to future calls properly', function() {
       var evs = main.eval('g <- function(y, z) { y / z }; f <- function(x, ...) { x + g(...) }\n f(y=2, 4, 6)');
       expect(evs.length).to.equal(3);
@@ -56,5 +63,10 @@ describe('The evaluator', function() {
       expect(evs.length).to.equal(1);
       expect(evs[0].type).to.equal('scalar');
       expect(evs[0].value.get(1)).to.equal(2);
+
+      evs = main.eval('f <- function(x, y = 4, z) { x + y + z }\n f(1,, 2)');
+      expect(evs.length).to.equal(2);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([7]);
    });
 });

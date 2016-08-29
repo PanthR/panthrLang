@@ -119,6 +119,10 @@ define(function(require) {
       return new Node('arg_dots', loc);
    };
 
+   Node.argEmpty = function makeArgEmpty(loc) {
+      return new Node('arg_empty', loc);
+   };
+
    Node.param = function makeParam(loc, id) {
       return new Node('param', loc, { id: id });
    };

@@ -261,7 +261,7 @@ define(function(require) {
 
    // Evaluates the actuals represented by the array of exprs
    // in the current frame. It also takes care to properly transform "..."
-   // If it is present (it would have a value from the current function call).
+   // if it is present (it would have a value from the current function call).
    function evalActuals(exprs, frame) {
       var actuals;
 
@@ -298,6 +298,9 @@ define(function(require) {
                   }
                });
             }(lookup('...', frame, expr.loc)));
+            break;
+         case 'arg_empty':
+            addValue(Value.makeEmptyPromise());
             break;
          default:
             addValue(evalInFrame(expr, frame));

@@ -110,24 +110,33 @@ define(function(require) {
                // Need to eat up all remaining actuals.
                closExtFrame.store('...', Value.makeList(actuals));
                actuals = new Base.List();
-            } else if (actualPos <= actuals.length()) {
-               // There is a value to read
+            } else if (actualPos <= actuals.length() &&
+                       actuals.get(actualPos).type !== 'promise') {
+               // There is a value to read, bind formal to value
                closExtFrame.store(formals[0].id, actuals.get(actualPos));
                actuals.delete(actualPos);
-            } else if (formals[0].name === 'param_default') {
-               // Need to evaluate the default value
-               // Cannot evaluate right away because it might depend on
-               // later defaults. Must create a promise. It will not be
-               // executed unless needed.
-               closExtFrame.store(
-                  formals[0].id,
-                  Value.makePromise(
-                     evalInFrame.bind(null, formals[0].default, closExtFrame)
-                  )
-               );
             } else {
-               // Need to set to missing value
-               closExtFrame.store(formals[0].id, Value.makeMissing());
+               if (formals[0].name === 'param_default') {
+                  // Need to evaluate the default value
+                  // Cannot evaluate right away because it might depend on
+                  // later defaults. Must create a promise. It will not be
+                  // executed unless needed.
+                  closExtFrame.store(
+                     formals[0].id,
+                     Value.makePromise(
+                        evalInFrame.bind(null, formals[0].default, closExtFrame)
+                     )
+                  );
+               } else {
+                  // Need to set to missing value
+                  closExtFrame.store(formals[0].id, Value.makeEmptyPromise());
+               }
+               // Values here are either set by default or are missing
+               // If the missing-ness was caused by an empty argument,
+               // the missing value promise needs to be deleted.
+               if (actualPos <= actuals.length()) {
+                  actuals.delete(actualPos); // missing value promise
+               }
             }
             formals.splice(0, 1);
          }
@@ -191,6 +200,12 @@ define(function(require) {
 
    Value.makeMissing = function makeMissing() {
       return Value.makeValue('missing', {});
+   };
+
+   Value.makeEmptyPromise = function makeEmptyPromise() {
+      return Value.makePromise(function() {
+         throw new Error('missing argument');
+      });
    };
 
    Value.makeNull = function makeNull() {
