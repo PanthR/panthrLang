@@ -48,9 +48,10 @@ describe('Value objects', function() {
          expect(v.type).to.equal('scalar');
          expect(v.value.length()).to.equal(1);
       });
-      it('the Value.null object', function() {
+      it('the Value.null and value.undefined objects', function() {
          expect(Value.wrap(Value.null)).to.equal(Value.null);
          expect(Value.wrap(null)).to.equal(Value.null);
+         expect(Value.wrap(undefined)).to.equal(Value.undefined);
       });
       it('appropriate functions', function() {
          var f = function() {};
@@ -68,7 +69,6 @@ describe('Value objects', function() {
       it('nothing else', function() {
          var f = function() {};
          expect(function() { Value.wrap(f); }).to.throw(Error);
-         expect(function() { Value.wrap(undefined); }).to.throw(Error);
          expect(function() { Value.wrap({}); }).to.throw(Error);
       });
    });

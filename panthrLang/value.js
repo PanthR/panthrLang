@@ -28,6 +28,7 @@ define(function(require) {
 
    Value.null = new Value('null', null);
    Value.null.value = Value.null;
+   Value.undefined = new Value('undefined' /* , undefined */);
 
    Value.setEvalInFrame = function(f) {
       evalInFrame = f;
@@ -111,7 +112,7 @@ define(function(require) {
                closExtFrame.store('...', Value.makeList(actuals));
                actuals = new Base.List();
             } else if (actualPos <= actuals.length() &&
-                       actuals.get(actualPos).type !== 'promise') {
+                       actuals.get(actualPos).type !== 'undefined') {
                // There is a value to read, bind formal to value
                closExtFrame.store(formals[0].id, actuals.get(actualPos));
                actuals.delete(actualPos);
@@ -129,7 +130,7 @@ define(function(require) {
                   );
                } else {
                   // Need to set to missing value
-                  closExtFrame.store(formals[0].id, Value.makeEmptyPromise());
+                  closExtFrame.store(formals[0].id, Value.makeUndefined());
                }
                // Values here are either set by default or are missing
                // If the missing-ness was caused by an empty argument,
@@ -202,10 +203,8 @@ define(function(require) {
       return Value.makeValue('missing', {});
    };
 
-   Value.makeEmptyPromise = function makeEmptyPromise() {
-      return Value.makePromise(function() {
-         throw new Error('missing argument');
-      });
+   Value.makeUndefined = function makeUndefined() {
+      return Value.undefined;
    };
 
    Value.makeNull = function makeNull() {
@@ -237,7 +236,8 @@ define(function(require) {
     * - Other values will result in an exception.
     */
    Value.wrap = function wrap(v) {
-      if (v === null) { return Value.null; }
+      if (v === null) { return Value.makeNull(); }
+      if (typeof v === 'undefined') { return Value.makeUndefined(); }
       if (v instanceof Value) { return v; }
       if (v instanceof Base.Variable) { return Value.makeVariable(v.clone()); }
       if (v instanceof Base.List) { return Value.makeList(v.clone()); }
@@ -264,6 +264,8 @@ define(function(require) {
          val = this.value.thunk();
          this.type = val.type;
          this.value = val.value;
+      } else if (this.type === 'undefined') {
+         throw new Error('missing argument');
       }
 
       return this;

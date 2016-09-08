@@ -300,7 +300,7 @@ define(function(require) {
             }(lookup('...', frame, expr.loc)));
             break;
          case 'arg_empty':
-            addValue(Value.makeEmptyPromise());
+            addValue(Value.makeUndefined());
             break;
          default:
             addValue(evalInFrame(expr, frame));
