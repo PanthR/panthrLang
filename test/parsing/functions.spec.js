@@ -66,7 +66,8 @@ describe('The parser', function() {
       ['f(); function() { 2 }'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(2);
-            expect(nodes[0].args.length).to.equal(0);
+            expect(nodes[0].args.length).to.equal(1);
+            expect(nodes[0].args[0].name).to.equal('arg_empty');
             expect(nodes[1].params.length).to.equal(0);
          });
       });
