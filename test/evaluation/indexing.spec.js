@@ -32,4 +32,18 @@ describe('The evaluator', function() {
       expect(evs[4].type).to.equal('scalar');
       expect(evs[4].value.toArray()).to.deep.equal([5, 6]);
    });
+   describe('evaluates single-bracket access of variables', function() {
+      it('as a function call', function() {
+         var evs = main.eval('`[`(5:1, 2); `[`(5:1, 2:3); `[`(5:1, 7); `[`(3:1,)');
+         expect(evs[0].type).to.equal('scalar');
+         expect(evs[0].value.toArray()).to.deep.equal([4]);
+         expect(evs[1].type).to.equal('scalar');
+         expect(evs[1].value.toArray()).to.deep.equal([4, 3]);
+         expect(evs[2].type).to.equal('scalar');
+         expect(evs[2].value.toArray().length).to.deep.equal(1);
+         expect(isNaN(evs[2].value.get(1))).to.be.ok;
+         expect(evs[3].type).to.equal('scalar');
+         expect(evs[3].value.toArray()).to.deep.equal([3, 2, 1]);
+      });
+   });
 });
