@@ -46,7 +46,6 @@ describe('The evaluator', function() {
    it('allows empty arguments in function calls if the empty value is not accessed', function() {
       var evs = main.eval('f <- function(x, y, z) { x + z }\n f(1,, 2)');
       expect(evs.length).to.equal(2);
-      console.log('evs', evs[1]);
       expect(evs[1].type).to.equal('scalar');
       expect(evs[1].value.toArray()).to.deep.equal([3]);
    });

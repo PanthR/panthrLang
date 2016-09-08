@@ -159,8 +159,9 @@ define(function(require) {
 
                theDots = lst.get('...');
                // lst is the processed actuals
+               /* eslint-disable max-nested-callbacks */
                theDots.each(function(v, i) {
-                  if (v === undefined) { return; }
+                  if (typeof v === 'undefined') { return; }
                   if (v === Value.null) {
                      theDots.set(i, null);
                      return;
@@ -168,6 +169,7 @@ define(function(require) {
                   if (v instanceof Base.Variable) { return; }
                   throw new Error('inappropriate index ' + v);
                });
+               /* eslint-enable max-nested-callbacks */
             });
       });
 
