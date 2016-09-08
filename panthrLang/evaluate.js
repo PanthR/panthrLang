@@ -158,6 +158,11 @@ define(function(require) {
          return evalListAccess(evalInFrame(node.object, frame),
                                evalInFrame(node.index, frame),
                                node.loc);
+      case 'single_bracket_access':
+         return evalArrayAccess(
+            evalInFrame(node.object, frame),
+            node.components.map(function(expr) { return evalInFrame(expr, frame); }),
+            node.loc);
       case 'fun_def':
          return evalFunDef(node, frame);
       case 'block':
@@ -241,6 +246,15 @@ define(function(require) {
       } catch (e) {
          throw errorInfo(e.message || e.toString(), loc);
       }
+   }
+
+   // Handles [] access -- "extract"
+   // If object is a list, returns a sublist of cloned values
+   // If object is a variable, returns a subvariable of cloned values
+   // If object is a matrix or an array, the coordinates indicate the location(s)
+   //    from which the result's value is to be obtained.
+   function evalArrayAccess(object, coordinates, loc) {
+      // TODO
    }
 
    function evalFunDef(node, frame) {
