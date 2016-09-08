@@ -155,11 +155,14 @@ define(function(require) {
             .addParameter('drop', 'boolean', false)
             .addDefault('drop', function() { return true; })
             .addNormalize(function(lst) {
+               var theDots;
+
+               theDots = lst.get('...');
                // lst is the processed actuals
-               lst.each(function(v, i) {
+               theDots.each(function(v, i) {
                   if (v === undefined) { return; }
                   if (v === Value.null) {
-                     lst.set(i, null);
+                     theDots.set(i, null);
                      return;
                   }
                   if (v instanceof Base.Variable) { return; }
