@@ -351,7 +351,9 @@ define(function(require) {
       .addType('variable', function check(v) {
          return v.value instanceof Base.Variable;
       })
-      .addType('any', function check(v) { return true; });
+      .addType('any', function check(v) { return true; })
+      .addType('arg_empty', function check(v) { return v.type === 'promise'; },
+         function unwrap(v) { return undefined; });
 
    return Resolver;
 
