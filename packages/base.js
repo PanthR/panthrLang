@@ -148,7 +148,7 @@ define(function(require) {
          dots = lst.get('...');
          // x is either a list, a variable, or null
          if (x == null) { return Value.null; }
-         return Value.wrap(x.index(dots));
+         return Value.wrap(x.index.apply(x, dots.get()));
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'variable', 'null'], true)
             .addDots()
