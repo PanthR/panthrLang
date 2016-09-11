@@ -159,10 +159,7 @@ define(function(require) {
                                evalInFrame(node.index, frame),
                                node.loc);
       case 'single_bracket_access':
-         return evalArrayAccess(
-            evalInFrame(node.object, frame),
-            node.components.map(function(expr) { return evalInFrame(expr, frame); }),
-            node.loc);
+         return evalArrayAccess(node, frame);
       case 'fun_def':
          return evalFunDef(node, frame);
       case 'block':
@@ -249,12 +246,22 @@ define(function(require) {
    }
 
    // Handles [] access -- "extract"
+   // The node contains the call's object in node.object and
+   // the "coordinates" in node.coords.
    // If object is a list, returns a sublist of cloned values
    // If object is a variable, returns a subvariable of cloned values
    // If object is a matrix or an array, the coordinates indicate the location(s)
    //    from which the result's value is to be obtained.
-   function evalArrayAccess(object, coordinates, loc) {
-      // TODO
+   function evalArrayAccess(node, frame) {
+      var actuals, fun;
+
+      // Add object as a named argument in actuals
+      // Also make sure it is the first argument
+      actuals = new Base.List({ x: evalInFrame(node.object, frame) });
+      actuals.set(evalActuals(node.coords, frame));
+      fun = lookup('[', frame, node.loc);
+
+      return evalCall(fun, actuals, node.loc);
    }
 
    function evalFunDef(node, frame) {

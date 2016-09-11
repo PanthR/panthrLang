@@ -46,7 +46,7 @@ describe('The evaluator', function() {
          expect(evs[3].value.toArray()).to.deep.equal([3, 2, 1]);
       });
       it('with numeric indices', function() {
-         var evs = main.eval('(5:1)[4]; (5:1)[2:3]; (5:1)[7]');
+         var evs = main.eval('(5:1)[2]; (5:1)[2:3]; (5:1)[7]');
          expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value.toArray()).to.deep.equal([4]);
          expect(evs[1].type).to.equal('scalar');
@@ -59,10 +59,16 @@ describe('The evaluator', function() {
          console.log("TODO write these tests!");
       });
       it('with logical indices', function() {
-         console.log("TODO write these tests!");
+         var evs = main.eval('(5:1)[c(FALSE, TRUE, TRUE, FALSE, FALSE)]');
+         expect(evs[0].type).to.equal('scalar');
+         expect(evs[0].value.toArray()).to.deep.equal([4, 3]);
       });
       it('with empty arguments', function() {
-         console.log("TODO write these tests!");
+         var evs = main.eval('x<- 5:1; y =x[]');
+         expect(evs[0].type).to.equal('scalar');
+         expect(evs[0].value.toArray()).to.deep.equal([5, 4, 3, 2, 1]);
+         expect(evs[1].value.toArray()).to.deep.equal([5, 4, 3, 2, 1]);
+         expect(evs[0].value).to.not.equal(evs[1].value);
       });
    });
 });
