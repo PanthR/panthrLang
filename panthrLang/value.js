@@ -257,6 +257,18 @@ define(function(require) {
    };
    /* eslint-enable complexity */
 
+   // Clones those Values that have clonable values.
+   Value.prototype.clone = function clone() {
+      if (this.value instanceof Base.Variable) {
+         return Value.makeVariable(this.value.clone());
+      }
+      if (this.type === 'list') {
+         return Value.makeList(this.value.clone());
+      }
+
+      return this;
+   };
+
    Value.prototype.resolve = function resolve() {
       var val;
 

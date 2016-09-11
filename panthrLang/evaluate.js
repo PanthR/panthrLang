@@ -144,11 +144,11 @@ define(function(require) {
          return lookup(node.id, frame, node.loc);
       case 'assign':
          return assign(node.lvalue.id,
-                       evalInFrame(node.rvalue, frame),
+                       evalInFrame(node.rvalue, frame).clone(),
                        frame);
       case 'assign_existing':
          return assignExisting(node.lvalue.id,
-                              evalInFrame(node.rvalue, frame),
+                              evalInFrame(node.rvalue, frame).clone(),
                               frame);
       case 'dollar_access':
          return evalListAccess(evalInFrame(node.object, frame),
