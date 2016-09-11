@@ -81,10 +81,10 @@ define(function(require) {
       return new Node('dbl_bracket_access', loc, { object: object, index: index });
    };
 
-   Node.singleBracketAccess = function singleBracketAccess(loc, object, components) {
+   Node.singleBracketAccess = function singleBracketAccess(loc, object, coords) {
       return new Node('single_bracket_access', loc, {
          object: object,
-         components: components
+         coords: coords
       });
    };
 
