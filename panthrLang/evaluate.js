@@ -248,8 +248,8 @@ define(function(require) {
    // Handles [] access -- "extract"
    // The node contains the call's object in node.object and
    // the "coordinates" in node.coords.
-   // If object is a list, returns a sublist of cloned values
-   // If object is a variable, returns a subvariable of cloned values
+   // If object is a list, returns a sublist of values
+   // If object is a variable, returns a subvariable of values
    // If object is a matrix or an array, the coordinates indicate the location(s)
    //    from which the result's value is to be obtained.
    function evalArrayAccess(node, frame) {

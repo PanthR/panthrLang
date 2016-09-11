@@ -239,8 +239,8 @@ define(function(require) {
       if (v === null) { return Value.makeNull(); }
       if (typeof v === 'undefined') { return Value.makeUndefined(); }
       if (v instanceof Value) { return v; }
-      if (v instanceof Base.Variable) { return Value.makeVariable(v.clone()); }
-      if (v instanceof Base.List) { return Value.makeList(v.clone()); }
+      if (v instanceof Base.Variable) { return Value.makeVariable(v); }
+      if (v instanceof Base.List) { return Value.makeList(v); }
       if (v instanceof Function) {
          if (v.hasOwnProperty('env')) {
             return Value.makeValue('closure', v);
