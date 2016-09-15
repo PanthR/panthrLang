@@ -111,7 +111,6 @@ expr
    | expr '^' expr { $$ = Node.funCall(yy.lexer.yylloc, '^', [$1, $3]); }
    | expr 'DIV' expr { $$ = Node.funCall(yy.lexer.yylloc, '%/%', [$1, $3]); }
    | expr 'MOD' expr { $$ = Node.funCall(yy.lexer.yylloc, '%%', [$1, $3]); }
-   | expr '(' actuals ')' { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
    | FUN '(' ')' expr { $$ = Node.funDef(yy.lexer.yylloc, [], $4); }
    | FUN '(' formals ')' expr { $$ = Node.funDef(yy.lexer.yylloc, $3, $5); }
    | '{' exprList '}'     { $$ = Node.block(yy.lexer.yylloc, $2); }
@@ -146,5 +145,6 @@ lvalue
    | expr DOLLAR VAR { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
    | expr '[' actuals ']' { $$ = Node.singleBracketAccess(yy.lexer.yylloc, $1, $3); }
    | expr '[' '[' expr ']' ']' { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1, $4); }
+   | expr '(' actuals ')' { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
    ;
 
