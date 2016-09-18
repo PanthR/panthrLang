@@ -63,17 +63,6 @@ describe('The evaluator', function() {
          expect(evs[0].value.get(1)).to.equal(eval(expr));
       });
    });
-   it('evaluates assignments properly', function() {
-      var evs = main.eval('x<- 3 + 4\ny = x * 5\nx+y');
-      expect(evs.map(function(v) { return v.value.get(1); })).to.deep.equal([7, 35, 42]);
-   });
-   it('implements "<<-" assignment properly', function() {
-      var evs = main.eval('g <<- 2; g; f <- function(x, y) { g <<- 5 }\n f(2, 4)\n g');
-      expect(evs.length).to.equal(5);
-      expect(evs[0].value.get(1)).to.equal(2);
-      expect(evs[1].value.get(1)).to.equal(2);
-      expect(evs[4].value.get(1)).to.equal(5);
-   });
 
    it('evaluates package-loading', function() {
       var evs = main.eval('library(base)\n sin(3)');

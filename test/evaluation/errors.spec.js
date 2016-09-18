@@ -64,6 +64,12 @@ describe('The evaluator', function() {
                expect(ev.type).to.equal('error');
             });
       });
+      it('for bad lhs on assignments', function() {
+         main.eval('1:5<-1:10').forEach(function(ev) {
+            expect(ev.type).to.equal('error');
+            expect(ev.toString()).to.match(/1|2|3|4|5/);
+         });
+      });
    });
    describe('handles parse errors', function() {
       it('for unmatched parens', function() {

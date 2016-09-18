@@ -111,7 +111,7 @@ define(function(require) {
 
                resolver = new Resolver();
                if (config != null) { config(resolver); }
-               assign(name, Value.makeBuiltin(f, resolver), newEval.global);
+               newEval.global.store(name, Value.makeBuiltin(f, resolver));
             },
             Value
          );
@@ -143,7 +143,7 @@ define(function(require) {
       case 'variable':
          return lookup(node.id, frame, node.loc);
       case 'assign':
-         return assign(node.lvalue.id,
+         return assign(node.lvalue,
                        evalInFrame(node.rvalue, frame).clone(),
                        frame);
       case 'assign_existing':
@@ -198,11 +198,35 @@ define(function(require) {
       }
    }
 
-   // Assigns value in the current frame (possibly shadowing existing value)
-   function assign(symbol, value, frame) {
-      frame.store(symbol, value);
+   // Carries out an assignment with a possibly complex lvalue
+   // lvalue is a Node
+   // rvalue is a Value
+   function assign(lvalue, rvalue, frame) {
+      switch (lvalue.name) {
+      case 'single_bracket_access':
+         // TODO
+      case 'dbl_bracket_access':
+         evalListAssign(evalInFrame(lvalue.object, frame),
+                        evalInFrame(lvalue.index, frame),
+                        rvalue,
+                        lvalue.loc);
 
-      return value;
+         break;
+      case 'dollar_access':
+         evalListAssign(evalInFrame(lvalue.object, frame),
+                        Value.makeString(lvalue.index),
+                        rvalue,
+                        lvalue.loc);
+         break;
+      case 'fun_call':
+         // TODO
+      case 'variable':
+         frame.store(lvalue.id, rvalue);
+         break;
+      default:
+         throw new errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
+      }
+      return rvalue;
    }
    // Assigns value to whichever frame in the inheritance chain the
    // value is defined. If the value is not defined in a previous
@@ -244,6 +268,18 @@ define(function(require) {
          throw errorInfo(e.message || e.toString(), loc);
       }
    }
+
+   function evalListAssign(lst, index, rvalue, loc) {
+      try {
+         lst = Resolver.resolveValue(['list'])(lst);
+         index = Resolver.resolveValue(['scalar', 'string'])(index);
+         rvalue = Resolver.resolveValue(['any'])(rvalue);
+         lst.deepSet(index, rvalue);
+      } catch (e) {
+         throw errorInfo(e.message || e.toString(), loc);
+      }
+   }
+
 
    // Handles [] access -- "extract"
    // The node contains the call's object in node.object and
