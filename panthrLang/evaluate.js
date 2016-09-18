@@ -94,7 +94,7 @@ define(function(require) {
       global = frame.getGlobal();  // The global frame
 
       if (!packages.hasOwnProperty(packageName)) {
-         throw errorInfo('Unknown package ' + packageName, loc);
+         throw errorInfo('Unknown package: ' + packageName, loc);
       }
 
       // Search for existing package first
@@ -189,7 +189,7 @@ define(function(require) {
             if (val !== null) { return val; }
             pack = pack.next;
          }
-         throw errorInfo('Unknown symbol ' + symbol, loc);
+         throw errorInfo('Unknown symbol: ' + symbol, loc);
       }
       try {
          return val.resolve();
