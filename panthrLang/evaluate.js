@@ -220,7 +220,8 @@ define(function(require) {
                         lvalue.loc);
          break;
       case 'fun_call':
-         // TODO
+         evalFunCallAssign(lvalue, rvalue, frame);
+         break;
       case 'variable':
          frame.store(lvalue.id, rvalue);
          break;
@@ -281,6 +282,28 @@ define(function(require) {
       }
    }
 
+   function evalFunCallAssign(lvalue, rvalue, frame) {
+      var args, funCallResult;
+
+      if (lvalue.args.length !== 1) {
+         throw errorInfo('Wrong arguments for function call on lhs of assignment', lvalue.loc);
+      }
+      // 1. change the name of the function.
+      if (lvalue.fun.name !== 'variable') {
+         throw errorInfo('Wrong function specification on lhs of assignment', lvalue.loc);
+      }
+      lvalue.fun.id += '<-';
+      // 2. EvalActuals the arguments to the function
+      args = evalActuals(lvalue.args, frame);
+      // 3. Extend them by "value=rhs"
+      args.set('value', rvalue);
+      // 4. Call the new function
+      funCallResult = evalCall(evalInFrame(lvalue.fun, frame),
+                               args,
+                               lvalue.loc);
+      // 5. Make an assign call, with "x" to the result of 4
+      assign(lvalue.args[0], funCallResult, frame);
+   }
 
    // Handles [] access -- "extract"
    // The node contains the call's object in node.object and
