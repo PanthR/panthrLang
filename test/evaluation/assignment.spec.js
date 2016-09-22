@@ -27,4 +27,15 @@ describe('The evaluator', function() {
       expect(evs[2].value.toArray()).to.deep.equal([6]);
       expect(evs[3].value.names().toArray()).to.deep.equal(['a', 'b']);
    });
+   it('evaluates function lvalue assignment properly', function() {
+      var evs = main.eval('x<-list(a=1:4, b=3:5); names(x)<-c("A", "B"); x');
+      expect(evs.length).to.equal(3);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal(["A", "B"]);
+      expect(evs[2].value.names().toArray()).to.deep.equal(['A', 'B']);
+   });
+   it('evaluates function lvalue assignment with custom function', function() {
+      var evs = main.eval('`ours<-` <- function(x, value) { value }; x<-1:5; ours(x)<-3:4; x');
+      expect(evs[3].value.toArray()).to.deep.equal([3, 4]);
+   });
 });

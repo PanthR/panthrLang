@@ -70,6 +70,12 @@ describe('The evaluator', function() {
             expect(ev.toString()).to.match(/1|2|3|4|5/);
          });
       });
+      it('for bad lhs on function-assignment calls', function() {
+         main.eval('names(3)<-1:10; names() <- 1; names(x, y) <- 1')
+         .forEach(function(ev) {
+            expect(ev.type).to.equal('error');
+         });
+      });
    });
    describe('handles parse errors', function() {
       it('for unmatched parens', function() {
