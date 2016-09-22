@@ -205,6 +205,7 @@ define(function(require) {
       switch (lvalue.name) {
       case 'single_bracket_access':
          // TODO
+         break;
       case 'dbl_bracket_access':
          evalListAssign(evalInFrame(lvalue.object, frame),
                         evalInFrame(lvalue.index, frame),
@@ -224,7 +225,7 @@ define(function(require) {
          frame.store(lvalue.id, rvalue);
          break;
       default:
-         throw new errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
+         throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
       }
       return rvalue;
    }
