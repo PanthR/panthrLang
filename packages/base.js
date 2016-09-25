@@ -187,6 +187,38 @@ define(function(require) {
             });
       });
 
+      addBuiltin('[<-', function(lst) {
+         var x, dots;
+
+         x = lst.get('x');
+         dots = lst.get('...').get();
+         dots.unshift(lst.get('value'));
+         x.indexSet.apply(x, dots);
+
+         return Value.wrap(x);
+      }, function(resolver) {
+         resolver.addParameter('x', ['list', 'variable'], true)
+            .addParameter('value', ['variable', 'list'], true)
+            .addDots()
+            .addNormalize(function(lst) {
+               var theDots;
+
+               theDots = lst.get('...');
+               // lst is the processed actuals
+               /* eslint-disable max-nested-callbacks */
+               theDots.each(function(v, i) {
+                  if (typeof v === 'undefined') { return; }
+                  if (v === Value.null) {
+                     theDots.set(i, null);
+                     return;
+                  }
+                  if (v instanceof Base.Variable) { return; }
+                  throw new Error('inappropriate index ' + v);
+               });
+               /* eslint-enable max-nested-callbacks */
+            });
+      });
+
       addBuiltin('sin', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) {

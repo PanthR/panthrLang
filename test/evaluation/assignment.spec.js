@@ -15,6 +15,16 @@ describe('The evaluator', function() {
       expect(evs[1].value.get(1)).to.equal(2);
       expect(evs[4].value.get(1)).to.equal(5);
    });
+   it('evaluates single-bracket lvalue assignment properly', function() {
+      var evs = main.eval('x<-1:4; x[2]<-6; x[2]; x');
+      expect(evs.length).to.equal(4);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([6]);
+      expect(evs[3].value.toArray()).to.deep.equal([1, 6, 3, 4]);
+      evs = main.eval('x<-1:4; x[2:4]<-1:3; x');
+      expect(evs[1].value.toArray()).to.deep.equal([1, 2, 3]);
+      expect(evs[2].value.toArray()).to.deep.equal([1, 1, 2, 3]);
+   });
    it('evaluates double-bracket lvalue assignment properly', function() {
       var evs = main.eval('x<-list(a=1:4, b=3:5); x[[2]]<-6; x[[2]]; x');
       expect(evs.length).to.equal(4);

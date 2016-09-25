@@ -204,7 +204,7 @@ define(function(require) {
    function assign(lvalue, rvalue, frame) {
       switch (lvalue.name) {
       case 'single_bracket_access':
-         // TODO
+         evalArrayAssign(lvalue, rvalue, frame);
          break;
       case 'dbl_bracket_access':
          evalListAssign(evalInFrame(lvalue.object, frame),
@@ -322,6 +322,19 @@ define(function(require) {
       fun = lookup('[', frame, node.loc);
 
       return evalCall(fun, actuals, node.loc);
+   }
+
+   // Handles [] assignment
+   function evalArrayAssign(node, rvalue, frame) {
+      var actuals, fun;
+
+      actuals = new Base.List({
+         x: evalInFrame(node.object, frame),
+         value: rvalue
+      });
+      actuals.set(evalActuals(node.coords, frame));
+      fun = lookup('[<-', frame, node.loc);
+      evalCall(fun, actuals, node.loc);
    }
 
    function evalFunDef(node, frame) {
