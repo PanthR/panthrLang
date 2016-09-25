@@ -127,6 +127,20 @@ define(function(require) {
          return Value.makeList(lst.get('...').clone());
       }, function(resolver) { resolver.addDots(); });
 
+      addBuiltin('names', function(lst) {
+         return Value.makeVariable(lst.get('x').names());
+      }, function(resolver) {
+         resolver.addParameter('x', ['variable', 'list'], true);
+      });
+
+      addBuiltin('names<-', function(lst) {
+         lst.get('x').names(lst.get('value')); // names as setter
+         return Value.wrap(lst.get('x'));
+      }, function(resolver) {
+         resolver.addParameter('x', ['variable', 'list'], true)
+            .addParameter('value', 'variable', true);
+      });
+
       addBuiltin('c', function(lst) {
          var res;
 
