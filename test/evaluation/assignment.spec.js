@@ -30,7 +30,7 @@ describe('The evaluator', function() {
    it('evaluates function lvalue assignment properly', function() {
       var evs = main.eval('x<-list(a=1:4, b=3:5); names(x)<-c("A", "B"); x');
       expect(evs.length).to.equal(3);
-      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].type).to.equal('string');
       expect(evs[1].value.toArray()).to.deep.equal(["A", "B"]);
       expect(evs[2].value.names().toArray()).to.deep.equal(['A', 'B']);
    });
