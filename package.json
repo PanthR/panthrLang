@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "doc": "node ./node_modules/panthrdoc/run.js .",
     "parser": "jison -o panthrLang/parser.js panthrLang/lang_spec.jison",
-    "build": "browserify bundlePre.js | uglifyjs -c > panthrLang.min.js"
+    "build": "browserify bundlePre.js | uglifyjs -c > console/panthrLang.min.js"
   },
   "repository": {
     "type": "git",
