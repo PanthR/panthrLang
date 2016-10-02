@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <link rel="stylesheet" type="text/css" href="base.css">
+      <title>PanthRLang Web Console</title>
+   </head>
+   <body>
+      <h1>PanthRLang Web Console</h1>
+      <p></p>
+      <div id="main">
+         <div id="results"></div>
+         <div id="input-row"><input id="input" type="text" placeholder="Type commands here" /><button id="execute">Run!</button></div>
+      </div>
+      <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+      <script src="panthrLang.min.js"></script>
+      <script src="web_console.js"></script>
+      <script id="output-template" type="text/x-handlebars-template">
+        <div class="output-row">
+            <div class="output-row-input">{{ input }}</div>
+            {{#each outputs }}
+            <div class="output-row-output">
+            {{ this }}
+            </div>
+            {{/each}}
+        </div>
+      </script>
+   </body>
+</html>
