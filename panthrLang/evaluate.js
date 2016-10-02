@@ -123,7 +123,7 @@ define(function(require) {
          };
       }
 
-      return Value.makePackage(newEval);
+      return Value.makePackage(global.loadedPackages);
    }
 
    // "runs" a certain node to completion.
