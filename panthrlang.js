@@ -11,9 +11,10 @@ define(function(require) {
     * @author Haris Skiadas <skiadas@hanover.edu>
     */
 
-   var panthrLang, Parser, parser, Node, Evaluate;
+   var panthrLang, Parser, parser, Node, Evaluate, Console;
 
    Node = require('./panthrLang/node');
+   Console = require('./panthrLang/console');
    Evaluate = require('./panthrLang/evaluate');
    parser = require('./panthrLang/parser').parser;
    Parser = require('./panthrLang/parser').Parser;
@@ -34,6 +35,7 @@ define(function(require) {
 
    panthrLang = {
       Node: Node,
+      Console: Console,
       Evaluate: Evaluate,
       parse: function(str, action) {
          if (action == null) { action = function(x) { console.log(x); }; }
