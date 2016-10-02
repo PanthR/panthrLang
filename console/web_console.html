@@ -18,9 +18,13 @@
       <script id="output-template" type="text/x-handlebars-template">
         <div class="output-row">
             <div class="output-row-input">{{ input }}</div>
-            {{#each outputs }}
-            <div class="output-row-output">
-            {{ this }}
+            {{#each results }}
+            <div class="output-row-output type-{{ this.type }}">
+            {{#if this.html}}
+               {{{ this.html }}}
+            {{else}}
+               {{ this.string }}
+            {{/if}}
             </div>
             {{/each}}
         </div>

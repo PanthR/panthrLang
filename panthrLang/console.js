@@ -54,8 +54,44 @@ define(function(require) {
       };
 
       webConsole.resultsFormat = function(results) {
+         var that;
+
+         that = this;
+
          return results.map(function(v) {
-            return v.type;
+            var o;
+
+            o = { type: v.type };
+            switch (v.type) {
+               case 'builtin':
+                  o.string = '<func: builtin>';
+                  break;
+               case 'closure':
+                  o.string = '<func: closure>';
+                  break;
+               case 'null':
+                  o.string = 'NULL';
+                  break;
+               case 'undefined':
+                  o.string = 'TODO Should print error here';
+                  break;
+               case 'error':
+                  o.string = v.value.message;
+                  break;
+               case 'pack':
+                  o.string = '<package: ' + v.value.package.name + '>';
+                  break;
+               case 'logical':
+               case 'scalar':
+               case 'factor':
+               case 'string':
+               case 'datetime':
+                  o.html = '<table>' + v.value.format(that.options).toHTML(that.options) +
+                             '</table>';
+                  break;
+            }
+
+            return o;
          });
       };
 
