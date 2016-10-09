@@ -164,6 +164,8 @@ define(function(require) {
          return evalFunDef(node, frame);
       case 'block':
          return evalSeq(node.exprs, frame);
+      case 'if':
+         return evalIf(node, frame);
       case 'fun_call':
          return evalCall(evalInFrame(node.fun, frame),
                          evalActuals(node.args, frame), node.fun.loc);
@@ -414,6 +416,15 @@ define(function(require) {
          }
       }
       throw errorInfo('trying to call non-function ' + clos.toString(), loc);
+   }
+
+   function evalIf(node, frame) {
+      var testResult;
+
+      testResult = evalInFrame(node.test, frame);
+      testResult = Resolver.resolveValue(['boolean'])(testResult);
+
+      return evalInFrame(testResult ? node.then : node.else, frame);
    }
 
    function errorInfo(msg, loc) {
