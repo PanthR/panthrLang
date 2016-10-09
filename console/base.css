@@ -1,0 +1,18 @@
+.output-row {
+   width: 100%;
+   float: left;
+   clear: both;
+   border: 1px solid gray;
+   margin: 1px;
+}
+
+.output-row-input {
+   width: 40%;
+   float: left;
+}
+
+.output-row-output {
+   width: 50%;
+   float: right;
+}
+
