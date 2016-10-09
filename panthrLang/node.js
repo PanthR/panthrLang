@@ -65,6 +65,10 @@ define(function(require) {
       return new Node('if', loc, { test: test, then: thenExpr, else: elseExpr });
    };
 
+   Node.while = function makeWhile(loc, test, body) {
+      return new Node('while', loc, { test: test, body: body });
+   };
+
    Node.missing = function makeMissing(loc) {
       return new Node('missing', loc);
    };

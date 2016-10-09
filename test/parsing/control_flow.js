@@ -48,4 +48,12 @@ describe('The parser parses', function() {
          expect(nodes[0].else.name).to.equal('null');
       });
    });
+   it('while expressions', function() {
+      main.parse('while (TRUE) 3', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].name).to.equal('while');
+         expect(nodes[0].test.name).to.equal('boolean');
+         expect(nodes[0].body.name).to.equal('number');
+      });
+   });
 });

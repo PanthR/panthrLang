@@ -27,6 +27,7 @@
 'fun'          return 'FUN';
 'if'           return 'IF';
 'else'         return 'ELSE';
+'while'        return 'WHILE';
 'NULL'         return 'NULL';
 'TRUE'         return 'TRUE';
 'FALSE'        return 'FALSE';
@@ -119,6 +120,7 @@ expr
    | IF '(' expr ')' expr %prec ELSE { $$ = Node.if(yy.lexer.yylloc, $3, $5, Node.null(yy.lexer.yylloc)); }
    | IF '(' expr ')' expr ELSE expr { $$ = Node.if(yy.lexer.yylloc, $3, $5, $7); }
    | '{' exprList '}'     { $$ = Node.block(yy.lexer.yylloc, $2); }
+   | WHILE '(' expr ')' expr { $$ = Node.while(yy.lexer.yylloc, $3, $5); }
    | LIBRARY '(' VAR ')'  { $$ = Node.library(yy.lexer.yylloc, $3); }
    ;
 
