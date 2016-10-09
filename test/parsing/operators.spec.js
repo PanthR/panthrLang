@@ -105,4 +105,17 @@ describe('The parser handles operators', function() {
          expect(nodes.length).to.equal(7);
       });
    });
+   it('(comparison operators)', function() {
+      ['5 > 2', '-23 >= -3', '2.34 < 1.2',
+       '-0.23 <= 2 + 3', '-0.23 == 2 * 3', '2 != 3'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            var node = nodes[0];
+            expect(node.name).to.equal('fun_call');
+            expect(['<', '>', '<=', '>=', '==', '!=']).to.contain(node.fun.id);
+            expect(node.fun.name).to.equal('variable');
+            expect(node.args.length).to.equal(2);
+         });
+      });
+   });
 });
