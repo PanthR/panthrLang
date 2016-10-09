@@ -24,6 +24,9 @@ describe('The evaluator', function() {
       evs = main.eval('x<-1:4; x[2:4]<-1:3; x');
       expect(evs[1].value.toArray()).to.deep.equal([1, 2, 3]);
       expect(evs[2].value.toArray()).to.deep.equal([1, 1, 2, 3]);
+      // TODO
+      // add more tests after deciding about setting out-of-bounds
+      // in PanthrBase.Variable
    });
    it('evaluates double-bracket lvalue assignment properly', function() {
       var evs = main.eval('x<-list(a=1:4, b=3:5); x[[2]]<-6; x[[2]]; x');
