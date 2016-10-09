@@ -62,7 +62,7 @@ define(function(require) {
    };
 
    Node.if = function makeIf(loc, test, thenExpr, elseExpr) {
-      return new Node('if', loc, { test: test, then: thenExpr, 'else': elseExpr });
+      return new Node('if', loc, { test: test, then: thenExpr, else: elseExpr });
    };
 
    Node.missing = function makeMissing(loc) {
