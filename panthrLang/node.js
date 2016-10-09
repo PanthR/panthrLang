@@ -61,6 +61,10 @@ define(function(require) {
       return new Node('boolean', loc, { value: b });
    };
 
+   Node.if = function makeIf(loc, test, thenExpr, elseExpr) {
+      return new Node('if', loc, { test: test, then: thenExpr, 'else': elseExpr });
+   };
+
    Node.missing = function makeMissing(loc) {
       return new Node('missing', loc);
    };

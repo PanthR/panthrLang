@@ -25,6 +25,8 @@
 [:+\-*^/\,()\[\]\{\}\!\|\&]   return yytext;
 'function'     return 'FUN';
 'fun'          return 'FUN';
+'if'           return 'IF';
+'else'         return 'ELSE';
 'NULL'         return 'NULL';
 'TRUE'         return 'TRUE';
 'FALSE'        return 'FALSE';
@@ -50,6 +52,7 @@
 %nonassoc 'FUN'
 %nonassoc 'VAR'
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
+%right 'IF' 'ELSE'
 %left '|' '||'
 %left '&' '&&'
 %right '!'
@@ -113,6 +116,8 @@ expr
    | expr 'MOD' expr { $$ = Node.funCall(yy.lexer.yylloc, '%%', [$1, $3]); }
    | FUN '(' ')' expr { $$ = Node.funDef(yy.lexer.yylloc, [], $4); }
    | FUN '(' formals ')' expr { $$ = Node.funDef(yy.lexer.yylloc, $3, $5); }
+   | IF '(' expr ')' expr %prec ELSE { $$ = Node.if(yy.lexer.yylloc, $3, $5, Node.null(yy.lexer.yylloc)); }
+   | IF '(' expr ')' expr ELSE expr { $$ = Node.if(yy.lexer.yylloc, $3, $5, $7); }
    | '{' exprList '}'     { $$ = Node.block(yy.lexer.yylloc, $2); }
    | LIBRARY '(' VAR ')'  { $$ = Node.library(yy.lexer.yylloc, $3); }
    ;
