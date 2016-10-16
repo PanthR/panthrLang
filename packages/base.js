@@ -67,6 +67,34 @@ define(function(require) {
             }, 'scalar')
          );
       }, configArithOp);
+      addBuiltin('>', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x > y;
+            }, 'logical')
+         );
+      }, configCompOp);
+      addBuiltin('<', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x < y;
+            }, 'logical')
+         );
+      }, configCompOp);
+      addBuiltin('>=', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x >= y;
+            }, 'logical')
+         );
+      }, configCompOp);
+      addBuiltin('<=', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x <= y;
+            }, 'logical')
+         );
+      }, configCompOp);
       addBuiltin('!', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) { return !x; }, 'logical')
@@ -294,6 +322,20 @@ define(function(require) {
    function configArithOp(resolver) {
       resolver.addParameter('x', 'scalar', true)
          .addParameter('y', 'scalar', true);
+   }
+
+   // Configuration for comparision operators
+   function configCompOp(resolver) {
+      resolver.addParameter('x', 'atomic', true)
+         .addParameter('y', 'atomic', true)
+         .addNormalize(function(lst) {
+            var commonMode;
+
+            commonMode = Base.Variable.commonMode(lst.get('x').mode(),
+                                                  lst.get('y').mode());
+            lst.set('x', lst.get('x').convert(commonMode));
+            lst.set('y', lst.get('y').convert(commonMode));
+         });
    }
 
    function configLogicOp(resolver) {

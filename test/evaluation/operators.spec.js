@@ -66,4 +66,22 @@ describe('The evaluator', function() {
       expect(main.eval('1:5 + 1')[0].value.toArray()).to.deep.equal([2, 3, 4, 5, 6]);
       expect(main.eval('1 - 1:3')[0].value.toArray()).to.deep.equal([0, -1, -2]);
    });
+   it('evaluates comparison operators', function() {
+      [
+         ['1:5 > 2', [false, false, true, true, true]],
+         ['1:5 >= 2', [false, true, true, true, true]],
+         ['1:5 <= 2', [true, true, false, false, false]],
+         ['1:5 < 2', [true, false, false, false, false]],
+         ['0:5 > TRUE', [false, false, true, true, true, true]],
+         ['"A" > "B"', [false]],
+         ['"A" < "B"', [true]],
+         ['"A" < 5', [false]]
+      ].forEach(function(pair) {
+         var res;
+
+         res = main.eval(pair[0])[0];
+         expect(res.type).to.equal('logical');
+         expect(res.value.toArray()).to.deep.equal(pair[1]);
+      });
+   });
 });
