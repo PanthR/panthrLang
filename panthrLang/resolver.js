@@ -351,6 +351,10 @@ define(function(require) {
       .addType('variable', function check(v) {
          return v.value instanceof Base.Variable;
       })
+      .addType('atomic', function check(v) {
+         return v.type === 'logical' || v.type === 'scalar' ||
+                v.type === 'string';
+      })
       .addType('any', function check(v) { return true; })
       .addType('undefined', function check(v) { return v.type === 'undefined'; });
 
