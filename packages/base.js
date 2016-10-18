@@ -95,6 +95,20 @@ define(function(require) {
             }, 'logical')
          );
       }, configCompOp);
+      addBuiltin('==', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x === y;
+            }, 'logical')
+         );
+      }, configCompOp);
+      addBuiltin('!=', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+               return x !== y;
+            }, 'logical')
+         );
+      }, configCompOp);
       addBuiltin('!', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) { return !x; }, 'logical')

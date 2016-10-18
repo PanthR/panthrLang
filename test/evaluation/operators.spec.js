@@ -75,7 +75,15 @@ describe('The evaluator', function() {
          ['0:5 > TRUE', [false, false, true, true, true, true]],
          ['"A" > "B"', [false]],
          ['"A" < "B"', [true]],
-         ['"A" < 5', [false]]
+         ['"A" < 5', [false]],
+         ['1:5 == 2', [false, true, false, false, false]],
+         ['0:5 == TRUE', [false, true, false, false, false, false]],
+         ['"A" == "B"', [false]],
+         ['"A" == "A"', [true]],
+         ['1:5 != 2', [true, false, true, true, true]],
+         ['0:5 != TRUE', [true, false, true, true, true, true]],
+         ['"A" != "B"', [true]],
+         ['"A" != "A"', [false]]
       ].forEach(function(pair) {
          var res;
 
