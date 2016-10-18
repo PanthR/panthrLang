@@ -166,6 +166,8 @@ define(function(require) {
          return evalSeq(node.exprs, frame);
       case 'if':
          return evalIf(node, frame);
+      case 'while':
+         return evalWhile(node, frame);
       case 'fun_call':
          return evalCall(evalInFrame(node.fun, frame),
                          evalActuals(node.args, frame), node.fun.loc);
@@ -425,6 +427,19 @@ define(function(require) {
       testResult = Resolver.resolveValue(['boolean'])(testResult);
 
       return evalInFrame(testResult ? node.then : node.else, frame);
+   }
+
+   function evalWhile(node, frame) {
+      var testResult;
+
+      while (true) {
+         testResult = evalInFrame(node.test, frame);
+         testResult = Resolver.resolveValue(['boolean'])(testResult);
+         if (!testResult) { break; }
+         evalInFrame(node.body, frame);
+      }
+
+      return Value.makeNull();
    }
 
    function errorInfo(msg, loc) {
