@@ -56,4 +56,13 @@ describe('The parser parses', function() {
          expect(nodes[0].body.name).to.equal('number');
       });
    });
+   it('for expressions', function() {
+      main.parse('y = 0; for (x in 1:5) { y = y + x }; y', function(nodes) {
+         expect(nodes.length).to.equal(3);
+         expect(nodes[1].name).to.equal('for');
+         expect(nodes[1].var).to.equal('x');
+         expect(nodes[1].seq).to.be.defined;
+         expect(nodes[1].body.name).to.equal('block');
+      });
+   });
 });

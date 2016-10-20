@@ -27,6 +27,8 @@
 'if'           return 'IF';
 'else'         return 'ELSE';
 'while'        return 'WHILE';
+'for'          return 'FOR';
+'in'           return 'IN';
 'NULL'         return 'NULL';
 'TRUE'         return 'TRUE';
 'FALSE'        return 'FALSE';
@@ -129,6 +131,7 @@ expr
    | IF '(' expr ')' expr ELSE expr { $$ = Node.if(yy.lexer.yylloc, $3, $5, $7); }
    | '{' exprList '}'     { $$ = Node.block(yy.lexer.yylloc, $2); }
    | WHILE '(' expr ')' expr { $$ = Node.while(yy.lexer.yylloc, $3, $5); }
+   | FOR '(' VAR 'IN' expr ')' expr  { $$ = Node.for(yy.lexer.yylloc, $3, $5, $7); }
    | LIBRARY '(' VAR ')'  { $$ = Node.library(yy.lexer.yylloc, $3); }
    ;
 

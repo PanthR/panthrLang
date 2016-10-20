@@ -69,6 +69,10 @@ define(function(require) {
       return new Node('while', loc, { test: test, body: body });
    };
 
+   Node.for = function makeFor(loc, v, seq, body) {
+      return new Node('for', loc, { var: v, seq: seq, body: body });
+   };
+
    Node.missing = function makeMissing(loc) {
       return new Node('missing', loc);
    };
