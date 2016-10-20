@@ -432,12 +432,14 @@ define(function(require) {
    function evalWhile(node, frame) {
       var testResult;
 
+      /* eslint-disable no-constant-condition */
       while (true) {
          testResult = evalInFrame(node.test, frame);
          testResult = Resolver.resolveValue(['boolean'])(testResult);
          if (!testResult) { break; }
          evalInFrame(node.body, frame);
       }
+      /* eslint-enable no-constant-condition */
 
       return Value.makeNull();
    }
