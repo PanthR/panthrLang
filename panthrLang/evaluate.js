@@ -168,6 +168,8 @@ define(function(require) {
          return evalIf(node, frame);
       case 'while':
          return evalWhile(node, frame);
+      case 'for':
+         return evalFor(node, frame);
       case 'fun_call':
          return evalCall(evalInFrame(node.fun, frame),
                          evalActuals(node.args, frame), node.fun.loc);
@@ -440,6 +442,21 @@ define(function(require) {
          evalInFrame(node.body, frame);
       }
       /* eslint-enable no-constant-condition */
+
+      return Value.makeNull();
+   }
+
+   function evalFor(node, frame) {
+      var seq, extFrame;
+
+      seq = evalInFrame(node.seq, frame);
+      seq = Resolver.resolveValue(['variable', 'list'])(seq);
+      // extFrame = frame.extend();
+
+      seq.each(function(v) {
+         frame.store(node.var, Value.wrap(v));
+         evalInFrame(node.body, frame);
+      });
 
       return Value.makeNull();
    }

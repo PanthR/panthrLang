@@ -25,4 +25,17 @@ describe('The evaluator', function() {
       expect(evs[3].type).to.equal('scalar');
       expect(evs[3].value.toArray()).to.deep.equal([1]);
    });
+   it('evaluates for statements', function() {
+      var evs = main.eval('y = 0; for (x in 1:5) { y = y + x }; y');
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([15]);
+
+      evs = main.eval('y = 0; for (i in 1:5) { i = 2; y = y + i }; y');
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([10]);
+
+      evs = main.eval('y = 0; for (x in list(a=1:4, b=2:5)) { y = y + x }; y');
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([3, 5, 7, 9]);
+   });
 });
