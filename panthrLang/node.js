@@ -73,6 +73,14 @@ define(function(require) {
       return new Node('for', loc, { var: v, seq: seq, body: body });
    };
 
+   Node.break = function makeBreak(loc) {
+      return new Node('break', loc);
+   };
+
+   Node.next = function makeNext(loc) {
+      return new Node('next', loc);
+   };
+
    Node.missing = function makeMissing(loc) {
       return new Node('missing', loc);
    };

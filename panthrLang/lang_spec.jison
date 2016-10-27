@@ -29,6 +29,8 @@
 'while'        return 'WHILE';
 'for'          return 'FOR';
 'in'           return 'IN';
+'break'        return 'BREAK';
+'next'         return 'NEXT';
 'NULL'         return 'NULL';
 'TRUE'         return 'TRUE';
 'FALSE'        return 'FALSE';
@@ -132,6 +134,8 @@ expr
    | '{' exprList '}'     { $$ = Node.block(yy.lexer.yylloc, $2); }
    | WHILE '(' expr ')' expr { $$ = Node.while(yy.lexer.yylloc, $3, $5); }
    | FOR '(' VAR 'IN' expr ')' expr  { $$ = Node.for(yy.lexer.yylloc, $3, $5, $7); }
+   | BREAK { $$ = Node.break(yy.lexer.yylloc); }
+   | NEXT { $$ = Node.next(yy.lexer.yylloc); }
    | LIBRARY '(' VAR ')'  { $$ = Node.library(yy.lexer.yylloc, $3); }
    ;
 

@@ -65,4 +65,12 @@ describe('The parser parses', function() {
          expect(nodes[1].body.name).to.equal('block');
       });
    });
+   it('break and next expressions', function() {
+      main.parse('x = 0; for (i in 1:10) { if (i < 3) next; if (i > 5) break; x=x+i; }; i; x',
+         function(nodes) {
+         expect(nodes.length).to.equal(4);
+         expect(nodes[1].body.exprs[0].then.name).to.equal('next');
+         expect(nodes[1].body.exprs[1].then.name).to.equal('break');
+      });
+   });
 });
