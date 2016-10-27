@@ -447,11 +447,10 @@ define(function(require) {
    }
 
    function evalFor(node, frame) {
-      var seq, extFrame;
+      var seq;
 
       seq = evalInFrame(node.seq, frame);
       seq = Resolver.resolveValue(['variable', 'list'])(seq);
-      // extFrame = frame.extend();
 
       seq.each(function(v) {
          frame.store(node.var, Value.wrap(v));
