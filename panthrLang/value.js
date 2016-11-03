@@ -30,6 +30,26 @@ define(function(require) {
    Value.null.value = Value.null;
    Value.undefined = new Value('undefined' /* , undefined */);
 
+   Value.ControlFlowException = function ControlFlowException(message, loc, type) {
+      this.message = message;
+      this.loc = loc;
+      this.type = type;
+   };
+
+   Value.ControlFlowException.prototype = Object.create(Error.prototype);
+   Value.ControlFlowException.prototype.name = 'ControlFlowException';
+   Value.ControlFlowException.prototype.constructor = Value.ControlFlowException;
+
+   Value.break = function throwBreak(loc) {
+      return new Value.ControlFlowException('break used without enclosing while/for loop',
+         loc, 'break');
+   };
+
+   Value.next = function throwNext(loc) {
+      return new Value.ControlFlowException('next used without enclosing while/for loop',
+         loc, 'next');
+   };
+
    Value.setEvalInFrame = function(f) {
       evalInFrame = f;
 

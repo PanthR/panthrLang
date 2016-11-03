@@ -56,6 +56,9 @@ define(function(require) {
             try {
                return evalInFrame(node, frame);
             } catch (e) {
+               if (e instanceof Value.ControlFlowException) {
+                  return errorInfo(e.message, e.loc);
+               }
                if (e instanceof Error) {
                   // An actual javascript/logic error
                   // Not a language error
@@ -136,6 +139,8 @@ define(function(require) {
       case 'string': return Value.makeString(node.value);
       case 'missing': return Value.makeLogical(Base.utils.missing);
       case 'null': return Value.makeNull();
+      case 'break': throw Value.break(node.loc);
+      case 'next': throw Value.next(node.loc);
       case 'range':
          return evalRange(evalInFrame(node.from, frame),
                           evalInFrame(node.to, frame),
@@ -416,6 +421,9 @@ define(function(require) {
          try {
             return Value.functionFromValue(clos)(actuals);
          } catch (e) {
+            if (e instanceof Value.ControlFlowException) {
+               throw errorInfo(e.message, e.loc);
+            }
             throw errorInfo(e.message || e.toString(), loc);
          }
       }
@@ -434,14 +442,19 @@ define(function(require) {
    function evalWhile(node, frame) {
       var testResult;
 
-      /* eslint-disable no-constant-condition */
-      while (true) {
-         testResult = evalInFrame(node.test, frame);
-         testResult = Resolver.resolveValue(['boolean'])(testResult);
-         if (!testResult) { break; }
-         evalInFrame(node.body, frame);
+      try {
+         /* eslint-disable no-constant-condition */
+         while (true) {
+            testResult = evalInFrame(node.test, frame);
+            testResult = Resolver.resolveValue(['boolean'])(testResult);
+            if (!testResult) { break; }
+            evalInFrame(node.body, frame);
+         }
+         /* eslint-enable no-constant-condition */
+      } catch (e) {
+         if (!(e instanceof Value.ControlFlowException)) { throw e; }
+         if (e.type !== 'break') { throw e; }
       }
-      /* eslint-enable no-constant-condition */
 
       return Value.makeNull();
    }
@@ -452,10 +465,20 @@ define(function(require) {
       seq = evalInFrame(node.seq, frame);
       seq = Resolver.resolveValue(['variable', 'list'])(seq);
 
-      seq.each(function(v) {
-         frame.store(node.var, Value.wrap(v));
-         evalInFrame(node.body, frame);
-      });
+      try {
+         seq.each(function(v) {
+            frame.store(node.var, Value.wrap(v));
+            try {
+               evalInFrame(node.body, frame);
+            } catch (e) { // cath a next
+               if (!(e instanceof Value.ControlFlowException)) { throw e; }
+               if (e.type !== 'next') { throw e; }
+            }
+         });
+      } catch (e) { // catch a break
+         if (!(e instanceof Value.ControlFlowException)) { throw e; }
+         if (e.type !== 'break') { throw e; }
+      }
 
       return Value.makeNull();
    }

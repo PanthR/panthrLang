@@ -38,4 +38,68 @@ describe('The evaluator', function() {
       expect(evs[2].type).to.equal('scalar');
       expect(evs[2].value.toArray()).to.deep.equal([3, 5, 7, 9]);
    });
+   it('handles break and next in for loops', function() {
+      var evs = main.eval('x = 0; for (i in 1:10) { if (i < 3) next; if (i > 5) break; x=x+i; }; i; x');
+
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([6]);
+      expect(evs[3].type).to.equal('scalar');
+      expect(evs[3].value.toArray()).to.deep.equal([12]);
+   });
+   it('handles break in while loops', function() {
+      var evs = main.eval(
+         'a=1; b=1; while(b < 300) { sum=a+b; a=b;\
+            if (b > 2) break; b=sum; }\n a; b;'
+      );
+
+      expect(evs[3].type).to.equal('scalar');
+      expect(evs[3].value.toArray()).to.deep.equal([3]);
+      expect(evs[4].type).to.equal('scalar');
+      expect(evs[4].value.toArray()).to.deep.equal([3]);
+      expect(evs[2].type).to.equal('null');
+   });
+   it('handles next in nested loops', function() {
+      var evs = main.eval(
+         'x = 0; y = 0; for (j in 1:3) { \
+            for (i in 1:5) { next; };\
+            x = x + i; y = y + j; \
+         }; i; x; y'
+      );
+
+      expect(evs[3].type).to.equal('scalar'); // i
+      expect(evs[3].value.toArray()).to.deep.equal([5]);
+      expect(evs[4].type).to.equal('scalar'); // x
+      expect(evs[4].value.toArray()).to.deep.equal([15]);
+      expect(evs[5].type).to.equal('scalar'); // y
+      expect(evs[5].value.toArray()).to.deep.equal([6]);
+   });
+   it('handles break in nested loops', function() {
+      var evs = main.eval(
+         'x = 0; y = 0; for (j in 1:3) { \
+            for (i in 1:5) { break; };\
+            x = x + i; y = y + j; \
+         }; i; x; y'
+      );
+
+      expect(evs[3].type).to.equal('scalar'); // i
+      expect(evs[3].value.toArray()).to.deep.equal([1]);
+      expect(evs[4].type).to.equal('scalar'); // x
+      expect(evs[4].value.toArray()).to.deep.equal([3]);
+      expect(evs[5].type).to.equal('scalar'); // y
+      expect(evs[5].value.toArray()).to.deep.equal([6]);
+
+      evs = main.eval(
+         'x = 0; y = 0; j = 1; while (j < 4) { \
+            i = 1; while (i < 6) { break; i = i + 1 };\
+            x = x + i; y = y + j; j = j + 1 \
+         }; i; x; y'
+      );
+
+      expect(evs[4].type).to.equal('scalar'); // i
+      expect(evs[4].value.toArray()).to.deep.equal([1]);
+      expect(evs[5].type).to.equal('scalar'); // x
+      expect(evs[5].value.toArray()).to.deep.equal([3]);
+      expect(evs[6].type).to.equal('scalar'); // y
+      expect(evs[6].value.toArray()).to.deep.equal([6]);
+   });
 });
