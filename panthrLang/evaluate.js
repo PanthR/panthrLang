@@ -83,6 +83,8 @@ define(function(require) {
          if (current.name === packageName) {
             return current.package;
          }
+
+         current = current.next;
       }
 
       return null;
