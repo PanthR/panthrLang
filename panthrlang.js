@@ -48,12 +48,14 @@ define(function(require) {
 
          ev = new Evaluate();
          ev.parseAndEval('library(base)');
+         ev.parseAndEval('library(stats)');
 
          return ev.parseAndEval(str);
       }
    };
 
    Evaluate.addPackage('base', require('./packages/base'));
+   Evaluate.addPackage('stats', require('./packages/stats'));
 
    return panthrLang;
 
