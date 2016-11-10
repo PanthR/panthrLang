@@ -31,4 +31,23 @@ describe('The stats package', function() {
       expect(evs[3].value.get(2)).to.be.within(20 - 5 * 1, 20 + 5 * 1);
       expect(evs[3].value.get(4)).to.be.within(20 - 5 * 1, 20 + 5 * 1);
    });
+   it('contains dnorm', function() {
+      var evs = main.eval('dnorm(3, 1, 1, log=TRUE); dnorm(44:45, 50, 3); dnorm(2, mean=c(1, 5), sd=1:4)');
+
+      expect(evs[0].type).to.equal('scalar');
+      expect(evs[0].value.length()).to.equal(1);
+      expect(evs[0].value.get(1)).to.be.below(0);
+
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.length()).to.equal(2);
+      expect(evs[1].value.get(1)).to.be.below(evs[1].value.get(2));
+
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.length()).to.equal(4);
+      expect(evs[2].value.get(1)).to.be.within(0, .5);
+      expect(evs[2].value.get(2)).to.be.within(0, .5);
+      expect(evs[2].value.get(3)).to.be.within(0, .5);
+      expect(evs[2].value.get(4)).to.be.within(0, .5);
+
+   });
 });

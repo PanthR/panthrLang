@@ -18,6 +18,19 @@ define(function(require) {
             .addDefault('mean', function() { return Base.Variable.scalar([0]); })
             .addDefault('sd', function() { return Base.Variable.scalar([1]); });
       });
+      addBuiltin('dnorm', function(lst) {
+         return Value.wrap(Base.stats.dnorm(lst.get('x'), {
+            mu: lst.get('mean'), sigma: lst.get('sd'), log: lst.get('log')
+         }));
+      }, function(resolver) {
+         resolver.addParameter('x', ['scalar'], true)
+            .addParameter('mean', ['scalar'], false)
+            .addParameter('sd', ['scalar'], false)
+            .addParameter('log', ['boolean'], false)
+            .addDefault('mean', function() { return Base.Variable.scalar([0]); })
+            .addDefault('sd', function() { return Base.Variable.scalar([1]); })
+            .addDefault('log', function() { return false; });
+      });
    };
 });
 
