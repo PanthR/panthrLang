@@ -15,7 +15,7 @@ define(function(require) {
    Console.prototype = {
       initialize: function initialize() {
          this.evaluator = new Evaluate();
-         this.evaluator.parseAndEval('library(base)');
+         this.evaluator.parseAndEval('library(base); library(stats)');
 
          return this;
       },
