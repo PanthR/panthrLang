@@ -2,7 +2,7 @@ $(function() {
    /* global Handlebars, panthrLang, $ */
    var webConsole, outputTemplate;
 
-   webConsole = panthrLang.Console.web();
+   webConsole = panthrLang.Console.web({ decimals: 5 });
 
    outputTemplate = Handlebars.compile($('#output-template').html());
 
