@@ -50,4 +50,23 @@ describe('The stats package', function() {
       expect(evs[2].value.get(4)).to.be.within(0, .5);
 
    });
+   it('contains pnorm', function() {
+      var evs = main.eval('pnorm(3, 1, 1, log=TRUE); pnorm(44:45, 50, 3, log.p=TRUE); pnorm(2, mean=c(1, 5), sd=1:4, lower.tail=FALSE)');
+
+      expect(evs[0].type).to.equal('scalar');
+      expect(evs[0].value.length()).to.equal(1);
+      expect(evs[0].value.get(1)).to.be.below(0);
+
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.length()).to.equal(2);
+      expect(evs[1].value.get(2)).to.be.below(0);
+      expect(evs[1].value.get(1)).to.be.below(evs[1].value.get(2));
+
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.length()).to.equal(4);
+      expect(evs[2].value.get(1)).to.be.below(0.5);
+      expect(evs[2].value.get(2)).to.be.above(0.5);
+      expect(evs[2].value.get(3)).to.be.below(0.5);
+      expect(evs[2].value.get(4)).to.be.above(0.5);
+   });
 });
