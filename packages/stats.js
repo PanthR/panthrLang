@@ -5,17 +5,35 @@ define(function(require) {
 
    Base = require('panthrbase/index');
 
-// It needs to always return a function with the following signature:
    return function(evalLang, addBuiltin, Value) {
 
       addDistrFunctions('norm', { mu: ['mean', 0], sigma: ['sd', 1] });
+      addDistrFunctions('unif', { min: ['min', 0], max: ['max', 1] });
+      addDistrFunctions('beta', { a: ['shape1'], b: ['shape2'] });
+      addDistrFunctions('gamma', { a: ['shape'], s: ['scale'] }, function(resolver) {
+         resolver.addParameter('shape', ['scalar'], true)
+            .addParameter('scale', ['scalar'], true)
+            .addParameter('rate', ['scalar'], false)
+            .addDependent('scale', 'rate', function(rateVar) {
+               return rateVar.map(function(rate) { return 1 / rate; }, true);
+            });
+      });
+      addDistrFunctions('t', { df: ['df'] });
+      addDistrFunctions('chisq', { df: ['df'] });
+      addDistrFunctions('binom', { size: ['size'], p: ['prob'] });
+      addDistrFunctions('pois', { lambda: ['lambda'] });
+      addDistrFunctions('geom', { prob: ['prob'] });
+      addDistrFunctions('exp', { rate: ['rate', 1] });
 
       // Builds r/d/p/q functions based on the distr name
       // and parameter defaults
-      function addDistrFunctions(distr, defaults) {
+      // If `customDefaults` is provided, it is used by the resolver in place
+      // of the usual parameter requirements for the function call.
+      function addDistrFunctions(distr, defaults, customDefaults) {
          var addDistrDefaults;
 
-         addDistrDefaults = addDefaults(defaults);
+         addDistrDefaults = customDefaults == null ? addDefaults(defaults)
+                                                   : customDefaults;
 
          addBuiltin('r' + distr, function(lst) {
             return Value.wrap(Base.stats['r' + distr](
@@ -91,14 +109,17 @@ define(function(require) {
    function addDefaults(defaults) {
       return function(resolver) {
          Object.keys(defaults).forEach(function(key) {
-            var keyName, keyDefault;
+            var keyName, keyDefault, hasDefault;
 
             keyName = defaults[key][0];
             keyDefault = defaults[key][1];
-            resolver.addParameter(keyName, ['scalar'], false);
-            resolver.addDefault(keyName, function() {
-               return Base.Variable.scalar(keyDefault);
-            });
+            hasDefault = keyDefault != null;
+            resolver.addParameter(keyName, ['scalar'], !hasDefault);
+            if (hasDefault) {
+               resolver.addDefault(keyName, function() {
+                  return Base.Variable.scalar(keyDefault);
+               });
+            }
          });
       };
    }
