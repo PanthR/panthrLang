@@ -45,7 +45,7 @@
 '$'            return 'DOLLAR';
 '%%'           return 'MOD';
 '%/%'          return 'DIV';
-\w[\w\.]*      return 'VAR';
+[a-zA-Z\_][\w\.]*|\.[a-zA-Z\_\.]\w*      return 'VAR';
 <<EOF>>        return 'EOF';
 
 /lex

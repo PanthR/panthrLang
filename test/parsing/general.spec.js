@@ -67,7 +67,7 @@ describe('The parser parses', function() {
       });
    });
    it('variables', function() {
-      ['xy23', '_foo', 'test.this'].forEach(function(str) {
+      ['xy23', '_foo', 'test.this', '.allowed','ok_with_this.1', '..'].forEach(function(str) {
          main.parse(str, function(nodes) {
             expect(nodes.length).to.equal(1);
             expect(nodes[0].name).to.equal('variable');
