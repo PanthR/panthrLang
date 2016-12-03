@@ -14,6 +14,7 @@ define(function(require) {
          resolver.addParameter('shape', ['scalar'], true)
             .addParameter('scale', ['scalar'], true)
             .addParameter('rate', ['scalar'], false)
+            .addDefault('rate', function() { return Base.Variable([1]); })
             .addDependent('scale', 'rate', function(rateVar) {
                return rateVar.map(function(rate) { return 1 / rate; }, true);
             });
