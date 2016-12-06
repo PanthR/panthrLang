@@ -136,9 +136,9 @@ define(function(require) {
    /* eslint-disable complexity */
    function evalInFrame(node, frame) {
       switch (node.name) {
-      case 'number': return Value.makeScalar(node.value);
-      case 'boolean': return Value.makeLogical(node.value);
-      case 'string': return Value.makeString(node.value);
+      case 'number': return Value.makeScalar([node.value]);
+      case 'boolean': return Value.makeLogical([node.value]);
+      case 'string': return Value.makeString([node.value]);
       case 'missing': return Value.makeLogical(Base.utils.missing);
       case 'null': return Value.makeNull();
       case 'break': throw Value.break(node.loc);

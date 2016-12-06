@@ -178,15 +178,15 @@ define(function(require) {
    };
 
    Value.makeScalar = function makeScalar(value) {
-      return Value.makeVariable(new Base.Variable([value], { mode: 'scalar' }));
+      return Value.makeVariable(new Base.Variable(value, { mode: 'scalar' }));
    };
 
    Value.makeString = function makeString(value) {
-      return Value.makeVariable(new Base.Variable([value], { mode: 'string' }));
+      return Value.makeVariable(new Base.Variable(value, { mode: 'string' }));
    };
 
    Value.makeLogical = function makeLogical(value) {
-      return Value.makeVariable(new Base.Variable([value], { mode: 'logical' }));
+      return Value.makeVariable(new Base.Variable(value, { mode: 'logical' }));
    };
 
    // Creates the appropriate type from a provided variable
