@@ -17,6 +17,19 @@ describe('The parser parses', function() {
          });
       });
    });
+   it('integers in hexadecimal correctly', function() {
+      [['0x5', 5], ['0xaA2', 2722], ['0xffff',65535]].forEach(function(pair) {
+         var num = pair[0];
+         var val = pair[1];
+         main.parse(num, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            var node = nodes[0];
+            expect(node.name).to.equal('number');
+            expect(node.value).to.be.a('number');
+            expect(node.value).to.equal(val);
+         });
+      });
+   });
    it('floats correctly', function() {
       ['2.34', '0.23', '0.1e-10'].forEach(function(num) {
          main.parse(num, function(nodes) {

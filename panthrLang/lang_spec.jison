@@ -18,6 +18,7 @@
 <singlequote>(\\.|[^'])*   return 'STRING';
 
 [ \t]+         {/* skip whitespace */}
+0x[0-9a-fA-F]+ return 'HEXNUM';
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
 \n|';'         return 'EOL';
 '&&'           return '&&';
@@ -96,6 +97,7 @@ topExpr
 
 expr
    : NUM           { $$ = Node.number(yy.lexer.yylloc, parseFloat($1)); }
+   | HEXNUM        { $$ = Node.number(yy.lexer.yylloc, parseInt($1)); }
    | STRING        { $$ = Node.string(yy.lexer.yylloc, $1); }
    | TRUE          { $$ = Node.boolean(yy.lexer.yylloc, true); }
    | FALSE         { $$ = Node.boolean(yy.lexer.yylloc, false); }
