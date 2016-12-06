@@ -18,6 +18,25 @@ define(function(require) {
       // to return an appropriate value of type "Value".
       // All built-in functions should expect a Base.List
       //
+      addBinding('pi', Value.wrap(Math.PI));
+      addBinding('LETTERS', Value.makeString([
+         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+         'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+         'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+      ]));
+      addBinding('letters', Value.makeString([
+         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+         'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+      ]));
+      addBinding('month.abb', Value.makeString([
+         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ]));
+      addBinding('month.name', Value.makeString([
+         'January', 'February', 'March', 'April', 'May', 'June',
+         'July', 'August', 'September', 'October', 'November', 'December'
+      ]));
       addBuiltin('+', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
