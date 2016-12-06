@@ -118,7 +118,10 @@ define(function(require) {
                if (config != null) { config(resolver); }
                newEval.global.store(name, Value.makeBuiltin(f, resolver));
             },
-            Value
+            Value,
+            function addBinding(name, value) {
+               newEval.global.store(name, value);
+            }
          );
          // Now we need to prepend to the global's package list
          global.loadedPackages = {

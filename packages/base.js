@@ -7,7 +7,7 @@ define(function(require) {
    Base = require('panthrbase/index');
 
 // It needs to always return a function with the following signature:
-   return function(evalLang, addBuiltin, Value) {
+   return function(evalLang, addBuiltin, Value, addBinding) {
       // It can call on each of these to create new bindings.
       // For instance we could do:
       // evalLang('foo <- 3.1456'); where the string '3.1456' will be evaluated
