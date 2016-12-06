@@ -287,6 +287,51 @@ define(function(require) {
             }, 'scalar')
          );
       }, configSingleScalar);
+      addBuiltin('cos', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.cos(x);
+            }, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('tan', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.tan(x);
+            }, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('asin', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.asin(x);
+            }, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('acos', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.acos(x);
+            }, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('atan', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.atan(x);
+            }, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('atan2', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get('y'), lst.get('x'), function(y, x) {
+               return Math.atan2(y, x);
+            }, 'scalar')
+         );
+      }, function(resolver) {
+         resolver.addParameter('y', 'scalar', true);
+         resolver.addParameter('x', 'scalar', true);
+      });
       /*
        * Supported expressions:
        *
