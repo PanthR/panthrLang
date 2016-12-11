@@ -46,6 +46,10 @@ define(function(require) {
 
          return this;
       },
+      // Returns whether the frame itself has a symbol
+      hasOwnSymbol: function hasOwnSymbol(symbol) {
+         return this.values.hasOwnProperty(symbol);
+      },
       // Returns the frame's parent frame
       getParent: function getParent() { return this.parent; },
       // Returns the "global" frame corresponding to the frame, by following
