@@ -122,6 +122,9 @@ describe('The parser parses', function() {
             expect(nodes.length).to.equal(4);
             var node = nodes[0];
             expect(node.name).to.equal('assign_existing');
+            expect(nodes[1].rvalue.body.name).to.equal('block');
+            expect(nodes[1].rvalue.body.exprs.length).to.equal(1);
+            expect(nodes[1].rvalue.body.exprs[0].name).to.equal('assign_existing');
          });
       });
    });
