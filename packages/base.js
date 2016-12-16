@@ -332,6 +332,20 @@ define(function(require) {
          resolver.addParameter('y', 'scalar', true);
          resolver.addParameter('x', 'scalar', true);
       });
+      /* Math functions */
+      addBuiltin('exp', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(function(x) {
+               return Math.exp(x);
+            }, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('expm1', function(lst) {
+         return Value.makeVariable(
+            lst.get(1).map(Base.math.expm1, 'scalar')
+         );
+      }, configSingleScalar);
+
       /*
        * Supported expressions:
        *
