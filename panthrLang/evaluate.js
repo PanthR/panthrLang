@@ -155,11 +155,13 @@ define(function(require) {
       case 'assign':
          return assign(node.lvalue,
                        evalInFrame(node.rvalue, frame).clone(),
-                       frame);
+                       frame,
+                       false);
       case 'assign_existing':
-         return assignExisting(node.lvalue.id,
-                              evalInFrame(node.rvalue, frame).clone(),
-                              frame);
+         return assign(node.lvalue,
+                       evalInFrame(node.rvalue, frame).clone(),
+                       frame,
+                       true);
       case 'dbl_bracket_access':
          return evalListAccess(evalInFrame(node.object, frame),
                                evalInFrame(node.index, frame),
@@ -213,40 +215,29 @@ define(function(require) {
    // Carries out an assignment with a possibly complex lvalue
    // lvalue is a Node
    // rvalue is a Value
-   function assign(lvalue, rvalue, frame) {
+   // isGlobal: true for <<-, false for <-
+   function assign(lvalue, rvalue, frame, isGlobal) {
       switch (lvalue.name) {
       case 'single_bracket_access':
-         evalArrayAssign(lvalue, rvalue, frame);
+         evalArrayAssign(lvalue, rvalue, frame, isGlobal);
          break;
       case 'dbl_bracket_access':
-         evalListAssign(evalInFrame(lvalue.object, frame),
+         evalListAssign(evalInFrame(lvalue.object, frame.getRelevantFrame(isGlobal)),
                         evalInFrame(lvalue.index, frame),
                         rvalue,
                         lvalue.loc);
 
          break;
       case 'fun_call':
-         evalFunCallAssign(lvalue, rvalue, frame);
+         evalFunCallAssign(lvalue, rvalue, frame, isGlobal);
          break;
       case 'variable':
-         frame.store(lvalue.id, rvalue);
+         frame.getFrameForSymbol(lvalue.id, isGlobal).store(lvalue.id, rvalue);
          break;
       default:
          throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
       }
       return rvalue;
-   }
-   // Assigns value to whichever frame in the inheritance chain the
-   // value is defined. If the value is not defined in a previous
-   // frame, it will be created as a global value.
-   function assignExisting(symbol, value, frame) {
-      while (!frame.hasOwnProperty(symbol) &&
-             frame.getParent() !== null) {
-         frame = frame.getParent();
-      }
-      frame.store(symbol, value);
-
-      return value;
    }
 
    function evalRange(a, b, frame, loc) {
@@ -288,10 +279,10 @@ define(function(require) {
       }
    }
 
-   function evalFunCallAssign(lvalue, rvalue, frame) {
+   function evalFunCallAssign(lvalue, rvalue, frame, isGlobal) {
       var args, funCallResult;
 
-      if (lvalue.args.length !== 1) {
+      if (lvalue.args.length !== 1 || lvalue.args[0].name === 'arg_empty') {
          throw errorInfo('Wrong arguments for function call on lhs of assignment', lvalue.loc);
       }
       // 1. change the name of the function.
@@ -300,15 +291,15 @@ define(function(require) {
       }
       lvalue.fun.id += '<-';
       // 2. EvalActuals the arguments to the function
-      args = evalActuals(lvalue.args, frame);
+      args = evalActuals(lvalue.args, frame.getRelevantFrame(isGlobal));
       // 3. Extend them by "value=rhs"
       args.set('value', rvalue);
       // 4. Call the new function
       funCallResult = evalCall(evalInFrame(lvalue.fun, frame),
                                args,
                                lvalue.loc);
-      // 5. Make an assign call, with "x" to the result of 4
-      assign(lvalue.args[0], funCallResult, frame);
+      // 5. Make an assign call, with "x" to the result of 4 (local to lvalueFrame)
+      assign(lvalue.args[0], funCallResult, frame, isGlobal);
    }
 
    // Handles [] access -- "extract"
@@ -331,11 +322,11 @@ define(function(require) {
    }
 
    // Handles [] assignment
-   function evalArrayAssign(node, rvalue, frame) {
+   function evalArrayAssign(node, rvalue, frame, isGlobal) {
       var actuals, fun;
 
       actuals = new Base.List({
-         x: evalInFrame(node.object, frame),
+         x: evalInFrame(node.object, frame.getRelevantFrame(isGlobal)),
          value: rvalue
       });
       actuals.set(evalActuals(node.coords, frame));

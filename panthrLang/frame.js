@@ -50,6 +50,30 @@ define(function(require) {
       hasOwnSymbol: function hasOwnSymbol(symbol) {
          return this.values.hasOwnProperty(symbol);
       },
+      // Returns the correct frame for assigning to a given symbol
+      // if isGlobal === true, starts looking at the parent frame
+      // (or, if current frame is global, uses global frame)
+      // otherwise, looks at current frame only
+      getFrameForSymbol: function getFrameForSymbol(symbol, isGlobal) {
+         var currFrame;
+
+         if (this.parent === null || !isGlobal) { return this; }
+
+         currFrame = this.parent;
+         while (!currFrame.hasOwnSymbol(symbol) &&
+                currFrame.getParent() !== null) {
+            currFrame = currFrame.getParent();
+         }
+
+         return currFrame;
+      },
+      // returns `this` frame, or `this.parent`, whichever is the appropriate
+      // evaluation frame for the assignment type (global versus local).
+      getRelevantFrame: function getRelevantFrame(isGlobal) {
+         if (this.parent === null || !isGlobal) { return this; }
+
+         return this.parent;
+      },
       // Returns the frame's parent frame
       getParent: function getParent() { return this.parent; },
       // Returns the "global" frame corresponding to the frame, by following

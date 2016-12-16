@@ -15,6 +15,19 @@ describe('The evaluator', function() {
       expect(evs[1].value.get(1)).to.equal(2);
       expect(evs[3].value.get(1)).to.equal(10);
       expect(evs[4].value.get(1)).to.equal(5);
+
+      evs = main.eval('f = function() { x <<- 1:4; x <- 3; x[x] <<-6 }; f(); x');
+      expect(evs.length).to.equal(3);
+      expect(evs[2].value.toArray()).to.deep.equal([1, 2, 6, 4]);
+
+      evs = main.eval('f = function() { x<-10; x<<-12; `names<-`<-function(x, value) { 3 }; names(x)<<-"hi"; names(x) <- "ho"; x }; f(); x; x <- 3; names(x) <- "hi"; x');
+      expect(evs[1].value.toArray()).to.deep.equal([3]);
+      expect(Base.utils.isMissing(evs[1].value.names())).to.be.ok;
+      expect(evs[2].value.toArray()).to.deep.equal([3]);
+      expect(Base.utils.isMissing(evs[2].value.names())).to.be.ok;
+      expect(evs[1].value).to.not.equal(evs[2].value);
+      expect(evs[5].value.toArray()).to.deep.equal([3]);
+      expect(evs[5].value.names().toArray()).to.deep.equal(["hi"]);
    });
    it('evaluates single-bracket lvalue assignment properly', function() {
       var evs = main.eval('x<-1:4; x[2]<-6; x[2]; x');
