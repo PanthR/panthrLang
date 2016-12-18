@@ -396,6 +396,32 @@ define(function(require) {
             lst.get('x').map(Math.ceil, 'scalar')
          );
       }, configSingleScalar);
+      addBuiltin('gamma', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Base.math.gamma, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('lgamma', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Base.math.lgamma, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('beta', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get('a'), lst.get('b'), Base.math.beta, 'scalar')
+         );
+      }, function(resolver) {
+         resolver.addParameter('a', 'scalar', true)
+            .addParameter('b', 'scalar', true);
+      });
+      addBuiltin('lbeta', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get('a'), lst.get('b'), Base.math.lbeta, 'scalar')
+         );
+      }, function(resolver) {
+         resolver.addParameter('a', 'scalar', true)
+            .addParameter('b', 'scalar', true);
+      });
       /*
        * Supported expressions:
        *
