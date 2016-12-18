@@ -7,6 +7,7 @@ define(function(require) {
    Base = require('panthrbase/index');
 
 // It needs to always return a function with the following signature:
+   /* eslint-disable max-statements */
    return function(evalLang, addBuiltin, Value, addBinding) {
       // It can call on each of these to create new bindings.
       // For instance we could do:
@@ -280,6 +281,7 @@ define(function(require) {
             });
       });
 
+      /* Math functions */
       addBuiltin('sin', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) {
@@ -332,7 +334,6 @@ define(function(require) {
          resolver.addParameter('y', 'scalar', true);
          resolver.addParameter('x', 'scalar', true);
       });
-      /* Math functions */
       addBuiltin('exp', function(lst) {
          return Value.makeVariable(
             lst.get(1).map(function(x) {
@@ -345,7 +346,36 @@ define(function(require) {
             lst.get(1).map(Base.math.expm1, 'scalar')
          );
       }, configSingleScalar);
+      addBuiltin('log', function(lst) {
+         var logBase;
 
+         logBase = Math.log(lst.get('base'));
+
+         return Value.makeVariable(
+            lst.get('x').map(function(x) {
+               return Math.log(x) / logBase;
+            }, 'scalar')
+         );
+      }, function(resolver) {
+         resolver.addParameter('x', 'scalar', true)
+            .addParameter('base', 'number', false)
+            .addDefault('base', function() { return Math.exp(1); });
+      });
+      addBuiltin('log10', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Base.math.log10, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('log2', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Base.math.log2, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('log1p', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Base.math.log1p, 'scalar')
+         );
+      }, configSingleScalar);
       /*
        * Supported expressions:
        *
@@ -400,6 +430,7 @@ define(function(require) {
       // TODO: Add a whole lot more here.
 
    };
+   /* eslint-enable max-statements */
 
    // Helper functions
    function doDiv(v1, v2) {
