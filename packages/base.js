@@ -376,6 +376,26 @@ define(function(require) {
             lst.get('x').map(Base.math.log1p, 'scalar')
          );
       }, configSingleScalar);
+      addBuiltin('abs', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Math.abs, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('sqrt', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Math.sqrt, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('floor', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Math.floor, 'scalar')
+         );
+      }, configSingleScalar);
+      addBuiltin('ceiling', function(lst) {
+         return Value.makeVariable(
+            lst.get('x').map(Math.ceil, 'scalar')
+         );
+      }, configSingleScalar);
       /*
        * Supported expressions:
        *
