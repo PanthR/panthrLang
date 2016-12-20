@@ -87,4 +87,26 @@ describe('The evaluator handles standard math functions:', function() {
       expect(ev[0].type).to.equal('scalar');
       expect(ev[0].value.toArray()[0]).to.be.closeTo(-4.09434456222210, 1e-10);
    });
+   it('lchoose', function() {
+      var ev = main.eval('lchoose(n = 10, k = 3)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()[0]).to.be.closeTo(4.7874917427820458116, 1e-10);
+   });
+   it('choose', function() {
+      var ev = main.eval('choose(n = 10, k = 3)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()[0]).to.equal(120);
+   });
+   it('factorial', function() {
+      var ev = main.eval('factorial(5); factorial(5.4)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()[0]).to.equal(120);
+      expect(ev[1].type).to.equal('scalar');
+      expect(ev[1].value.toArray()[0]).to.be.closeTo(240.83377998344604976, 1e-10);
+   });
+   it('lfactorial', function() {
+      var ev = main.eval('lfactorial(5)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()[0]).to.be.closeTo(Math.log(120), 1e-10);
+   });
 });

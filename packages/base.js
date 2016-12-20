@@ -422,6 +422,24 @@ define(function(require) {
          resolver.addParameter('a', 'scalar', true)
             .addParameter('b', 'scalar', true);
       });
+      addBuiltin('lchoose', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get('n'), lst.get('k'), Base.math.lchoose, 'scalar')
+         );
+      }, function(resolver) {
+         resolver.addParameter('n', 'scalar', true)
+            .addParameter('k', 'scalar', true);
+      });
+      addBuiltin('choose', function(lst) {
+         return Value.makeVariable(
+            Base.Variable.mapPair(lst.get('n'), lst.get('k'), Base.math.choose, 'scalar')
+         );
+      }, function(resolver) {
+         resolver.addParameter('n', 'scalar', true)
+            .addParameter('k', 'scalar', true);
+      });
+      evalLang('factorial <- function(n) { gamma(n + 1) }');
+      evalLang('lfactorial <- function(n) { lgamma(n + 1) }');
       /*
        * Supported expressions:
        *
