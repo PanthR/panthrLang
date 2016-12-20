@@ -491,6 +491,24 @@ define(function(require) {
                return 1;
             });
       });
+
+      // Accumulators
+      addBuiltin('cumsum', function(lst) {
+         return Value.makeVariable(lst.get('x').cumSum(), 'scalar');
+      }, configSingleScalar);
+      addBuiltin('cumprod', function(lst) {
+         return Value.makeVariable(lst.get('x').cumProd(), 'scalar');
+      }, configSingleScalar);
+      addBuiltin('cummax', function(lst) {
+         return Value.makeVariable(lst.get('x').cumMax(), 'scalar');
+      }, configSingleScalar);
+      addBuiltin('cummin', function(lst) {
+         return Value.makeVariable(lst.get('x').cumMin(), 'scalar');
+      }, configSingleScalar);
+      addBuiltin('diff', function(lst) {
+         return Value.makeVariable(lst.get('x').diff(), 'scalar');
+      }, configSingleScalar);
+
       // TODO: Add a whole lot more here.
 
    };

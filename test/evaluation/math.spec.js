@@ -109,4 +109,29 @@ describe('The evaluator handles standard math functions:', function() {
       expect(ev[0].type).to.equal('scalar');
       expect(ev[0].value.toArray()[0]).to.be.closeTo(Math.log(120), 1e-10);
    });
+   it('cumsum', function() {
+      var ev = main.eval('cumsum(1:5)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()).to.deep.equal([1, 3, 6, 10, 15]);
+   });
+   it('cumprod', function() {
+      var ev = main.eval('cumprod(1:5)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()).to.deep.equal([1, 2, 6, 24, 120]);
+   });
+   it('cummax', function() {
+      var ev = main.eval('cummax(1:5)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()).to.deep.equal([1, 2, 3, 4, 5]);
+   });
+   it('cummin', function() {
+      var ev = main.eval('cummin(1:5)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()).to.deep.equal([1, 1, 1, 1, 1]);
+   });
+   it('diff', function() {
+      var ev = main.eval('diff(1:5)');
+      expect(ev[0].type).to.equal('scalar');
+      expect(ev[0].value.toArray()).to.deep.equal([1, 1, 1, 1]);
+   });
 });
