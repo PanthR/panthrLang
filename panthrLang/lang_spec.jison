@@ -107,7 +107,7 @@ expr
    | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }
    | EOL expr      { $$ = $2; }
-   | '(' expr ')'  { $$ = $2; }
+   | '(' topExpr ')'  { $$ = $2; }
    | expr ':' expr { $$ = Node.range(yy.lexer.yylloc, $1, $3); }
    | '!' expr      { $$ = Node.funCall(yy.lexer.yylloc, '!', [$2]); }
    | expr '|' expr { $$ = Node.funCall(yy.lexer.yylloc, '|', [$1, $3]); }
