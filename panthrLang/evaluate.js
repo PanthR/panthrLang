@@ -373,7 +373,7 @@ define(function(require) {
       exprs.forEach(function(expr) {
          switch (expr.name) {
          case 'arg_named':
-            addNamedValue(expr.id, evalInFrame(expr.value, frame), expr.loc);
+            addNamedValue(expr.id, Value.makeDelayed(expr.value, frame), expr.loc);
             break;
          case 'arg_dots':
             // Need to look for a defined dots in the immediate environment
@@ -395,7 +395,7 @@ define(function(require) {
             addValue(Value.makeUndefined());
             break;
          default:
-            addValue(evalInFrame(expr, frame));
+            addValue(Value.makeDelayed(expr, frame));
          }
       });
 

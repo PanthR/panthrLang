@@ -73,4 +73,12 @@ describe('The evaluator', function() {
       expect(evs[1].type).to.equal('scalar');
       expect(evs[1].value.toArray()).to.deep.equal([7]);
    });
+   it('resolves passed parameters lazily', function() {
+      var evs = main.eval('g <- function(y) { }; x <- 1:3; g((x[1] = 4)); x');
+      expect(evs[3].value.toArray()).to.deep.equal([1, 2, 3]);
+   });
+   it('resolves passed parameters at most once', function() {
+      var evs = main.eval('g <- function(y) { y; y }; x <- 1:3; g((x[1] = x[1]+1)); x');
+      expect(evs[3].value.toArray()).to.deep.equal([2, 2, 3]);
+   });
 });
