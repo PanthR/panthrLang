@@ -309,6 +309,7 @@ define(function(require) {
       return function(value) {
          var i, j, valueTypes, conversion;
 
+         value.resolve();
          valueTypes = Resolver.getValueTypes(value);
 
          for (i = 0; i < targetTypes.length; i += 1) {

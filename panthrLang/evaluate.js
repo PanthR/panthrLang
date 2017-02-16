@@ -205,11 +205,12 @@ define(function(require) {
          }
          throw errorInfo('Unknown symbol: ' + symbol, loc);
       }
-      try {
-         return val.resolve();
-      } catch (e) {
-         throw errorInfo((e.message || e.toString()) + ' when accessing symbol ' + symbol, loc);
+      val.resolve();
+      if (val.type === 'undefined') {
+         throw errorInfo('Accessing undefined parameter ' + symbol, loc);
       }
+
+      return val;
    }
 
    // Carries out an assignment with a possibly complex lvalue

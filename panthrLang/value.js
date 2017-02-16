@@ -296,8 +296,6 @@ define(function(require) {
          val = this.value.thunk();
          this.type = val.type;
          this.value = val.value;
-      } else if (this.type === 'undefined') {
-         throw new Error('missing argument');
       }
 
       return this;
