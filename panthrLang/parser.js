@@ -198,7 +198,7 @@ case 43:
  this.$ = Node.funDef(yy.lexer.yylloc, $$[$0-2], $$[$0]); 
 break;
 case 44:
- this.$ = Node.if(yy.lexer.yylloc, $$[$0-2], $$[$0], Node.null(yy.lexer.yylloc)); 
+ this.$ = Node.if(yy.lexer.yylloc, $$[$0-2], $$[$0]); 
 break;
 case 45:
  this.$ = Node.if(yy.lexer.yylloc, $$[$0-4], $$[$0-2], $$[$0]); 

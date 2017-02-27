@@ -423,7 +423,14 @@ define(function(require) {
       testResult = evalInFrame(node.test, frame);
       testResult = Resolver.resolveValue(['boolean'])(testResult);
 
-      return evalInFrame(testResult ? node.then : node.else, frame);
+      if (testResult) {
+         return evalInFrame(node.then, frame);
+      }
+      if (typeof node.else !== 'undefined') {
+         return evalInFrame(node.else, frame);
+      }
+      // No else case
+      return Value.makeNull();
    }
 
    function evalWhile(node, frame) {

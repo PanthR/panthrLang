@@ -19,7 +19,7 @@ describe('The parser parses', function() {
          expect(nodes[0].name).to.equal('if');
          expect(nodes[0].test.name).to.equal('boolean');
          expect(nodes[0].then.name).to.equal('number');
-         expect(nodes[0].else.name).to.equal('null');
+         expect(nodes[0].else).to.equal(undefined);
       });
    });
    it('nested if-else expressions', function() {
@@ -29,7 +29,7 @@ describe('The parser parses', function() {
          expect(nodes[0].test.name).to.equal('boolean');
          expect(nodes[0].then.name).to.equal('if');
          expect(nodes[0].then.else.name).to.equal('number');
-         expect(nodes[0].else.name).to.equal('null');
+         expect(nodes[0].else).to.equal(undefined);
       });
    });
    it('uses the correct precedence for if and if-else', function() {
@@ -45,7 +45,7 @@ describe('The parser parses', function() {
          expect(nodes[0].name).to.equal('if');
          expect(nodes[0].test.name).to.equal('boolean');
          expect(nodes[0].then.name).to.equal('fun_call');
-         expect(nodes[0].else.name).to.equal('null');
+         expect(nodes[0].else).to.equal(undefined);
       });
    });
    it('while expressions', function() {
