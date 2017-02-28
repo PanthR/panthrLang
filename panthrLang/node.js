@@ -1,6 +1,7 @@
 (function(define) {
 'use strict';
 define(function(require) {
+   var nameMethodLookup;
 
    /**
     * Simple AST structure for PanthrLang.
@@ -149,6 +150,61 @@ define(function(require) {
 
    Node.paramDots = function makeArgDots(loc) {
       return new Node('param_dots', loc);
+   };
+
+   /*
+    * Lookup table for node-name ---> visitor-method correspondence
+    */
+   /* eslint-disable quote-props */
+   nameMethodLookup = {
+      'number': 'visitNumber',
+      'boolean': 'visitBoolean',
+      'string': 'visitString',
+      'missing': 'visitMissing',
+      'null': 'visitNull',
+      'break': 'visitBreak',
+      'next': 'visitNext',
+      'range': 'visitRange',
+      'variable': 'visitVariable',
+      'assign': 'visitAssign',
+      'assign_existing': 'visitAssignExisting',
+      'dbl_bracket_access': 'visitDblBracketAccess',
+      'single_bracket_access': 'visitSingleBracketAccess',
+      'fun_def': 'visitFunDef',
+      'block': 'visitBlock',
+      'if': 'visitIf',
+      'while': 'visitWhile',
+      'for': 'visitFor',
+      'fun_call': 'visitFunCall',
+      'param': 'visitParam',
+      'param_default': 'visitParamDefault',
+      'param_dots': 'visitParamDots',
+      'arg_named': 'visitArgNamed',
+      'arg_empty': 'visitArgEmpty',
+      'arg_dots': 'visitArgDots',
+      'library': 'visitLibrary',
+      'error': 'visitError'
+   /* eslint-enable quote-props */
+   };
+
+   Node.prototype = {
+      /*
+       * Visitor pattern.
+       */
+      accept: function(visitor) {
+         var methodName;
+
+         if (!nameMethodLookup.hasOwnProperty(this.name)) {
+            throw new Error('No known method for node type: ' + this.name);
+         }
+         methodName = nameMethodLookup[this.name];
+
+         if (typeof visitor[methodName] !== 'function') {
+            throw new Error('Visitors must implement: ' + methodName);
+         }
+
+         return visitor[methodName](this);
+      }
    };
 
    return Node;
