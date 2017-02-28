@@ -6,3 +6,4 @@ This file documents areas where our parser deviates from R's parser.
 - We do not support `repeat` as a substitute for `while(TRUE)`.
 - Variable, argument and key names cannot be quoted via single- or double-quotes, but they can be quoted via backticks.
 - `diff` does not currently accept other parameters than the vector `x`.
+- `<-` and `=` assignments are both turned into `<-` in expressions.
