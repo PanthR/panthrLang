@@ -144,9 +144,7 @@ define(function(require) {
                   // executed unless needed.
                   closExtFrame.store(
                      formals[0].id,
-                     Value.makePromise(
-                        evalInFrame.bind(null, formals[0].default, closExtFrame)
-                     )
+                     Value.makeDelayed(formals[0].default, closExtFrame)
                   );
                } else {
                   // Need to set to missing value
