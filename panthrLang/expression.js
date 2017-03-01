@@ -11,6 +11,8 @@ define(function(require) {
     * expressions can be distinguised from normal lists in Value.
     *
     * See panthrBase Lists for the possible forms of values
+    *
+    * Expressions are produced from nodes via `Expression.maker`.
     */
    function Expression(values) {
       Base.List.apply(this, arguments);
@@ -33,8 +35,25 @@ define(function(require) {
    /*
     * Visits the `node` and produces an "expression"-like result. This could be:
     * - A literal (number, boolean, string)
-    * - An `Expression.Symbol`
-    * - An `Expression`
+    * - An `Expression.Symbol`, used to represent variable nodes
+    * - undefined for missing values
+    * - An `Expression` object, which is an underlying `Base.List`, that represents
+    *   the syntactic expression that the node represents. The result varies with
+    *   the node:
+    *     - control flow constructs like if, while, for, are represented with the
+    *       keyword as the first element, followed by one entry for each remaining
+    *       element.
+    *     - Function calls contain the function element as the first list entry
+    *       followed by one entry per argument. Named arguments give rise to named
+    *       list entries.
+    *     - Function definitions contain the keyword "function" as the first element.
+    *       The second element is a `Base.List` with one entry for each formal parameter.
+    *       The formal arguments become the names of the list entries. Dots becomes '...'.
+    *       Default values for arguments are the values at the corresponding list entry.
+    *       All other entries have value `undefined`.
+    *       The third element of the expression is the expression corresponding to
+    *       the body node.
+    *     - Range, assignments and bracket indexing are treated as functions.
     */
    Expression.maker = function(node) {
       var maker;
