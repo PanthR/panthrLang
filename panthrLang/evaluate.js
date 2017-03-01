@@ -205,7 +205,7 @@ define(function(require) {
          }
          throw errorInfo('Unknown symbol: ' + symbol, loc);
       }
-      val.resolve();
+      val = val.resolve();
       if (val.type === 'undefined') {
          throw errorInfo('Accessing undefined parameter ' + symbol, loc);
       }

@@ -294,12 +294,12 @@ define(function(require) {
    };
 
    Value.prototype.resolve = function resolve() {
-      var val;
-
       if (this.type === 'promise') {
-         val = this.value.thunk();
-         this.type = val.type;
-         this.value = val.value;
+         if (!this.hasOwnProperty('resolvedValue')) {
+            this.resolvedValue = this.value.thunk();
+         }
+
+         return this.resolvedValue;
       }
 
       return this;
