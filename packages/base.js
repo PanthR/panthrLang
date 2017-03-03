@@ -509,6 +509,13 @@ define(function(require) {
          return Value.makeVariable(lst.get('x').diff(), 'scalar');
       }, configSingleScalar);
 
+      // Expression manipulation
+      addBuiltin('quote', function(lst) {
+         return Value.wrap(lst.get('expr'));
+      }, function(resolver) {
+         resolver.addLanguageParameter('expr', true);
+      });
+
       // TODO: Add a whole lot more here.
 
    };

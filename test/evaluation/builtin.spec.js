@@ -21,4 +21,33 @@ describe('The evaluator handles builtin functions:', function() {
          expect(ev.value.toArray()).to.deep.equal(pair[1]);
       });
    });
+   describe('quote expressions', function() {
+      it('with a symbol', function() {
+         var evs = main.eval('quote(x)');
+         expect(evs.length).to.equal(1);
+         expect(evs[0].type).to.equal('symbol');
+         expect(evs[0].value).to.be.an.instanceof(main.Expression.Symbol);
+      });
+      it('with a number', function() {
+         var evs = main.eval('quote(5)');
+         expect(evs.length).to.equal(1);
+         expect(evs[0].type).to.equal('scalar');
+         expect(evs[0].value.toArray()).to.deep.equal([5]);
+      });
+      it('with a compound expression', function() {
+         var evs = main.eval('quote(x+y)');
+         expect(evs.length).to.equal(1);
+         expect(evs[0].type).to.equal('expression');
+         expect(evs[0].value).to.be.an.instanceof(main.Expression);
+         expect(evs[0].value.length()).to.equal(3);
+         expect(evs[0].value.get(1)).to.be.an.instanceof(main.Expression.Symbol);
+         expect(evs[0].value.get(1).id).to.equal('+');
+         expect(evs[0].value.get(2)).to.be.an.instanceof(main.Expression.Symbol);
+         expect(evs[0].value.get(2).id).to.equal('x');
+         expect(evs[0].value.get(3)).to.be.an.instanceof(main.Expression.Symbol);
+         expect(evs[0].value.get(3).id).to.equal('y');
+      });
+   });
 });
+
+
