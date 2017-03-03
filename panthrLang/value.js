@@ -229,13 +229,11 @@ define(function(require) {
       return Value.null;
    };
 
-   Value.makePromise = function makePromise(thunk) {
-      return Value.makeValue('promise', { thunk: thunk });
-   };
-
    Value.makeDelayed = function makeDelayed(expr, frame) {
-      return Value.makePromise(function() {
-         return evalInFrame(expr, frame);
+      return Value.makeValue('promise', {
+         thunk: function() { return evalInFrame(expr, frame); },
+         node: expr,
+         env: frame
       });
    };
 
