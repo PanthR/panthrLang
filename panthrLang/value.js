@@ -2,9 +2,10 @@
 'use strict';
 define(function(require) {
 
-   var Base, evalInFrame;
+   var Base, evalInFrame, Expression;
 
    Base = require('panthrbase/index');
+   Expression = require('./expression');
 
    evalInFrame = function(body, frame) {
       throw new Error('Need to call call Value.setEvalInFrame first');
@@ -197,6 +198,14 @@ define(function(require) {
       return Value.makeValue('list', value);
    };
 
+   Value.makeExpression = function makeExpression(value) {
+      return Value.makeValue('expression', value);
+   };
+
+   Value.makeSymbol = function makeSymbol(value) {
+      return Value.makeValue('symbol', value);
+   };
+
    Value.makeClosure = function makeClosure(fun, env) {
       var f;
 
@@ -262,6 +271,8 @@ define(function(require) {
       if (typeof v === 'undefined') { return Value.makeUndefined(); }
       if (v instanceof Value) { return v; }
       if (v instanceof Base.Variable) { return Value.makeVariable(v); }
+      if (v instanceof Expression) { return Value.makeExpression(v); }
+      if (v instanceof Expression.Symbol) { return Value.makeSymbol(v); }
       if (v instanceof Base.List) { return Value.makeList(v); }
       if (v instanceof Function) {
          if (v.hasOwnProperty('env')) {
