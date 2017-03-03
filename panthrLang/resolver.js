@@ -38,6 +38,8 @@ define(function(require) {
     * - A `unwrap` property containng the type's unwrapper (Value->javascript)
     * - A `conversions` property containing key-value pairs where each
     *     key is a target type and the value is the appropriate conversion function.
+    * TODO explain about the `expression` type and its special nature (if expression
+    * is a possible target then it's the only target)
     */
    Resolver.types = {};
 
@@ -124,6 +126,14 @@ define(function(require) {
       this.parameters.push({ name: param, types: types, required: required });
 
       return this;
+   };
+
+   /*
+    * Adds a new parameter of type 'expression'.  Parameter values of this type
+    * are not evaluated normally; instead, they turn into the equivalent expression.
+    */
+   Resolver.prototype.addLanguageParameter = function(param, required) {
+      return this.addParameter(param, 'expression', required);
    };
 
    Resolver.prototype.addDots = function() {
@@ -309,6 +319,10 @@ define(function(require) {
       return function(value) {
          var i, j, valueTypes, conversion;
 
+         if (targetTypes[0] === 'expression') {
+            return value.toExpression();
+         }
+
          value = value.resolve();
          valueTypes = Resolver.getValueTypes(value);
 
@@ -356,6 +370,9 @@ define(function(require) {
          return v.type === 'logical' || v.type === 'scalar' ||
                 v.type === 'string';
       })
+      // The check function  for 'expression' should not be called; expression
+      // types are resolved in a special way;
+      .addType('expression', function check(v) { return false; })
       .addType('any', function check(v) { return true; })
       .addType('undefined', function check(v) { return v.type === 'undefined'; });
 

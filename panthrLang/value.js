@@ -314,6 +314,18 @@ define(function(require) {
       return this;
    };
 
+   /**
+    *  Returns the unevalauated expression represented by this value.
+    *  Note: Only usable for Values that are passed as arguments in
+    *  function calls.
+    */
+   Value.prototype.toExpression = function toExpression() {
+      if (this.value.hasOwnProperty('node')) {
+         return Expression.maker(this.value.node);
+      }
+      throw new Error('Attempting to read expression for a non-promise value.');
+   };
+
    Value.prototype.toString = function toString() {
       switch (this.type) {
       case 'error':
