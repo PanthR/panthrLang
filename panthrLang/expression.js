@@ -26,6 +26,12 @@ define(function(require) {
       this.id = id;
    };
 
+   // Constructor to be used for single literal expression.
+   // Used for literals such as a number, null, a boolean, or a character.
+   Expression.Literal = function Literal(value) {
+      this.value = value;
+   };
+
    // A pair of a string `name` and an Expression `expr`
    Expression.Pair = function Pair(name, expr) {
       this.name = name;
@@ -85,19 +91,19 @@ define(function(require) {
       },
       // Specific visit methods
       visitNumber: function(node) {
-         return node.value;
+         return new Expression.Literal(node.value);
       },
       visitBoolean: function(node) {
-         return node.value;
+         return new Expression.Literal(node.value);
       },
       visitString: function(node) {
-         return node.value;
+         return new Expression.Literal(node.value);
       },
       visitMissing: function(node) {
          return undefined;
       },
       visitNull: function(node) {
-         return null;
+         return new Expression.Literal(null);
       },
       visitBreak: function(node) {
          return this.makeSpecial('break');

@@ -16,19 +16,23 @@ describe('Expression objects', function() {
       it('literals becoming literals', function() {
          main.parse('"x"; 4; TRUE', function(nodes) {
             var expr = Expression.maker(nodes[0]);
-            expect(expr).to.equal('x');
+            expect(expr).to.be.instanceof(Expression.Literal);
+            expect(expr.value).to.equal('x');
 
             expr = Expression.maker(nodes[1]);
-            expect(expr).to.equal(4);
+            expect(expr).to.be.instanceof(Expression.Literal);
+            expect(expr.value).to.equal(4);
 
             expr = Expression.maker(nodes[2]);
-            expect(expr).to.equal(true);
+            expect(expr).to.be.instanceof(Expression.Literal);
+            expect(expr.value).to.equal(true);
          });
       });
       it('null expressions becoming null', function() {
          main.parse('NULL', function(nodes) {
             var expr = Expression.maker(nodes[0]);
-            expect(expr).to.equal(null);
+            expect(expr).to.be.instanceof(Expression.Literal);
+            expect(expr.value).to.equal(null);
          });
       });
       it('function calls becoming expression objects', function() {
@@ -40,7 +44,8 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('f');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('x');
-            expect(expr.get(3)).to.equal(2);
+            expect(expr.get(3)).to.be.instanceof(Expression.Literal);
+            expect(expr.get(3).value).to.equal(2);
          });
       });
       it('treating named arguments in function calls properly', function() {
@@ -48,8 +53,8 @@ describe('Expression objects', function() {
             var expr = Expression.maker(nodes[0]);
             expect(expr).to.be.an.instanceof(Expression);
             expect(expr.length()).to.equal(3);
-            expect(expr.get(3)).to.equal(2);
-            expect(expr.get('y')).to.equal(2);
+            expect(expr.get(3).value).to.equal(2);
+            expect(expr.get('y').value).to.equal(2);
          });
       });
       it('treating dots in function calls properly', function() {
@@ -109,8 +114,8 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('if');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('x');
-            expect(expr.get(3)).to.equal(3);
-            expect(expr.get(4)).to.equal(4);
+            expect(expr.get(3).value).to.equal(3);
+            expect(expr.get(4).value).to.equal(4);
 
             expr = Expression.maker(nodes[1]);
             expect(expr).to.be.an.instanceof(Expression);
@@ -119,7 +124,7 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('if');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('y');
-            expect(expr.get(3)).to.equal(2);
+            expect(expr.get(3).value).to.equal(2);
          });
       });
       it('"while" expressions becoming appropriate expression objects', function() {
@@ -144,7 +149,7 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('for');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('x');
-            expect(expr.get(3)).to.equal(4);
+            expect(expr.get(3).value).to.equal(4);
             expect(expr.get(4)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(4).id).to.equal('y');
          });
@@ -158,7 +163,7 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('[[');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('x');
-            expect(expr.get(3)).to.equal(1);
+            expect(expr.get(3).value).to.equal(1);
 
             expr = Expression.maker(nodes[1]);
             expect(expr).to.be.an.instanceof(Expression);
@@ -167,9 +172,9 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('[');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('x');
-            expect(expr.get(3)).to.equal(1);
+            expect(expr.get(3).value).to.equal(1);
             expect(expr.get(4)).to.equal(undefined);
-            expect(expr.get(5)).to.equal(2);
+            expect(expr.get(5).value).to.equal(2);
          });
       });
       it('assignment expressions becoming appropriate expression objects', function() {
@@ -181,7 +186,7 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('<-');
             expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
             expect(expr.get(2).id).to.equal('x');
-            expect(expr.get(3)).to.equal(3);
+            expect(expr.get(3).value).to.equal(3);
 
             expr = Expression.maker(nodes[1]);
             expect(expr).to.be.an.instanceof(Expression);
@@ -190,7 +195,7 @@ describe('Expression objects', function() {
             expect(expr.get(1).id).to.equal('<-');
             expect(expr.get(2)).to.be.an.instanceof(Expression);
             expect(expr.get(2).get(2)).to.be.an.instanceof(Expression.Symbol);
-            expect(expr.get(3)).to.equal(2);
+            expect(expr.get(3).value).to.equal(2);
          });
       });
       it('blocks becoming appropriate expression objects', function() {

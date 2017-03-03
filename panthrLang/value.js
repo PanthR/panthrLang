@@ -273,6 +273,7 @@ define(function(require) {
       if (v instanceof Base.Variable) { return Value.makeVariable(v); }
       if (v instanceof Expression) { return Value.makeExpression(v); }
       if (v instanceof Expression.Symbol) { return Value.makeSymbol(v); }
+      if (v instanceof Expression.Literal) { return Value.wrap(v.value); }
       if (v instanceof Base.List) { return Value.makeList(v); }
       if (v instanceof Function) {
          if (v.hasOwnProperty('env')) {
