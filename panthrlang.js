@@ -11,11 +11,12 @@ define(function(require) {
     * @author Haris Skiadas <skiadas@hanover.edu>
     */
 
-   var panthrLang, Parser, parser, Node, Evaluate, Console;
+   var panthrLang, Parser, parser, Node, Evaluate, Expression, Console;
 
    Node = require('./panthrLang/node');
    Console = require('./panthrLang/console');
    Evaluate = require('./panthrLang/evaluate');
+   Expression = require('./panthrLang/expression');
    parser = require('./panthrLang/parser').parser;
    Parser = require('./panthrLang/parser').Parser;
    Parser.prototype.parseError = function parseError(str, hash) {
@@ -37,6 +38,7 @@ define(function(require) {
       Node: Node,
       Console: Console,
       Evaluate: Evaluate,
+      Expression: Expression,
       parse: function(str, action) {
          if (action == null) { action = function(x) { console.log(x); }; }
          // action is the function to call on each completed node
