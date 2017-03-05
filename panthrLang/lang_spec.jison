@@ -114,8 +114,8 @@ expr
    | expr '&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&', [$1, $3]); }
    | expr '||' expr { $$ = Node.funCall(yy.lexer.yylloc, '||', [$1, $3]); }
    | expr '&&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&&', [$1, $3]); }
-   | '+' expr  %prec UMINUS { $$ = $2; }
-   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '-', [Node.number(yy.lexer.yylloc, 0), $2]); }
+   | '+' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '+', [$2]); }
+   | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '-', [$2]); }
    | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, '+', [$1, $3]); }
    | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, '-', [$1, $3]); }
    | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, '*', [$1, $3]); }

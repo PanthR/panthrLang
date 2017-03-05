@@ -12,6 +12,12 @@ describe('The evaluator', function() {
          expect(evs[0].value.get(1)).to.equal(eval(expr));
       });
    });
+   it('evaluates 1-arg minus function call correctly', function() {
+      var evs = main.eval('`-`(2)');
+      expect(evs.length).to.equal(1);
+      expect(evs[0].type).to.equal('scalar');
+      expect(evs[0].value.get(1)).to.equal(-2);
+   });
    it('evaluates powers correctly', function() {
       [['2^3', 8], ['2^3+2', 10],
        ['2^-2', 0.25], ['-2^2', -4],

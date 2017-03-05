@@ -39,19 +39,25 @@ define(function(require) {
          'July', 'August', 'September', 'October', 'November', 'December'
       ]));
       addBuiltin('+', function(lst) {
+         if (lst.length() === 1) {
+            return Value.wrap(lst.get(1));
+         }
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x + y;
             }, 'scalar')
          );
-      }, configArithOp);
+      }, configUnaryBinaryOp);
       addBuiltin('-', function(lst) {
+         if (lst.length() === 1) {
+            return Value.wrap(lst.get(1).map(function(v) { return -v; }));
+         }
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
                return x - y;
             }, 'scalar')
          );
-      }, configArithOp);
+      }, configUnaryBinaryOp);
       addBuiltin('*', function(lst) {
          return Value.makeVariable(
             Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
@@ -534,6 +540,13 @@ define(function(require) {
    function configArithOp(resolver) {
       resolver.addParameter('x', 'scalar', true)
          .addParameter('y', 'scalar', true);
+   }
+
+   // Configuration for operators such as `+` and `-` which can be either
+   // unary or binary
+   function configUnaryBinaryOp(resolver) {
+      resolver.addParameter('x', 'scalar', true)
+         .addParameter('y', 'scalar', false);
    }
 
    // Configuration for comparision operators

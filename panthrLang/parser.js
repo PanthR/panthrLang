@@ -101,7 +101,7 @@ break;
 case 6:
  this.$ = [Node.error(yy.lexer.yylloc, yy.parser.myError)]; 
 break;
-case 7: case 16: case 19: case 27: case 54:
+case 7: case 16: case 19: case 54:
  this.$ = $$[$0]; 
 break;
 case 8: case 17:
@@ -152,8 +152,11 @@ break;
 case 26:
  this.$ = Node.funCall(yy.lexer.yylloc, '&&', [$$[$0-2], $$[$0]]); 
 break;
+case 27:
+ this.$ = Node.funCall(yy.lexer.yylloc, '+', [$$[$0]]); 
+break;
 case 28:
- this.$ = Node.funCall(yy.lexer.yylloc, '-', [Node.number(yy.lexer.yylloc, 0), $$[$0]]); 
+ this.$ = Node.funCall(yy.lexer.yylloc, '-', [$$[$0]]); 
 break;
 case 29:
  this.$ = Node.funCall(yy.lexer.yylloc, '+', [$$[$0-2], $$[$0]]); 
