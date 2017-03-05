@@ -40,7 +40,7 @@ describe('The evaluator', function() {
          var evs = main.eval('3+4; (2+3)(4)');
          expect(evs[1].type).to.equal('error');
          expect(evs[1].toString()).to.contain('non-function');
-         expect(evs[1].toString()).to.match(/4|5|6|7|8|9/);
+         expect(evs[1].toString()).to.match(/4|5|6|7|8|9|10/);
       });
       it('for duplicate formal parameter', function() {
          var evs = main.eval('function(x, y, x) {}; function(x, ..., y, ...) {}');

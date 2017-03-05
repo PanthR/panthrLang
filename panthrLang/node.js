@@ -124,6 +124,10 @@ define(function(require) {
       return new Node('block', loc, { exprs: exprs });
    };
 
+   Node.parens = function makeParens(loc, expr) {
+      return new Node('parens', loc, { expr: expr });
+   };
+
    Node.library = function makeLibrary(loc, id) {
       return new Node('library', loc, { id: id });
    };
@@ -172,6 +176,7 @@ define(function(require) {
       'single_bracket_access': 'visitSingleBracketAccess',
       'fun_def': 'visitFunDef',
       'block': 'visitBlock',
+      'parens': 'visitParens',
       'if': 'visitIf',
       'while': 'visitWhile',
       'for': 'visitFor',

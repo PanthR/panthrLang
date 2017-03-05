@@ -211,5 +211,16 @@ describe('Expression objects', function() {
             expect(expr.get(3).id).to.equal('y');
          });
       });
+      it('with parentheticals becoming appropriate expression objects', function() {
+         main.parse('(x)', function(nodes) {
+            var expr = Expression.maker(nodes[0]);
+            expect(expr).to.be.an.instanceof(Expression);
+            expect(expr.length()).to.equal(2);
+            expect(expr.get(1)).to.be.an.instanceof(Expression.Symbol);
+            expect(expr.get(1).id).to.equal('(');
+            expect(expr.get(2)).to.be.an.instanceof(Expression.Symbol);
+            expect(expr.get(2).id).to.equal('x');
+         });
+      });
   });
 });

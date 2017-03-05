@@ -161,6 +161,9 @@ define(function(require) {
          return this.makeSpecial.bind(this, '{')
             .apply(this, node.exprs);
       },
+      visitParens: function(node) {
+         return this.makeSpecial('(', node.expr);
+      },
       visitIf: function(node) {
          if (typeof node.else === 'undefined') {
             return this.makeSpecial('if', node.test, node.then);

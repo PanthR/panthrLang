@@ -172,6 +172,8 @@ define(function(require) {
          return evalFunDef(node, frame);
       case 'block':
          return evalSeq(node.exprs, frame);
+      case 'parens':
+         return evalInFrame(node.expr, frame);
       case 'if':
          return evalIf(node, frame);
       case 'while':

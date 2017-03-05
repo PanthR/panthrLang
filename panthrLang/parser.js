@@ -89,7 +89,7 @@ break;
 case 2:
  $$[$0-2].push($$[$0]); this.$ = $$[$0-2]; 
 break;
-case 3: case 20:
+case 3:
  this.$ = $$[$0-1]; 
 break;
 case 4: case 53: case 59:
@@ -130,6 +130,9 @@ case 15:
 break;
 case 18:
  this.$ = Node.assignExisting(yy.lexer.yylloc, $$[$0-2], $$[$0]); 
+break;
+case 20:
+ this.$ = Node.parens(yy.lexer.yylloc, $$[$0-1]); 
 break;
 case 21:
  this.$ = Node.range(yy.lexer.yylloc, $$[$0-2], $$[$0]); 

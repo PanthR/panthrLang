@@ -7,6 +7,15 @@ describe('The parser parses', function() {
       expect(main).to.respondTo('parse');
       expect(function() { main.parse('2', function() {}); }).to.not.throw();
    });
+   it('parenthetical expressions without removing the paretheses', function() {
+      main.parse('(2 + 3) * (5)', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         var node = nodes[0];
+         expect(node.name).to.equal('fun_call');
+         expect(node.args[0].name).to.equal('parens');
+         expect(node.args[1].name).to.equal('parens');
+      });
+   });
    it('integers correctly', function() {
       ['5', '23', '0'].forEach(function(num) {
          main.parse(num, function(nodes) {
