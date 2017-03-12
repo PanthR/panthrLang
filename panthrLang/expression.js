@@ -125,6 +125,13 @@ define(function(require) {
          return this.makeSpecial('<<-', node.lvalue, node.rvalue);
 
       },
+      visitDollarAccess: function(node) {
+         return new Expression([
+            new Expression.Symbol('$'),
+            this.visit(node.object),
+            new Expression.Symbol(node.id)
+         ]);
+      },
       visitDblBracketAccess: function(node) {
          return this.makeSpecial('[[', node.object, node.index);
       },

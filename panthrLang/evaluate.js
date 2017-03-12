@@ -162,6 +162,10 @@ define(function(require) {
                        evalInFrame(node.rvalue, frame).clone(),
                        frame,
                        true);
+      case 'dollar_access':
+         return evalListAccess(evalInFrame(node.object, frame),
+                               Value.makeString([node.id]),
+                               node.loc);
       case 'dbl_bracket_access':
          return evalListAccess(evalInFrame(node.object, frame),
                                evalInFrame(node.index, frame),
@@ -231,6 +235,13 @@ define(function(require) {
                         lvalue.loc);
 
          break;
+      case 'dollar_access':
+         evalListAssign(evalInFrame(lvalue.object, frame.getRelevantFrame(isGlobal)),
+                        Value.makeString([lvalue.id]),
+                        rvalue,
+                        lvalue.loc);
+
+      break;
       case 'fun_call':
          evalFunCallAssign(lvalue, rvalue, frame, isGlobal);
          break;

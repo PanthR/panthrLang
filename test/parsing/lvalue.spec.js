@@ -32,7 +32,7 @@ describe('The parser parses', function() {
          expect(nodes.length).to.equal(1);
          var node = nodes[0];
          expect(node.name).to.equal('assign');
-         expect(node.lvalue.name).to.equal('dbl_bracket_access');
+         expect(node.lvalue.name).to.equal('dollar_access');
       });
    });
    it('variable lvalues', function() {

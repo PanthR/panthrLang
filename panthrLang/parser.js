@@ -252,7 +252,7 @@ case 63:
  this.$ = Node.variable(yy.lexer.yylloc, $$[$0]); 
 break;
 case 64:
- this.$ = Node.dblBracketAccess(yy.lexer.yylloc, $$[$0-2], Node.string(yy.lexer.yylloc, $$[$0])); 
+ this.$ = Node.dollarAccess(yy.lexer.yylloc, $$[$0-2], $$[$0]); 
 break;
 case 65:
  this.$ = Node.singleBracketAccess(yy.lexer.yylloc, $$[$0-3], $$[$0-1]); 

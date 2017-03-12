@@ -94,6 +94,10 @@ define(function(require) {
       return new Node('variable', loc, { id: id });
    };
 
+   Node.dollarAccess = function makeDollarAccess(loc, object, id) {
+      return new Node('dollar_access', loc, { object: object, id: id });
+   };
+
    Node.dblBracketAccess = function makeDblBracketAccess(loc, object, index) {
       return new Node('dbl_bracket_access', loc, { object: object, index: index });
    };
@@ -172,6 +176,7 @@ define(function(require) {
       'variable': 'visitVariable',
       'assign': 'visitAssign',
       'assign_existing': 'visitAssignExisting',
+      'dollar_access' : 'visitDollarAccess',
       'dbl_bracket_access': 'visitDblBracketAccess',
       'single_bracket_access': 'visitSingleBracketAccess',
       'fun_def': 'visitFunDef',
