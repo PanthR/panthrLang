@@ -100,7 +100,7 @@ define(function(require) {
          return new Expression.Literal(node.value);
       },
       visitMissing: function(node) {
-         return undefined;
+         return new Expression.Literal(NaN);
       },
       visitNull: function(node) {
          return new Expression.Literal(null);
@@ -137,8 +137,13 @@ define(function(require) {
       },
       visitSingleBracketAccess: function(node) {
          // Need to pass the coords as separate arguments, not an array
-         return this.makeSpecial.bind(this, '[', node.object)
-            .apply(this, node.coords);
+         var allTerms;
+
+         allTerms = new Expression();
+         allTerms.push(new Expression.Symbol('['));
+         allTerms.push(this.visit(node.object));
+
+         return this.buildActualArguments(node.coords, allTerms);
       },
       visitFunDef: function(node) {
          return new Expression([
@@ -148,21 +153,12 @@ define(function(require) {
          ]);
       },
       visitFunCall: function(node) {
-         var i, processedArg, allTerms;
+         var allTerms;
 
          allTerms = new Expression();
          allTerms.push(this.visit(node.fun));
 
-         for (i = 0; i < node.args.length; i += 1) {
-            processedArg = this.visit(node.args[i]);
-            if (processedArg instanceof Expression.Pair) {
-               allTerms.set(processedArg.name, processedArg.expr);
-            } else {
-               allTerms.push(processedArg);
-            }
-         }
-
-         return allTerms;
+         return this.buildActualArguments(node.args, allTerms);
       },
       visitBlock: function(node) {
          return this.makeSpecial.bind(this, '{')
@@ -198,6 +194,23 @@ define(function(require) {
       visitError: function(node) {
          throw node.error;
       },
+      buildActualArguments: function(actuals, targetList) {
+         var i, processedArg;
+
+         if (typeof targetList === 'undefined') {
+            targetList = new Base.List();
+         }
+         for (i = 0; i < actuals.length; i += 1) {
+            processedArg = this.visit(actuals[i]);
+            if (processedArg instanceof Expression.Pair) {
+               targetList.set(processedArg.name, processedArg.expr);
+            } else {
+               targetList.push(processedArg);
+            }
+         }
+
+         return targetList;
+      },
       // Handles the formal parameter list in a function definition
       buildFormalParams: function(params) {
          var i, exprPair, resultList;
@@ -226,7 +239,7 @@ define(function(require) {
          return new Expression.Symbol('...');
       },
       visitArgEmpty: function(node) {
-         return this.visitMissing(node);
+         return undefined;
       }
    };
 
