@@ -176,7 +176,7 @@ define(function(require) {
       'variable': 'visitVariable',
       'assign': 'visitAssign',
       'assign_existing': 'visitAssignExisting',
-      'dollar_access' : 'visitDollarAccess',
+      'dollar_access': 'visitDollarAccess',
       'dbl_bracket_access': 'visitDblBracketAccess',
       'single_bracket_access': 'visitSingleBracketAccess',
       'fun_def': 'visitFunDef',
