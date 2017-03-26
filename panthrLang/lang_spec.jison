@@ -59,6 +59,7 @@
 %nonassoc 'FUN'
 %nonassoc 'VAR'
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
+%nonassoc 'FOR' 'WHILE'
 %right 'IF' 'ELSE'
 %left '|' '||'
 %left '&' '&&'
