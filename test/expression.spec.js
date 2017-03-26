@@ -222,5 +222,56 @@ describe('Expression objects', function() {
             expect(expr.get(2).id).to.equal('x');
          });
       });
-  });
+   });
+   it('are correctly converted to strings', function() {
+      // TODO -- add more!
+      ['x + y',
+       'x * y',
+       '{\n\tx == y\n\t-1\n}',
+       '!(x == y)',
+       'y$a',
+       'x[[a]] <- x[1, 2]',
+       'f(a, ..., x = 7)',
+       'x[i, j, ..., drop = TRUE]',
+       'x[, j, ..., drop = TRUE] <- 5',
+       'x[i, ] <<- 5',
+       'f(1, , 3)',
+       'f(1, NA, 3)',
+       'NULL',
+       '"foo.bar"',
+       'names(x) <- c("a", "b", "c")',
+       '1:5',
+       'a | b',
+       'a & b',
+       'a || b',
+       'a && b',
+       '+7',
+       '-7',
+       'x / 2',
+       'x ^ 2',
+       'x %/% y',
+       'x %% y',
+       'x < y',
+       'x <= y',
+       'x > y',
+       'x >= y',
+       'x != y',
+       'f <- function(x, y = 5, ...) x + y',
+       'if (x < 3) 5 else 2',
+       'if (x < 3) 5 else f(2)',
+       'if (x < 3) 5',
+       'while (x < 3) x <- x + 1',
+       'while (x < 3) f(x)',
+       'while (x < 3) while (y > 1) f(x)',
+       'for (x in 1:5) x <- x + 1',
+       'for (x in 1:5) (f(x))',
+       'for (x in 1:5) f(x)',
+       'break',
+       'next'
+      ].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(Expression.maker(nodes[0]).toString()).to.equal(expr);
+         });
+      });
+   });
 });

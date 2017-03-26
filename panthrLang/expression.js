@@ -26,10 +26,28 @@ define(function(require) {
       this.id = id;
    };
 
+   Expression.Symbol.prototype = {
+      toString: function() {
+         // TODO: need backticks on keywords
+         return this.id;
+      }
+   };
+
    // Constructor to be used for single literal expression.
-   // Used for literals such as a number, null, a boolean, or a character.
+   // Used for literals such as a number, null, a boolean, or a string.
    Expression.Literal = function Literal(value) {
       this.value = value;
+   };
+
+   Expression.Literal.prototype = {
+      toString: function() {
+         if (Number.isNaN(this.value)) { return 'NA'; }
+         if (typeof this.value === 'number') { return String(this.value); }
+         if (typeof this.value === 'boolean') { return String(this.value).toUpperCase(); }
+         if (this.value === null) { return 'NULL'; }
+         if (typeof this.value === 'string') { return JSON.stringify(this.value); }
+         throw new Error('Unknown literal expression: ' + this.value);
+      }
    };
 
    // A pair of a string `name` and an Expression `expr`
@@ -242,6 +260,124 @@ define(function(require) {
          return undefined;
       }
    };
+
+   Expression.prototype.toString = function() {
+      switch (this.get(1).id) {
+      // most binary operators except '+' and -'
+      case '*':
+      case '/':
+      case '^':
+      case '%/%':
+      case '%%':
+      case '>':
+      case '<':
+      case '>=':
+      case '<=':
+      case '==':
+      case '!=':
+      case '&&':
+      case '||':
+      case '&':
+      case '|':
+      case '<-':
+      case '<<-':
+         return this.get(2).toString() +
+                ' ' + this.get(1).id + ' ' +
+                this.get(3).toString();
+      // unary/binary operators
+      case '+':
+      case '-':
+         if (this.length() === 2) {
+            return this.get(1).id + this.get(2).toString();
+         }
+         return this.get(2).toString() +
+                ' ' + this.get(1).id + ' ' +
+                this.get(3).toString();
+      // other unary operators
+      case '!':
+         return this.get(1).id + this.get(2).toString();
+      // parentheses
+      case '(':
+         return '(' + this.get(2).toString() + ')';
+      // range, dollar
+      case ':':
+      case '$':
+         return this.get(2).toString() +
+                this.get(1).id +
+                this.get(3).toString();
+      // control flow
+      case 'if':
+         if (this.length() === 4) {
+            // has an else
+            return 'if (' + this.get(2).toString() + ') ' +
+                   this.get(3).toString() + ' else ' +
+                   this.get(4).toString();
+         }
+         return 'if (' + this.get(2).toString() + ') ' +
+                this.get(3).toString();
+      case 'while':
+         return 'while (' + this.get(2).toString() + ') ' +
+                this.get(3).toString();
+      case 'for':
+         return 'for (' + this.get(2).toString() + ' in ' +
+                this.get(3).toString() + ') ' +
+                this.get(4).toString();
+      case 'break':
+      case 'next':
+         return this.get(1).id;
+      // block
+      case '{':
+         // put each inner expression on its own indented line
+         return '{\n' +
+                this.get().slice(1).map(indent).join('\n') +
+                '\n}';
+      // indexing
+      case '[[':
+         return this.get(2).toString() + '[[' + this.get(3).toString() + ']]';
+      case '[':
+         return this.reduce(function(acc, val, i, name) {
+            if (i === 1) { return '['; }
+            if (i === 2) { return val.toString() + acc; }
+            if (i === 3) { return acc + paramToString(val, name); }
+
+            return acc + ', ' + paramToString(val, name);
+         }) + ']';
+      // fun def
+      case 'function':
+         return 'function(' +
+                this.get(2).reduce(function(acc, val, i, name) {
+                   if (i === 1) { return acc + argToString(name, val); }
+
+                   return acc + ', ' + argToString(name, val);
+                }, '') +
+                ') ' + this.get(3).toString();
+      // default is 'fun_call':
+      default:
+         return this.reduce(function(acc, val, i, name) {
+            if (i === 1) { return val.id + '('; }
+            if (i === 2) { return acc + paramToString(val, name); }
+
+            return acc + ', ' + paramToString(val, name);
+         }) + ')';
+      }
+   };
+
+   function indent(expr) {
+      return '\t' + expr.toString().replace('\n', function() { return '\n\t'; });
+   }
+
+   function paramToString(val, name) {
+      if (Base.utils.isMissing(val)) { return ''; }
+      if (Base.utils.isMissing(name)) { return val.toString(); }
+
+      return name + ' = ' + val.toString();
+   }
+
+   function argToString(name, val) {
+      if (typeof val === 'undefined') { return name; }
+
+      return name + ' = ' + val.toString();
+   }
 
    return Expression;
 });
