@@ -264,6 +264,9 @@ define(function(require) {
     *     Variable values.
     * - Arrays will be passed to the `Base.Variable` constructor.
     * - The null value `Value.null` will be returned as itself.
+    * - An `Expression` becomes an expression value.
+    * - An `Expression.Symbol` becomes a symbol value.
+    * - An `Expression.Literal` becomes the corresponding value.
     * - Other values will result in an exception.
     */
    Value.wrap = function wrap(v) {
