@@ -2,13 +2,13 @@
 'use strict';
 define(function(require) {
 
-   var Base, evalInFrame, Expression;
+   var Base, evalInEnvironment, Expression;
 
    Base = require('panthrbase/index');
    Expression = require('./expression');
 
-   evalInFrame = function(body, frame) {
-      throw new Error('Need to call call Value.setEvalInFrame first');
+   evalInEnvironment = function(body, env) {
+      throw new Error('Need to call call Value.setEvalInEnvironment first');
    };
 
    /**
@@ -51,8 +51,8 @@ define(function(require) {
          loc, 'next');
    };
 
-   Value.setEvalInFrame = function(f) {
-      evalInFrame = f;
+   Value.setEvalInEnvironment = function(f) {
+      evalInEnvironment = f;
 
       return Value;
    };
@@ -81,12 +81,12 @@ define(function(require) {
 
    function evalClosure(fun, env) {
       return function(actuals) {
-         var formals, body, closExtFrame, actualPos;
+         var formals, body, closExtEnvironment, actualPos;
 
          // Will be messing with the array of formals, so need to copy it
          formals = fun.params.slice();
          body = fun.body;
-         closExtFrame = env.extend();
+         closExtEnvironment = env.extend();
          // Go through actuals, see if they are named and match a formal
          // Compares the i-th element in the actuals list to the j-th element
          // in the formals list. It adjusts the arrays if necessary.
@@ -103,7 +103,7 @@ define(function(require) {
                  formals[j].name === 'param_default') &&
                 formals[j].id === name) {
                // found match
-               closExtFrame.store(formals[j].id, actual);
+               closExtEnvironment.store(formals[j].id, actual);
                formals.splice(j, 1);
                actuals.delete(i);
                // i-th spot now contains the next entry
@@ -130,12 +130,12 @@ define(function(require) {
             }
             if (formals[0].name === 'param_dots') {
                // Need to eat up all remaining actuals.
-               closExtFrame.store('...', Value.makeList(actuals));
+               closExtEnvironment.store('...', Value.makeList(actuals));
                actuals = new Base.List();
             } else if (actualPos <= actuals.length() &&
                        actuals.get(actualPos).type !== 'undefined') {
                // There is a value to read, bind formal to value
-               closExtFrame.store(formals[0].id, actuals.get(actualPos));
+               closExtEnvironment.store(formals[0].id, actuals.get(actualPos));
                actuals.delete(actualPos);
             } else {
                if (formals[0].name === 'param_default') {
@@ -143,13 +143,13 @@ define(function(require) {
                   // Cannot evaluate right away because it might depend on
                   // later defaults. Must create a promise. It will not be
                   // executed unless needed.
-                  closExtFrame.store(
+                  closExtEnvironment.store(
                      formals[0].id,
-                     Value.makeDelayed(formals[0].default, closExtFrame)
+                     Value.makeDelayed(formals[0].default, closExtEnvironment)
                   );
                } else {
                   // Need to set to missing value
-                  closExtFrame.store(formals[0].id, Value.makeUndefined());
+                  closExtEnvironment.store(formals[0].id, Value.makeUndefined());
                }
                // Values here are either set by default or are missing
                // If the missing-ness was caused by an empty argument,
@@ -161,7 +161,7 @@ define(function(require) {
             formals.splice(0, 1);
          }
 
-         return evalInFrame(body, closExtFrame);
+         return evalInEnvironment(body, closExtEnvironment);
       };
    }
 
@@ -238,11 +238,11 @@ define(function(require) {
       return Value.null;
    };
 
-   Value.makeDelayed = function makeDelayed(expr, frame) {
+   Value.makeDelayed = function makeDelayed(expr, env) {
       return Value.makeValue('promise', {
-         thunk: function() { return evalInFrame(expr, frame); },
+         thunk: function() { return evalInEnvironment(expr, env); },
          node: expr,
-         env: frame
+         env: env
       });
    };
 
