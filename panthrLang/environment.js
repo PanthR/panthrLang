@@ -2,16 +2,33 @@
 'use strict';
 define(function(require) {
 
+   // Used to count the environments that get created
+   // and need a non-specific name.
+   var counter;
+
+   counter = 0;
+   function getNextName() {
+      counter += 1;
+
+      return String(counter);
+   }
+
    /*
     * Constructor for an evaluation environment. It contains:
-    * - A `enclosure` pointer to its enclosure environment. Variable lookups will traverse
+    * - An `enclosure` pointer to its enclosure environment. Variable lookups will traverse
     *     this enclosure chain. The global environment has `null` enclosure.
     * - A `frame` object containing the bindings for the environment. `Environment#store` method
     *     can be used to create bindings.
+    * - An `isGlobal` boolean setting determining if the environment is meant to be the global
+    *     environment.
     */
-   function Environment(enclosure) {
+   function Environment(enclosure, name) {
       this.enclosure = enclosure;
       this.frame = {};
+      // TODO: If name not given, generate random name
+      if (name == null) { name = getNextName(); }
+      this.name = name;
+      this.isGlobal = false;
    }
 
    Environment.prototype = {
@@ -36,9 +53,8 @@ define(function(require) {
          if (this.frame.hasOwnProperty(symbol)) {
             return this.frame[symbol];
          }
-         if (this.enclosure === null) { return null; }
 
-         return this.enclosure.lookup(symbol);
+         return this.getEnclosure().lookup(symbol);
       },
       // Stores the symbol-value pair in the environment. Returns the environment
       store: function store(symbol, value) {
@@ -57,11 +73,11 @@ define(function(require) {
       getEnvironmentForSymbol: function getEnvironmentForSymbol(symbol, isGlobal) {
          var currEnvironment;
 
-         if (this.enclosure === null || !isGlobal) { return this; }
+         if (this.isGlobal || !isGlobal) { return this; }
 
-         currEnvironment = this.enclosure;
+         currEnvironment = this.getEnclosure();
          while (!currEnvironment.hasOwnSymbol(symbol) &&
-                currEnvironment.getEnclosure() !== null) {
+                !currEnvironment.isGlobal) {
             currEnvironment = currEnvironment.getEnclosure();
          }
 
@@ -70,18 +86,30 @@ define(function(require) {
       // returns `this` environment, or `this.enclosure`, whichever is the appropriate
       // evaluation environment for the assignment type (global versus local).
       getRelevantEnvironment: function getRelevantEnvironment(isGlobal) {
-         if (this.enclosure === null || !isGlobal) { return this; }
+         if (this.isGlobal || !isGlobal) { return this; }
 
-         return this.enclosure;
+         return this.getEnclosure();
       },
       // Returns the environment's enclosure
       getEnclosure: function getEnclosure() { return this.enclosure; },
-      // Returns the "global" environment corresponding to the environment, by following
+      setEnclosure: function(newEnclosure) {
+         this.enclosure = newEnclosure;
+
+         return this;
+      },
+      // Search for ancestor with the given name.
+      // If none exists, return null
+      getNamedAncestor: function(name) {
+         if (this.name === name) { return this; }
+
+         return this.getEnclosure().getNamedAncestor(name);
+      },
+      // Returns the 'global' environment corresponding to the environment, by following
       // enclosure pointers
       getGlobal: function() {
-         if (this.enclosure === null) { return this; }
+         if (this.isGlobal) { return this; }
 
-         return this.enclosure.getGlobal();
+         return this.getEnclosure().getGlobal();
       },
       // Looks a symbol up in the global environment.
       // Only useful before storing something in the global environment.
@@ -96,9 +124,33 @@ define(function(require) {
       }
    };
 
-   Environment.newGlobal = function newGlobal() {
-      return new Environment(null);
+   // Create a new global environment with a given parent.
+   // This really should only be called once per package.
+   // Not meant to be called except by the internal Evaluate mechanism.
+   Environment.newGlobal = function newGlobal(enclosure) {
+      var env;
+
+      if (enclosure == null) { enclosure = Environment.emptyenv; }
+
+      env = new Environment(enclosure, '.GlobalEnv');
+      env.isGlobal = true;
+
+      return env;
    };
+
+   // 'Ultimate parent'.
+   Environment.emptyenv = new Environment(null, '.EmptyEnv');
+
+   Environment.emptyenv.getNamedAncestor = function(name) {
+      if (this.name === name) { return this; }
+
+      return null;
+   };
+   Environment.emptyenv.getEnclosure = function() { return null; };
+   Environment.emptyenv.lookup = function(symbol) {
+      return null;
+   };
+   Object.freeze(Environment.emptyenv);
 
    return Environment;
 

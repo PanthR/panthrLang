@@ -14,19 +14,21 @@ define(function(require) {
    // These do not get loaded at this point, but they can be found later.
    packages = {};
 
-   function Evaluate() {
-      this.global = Environment.newGlobal();
-      this.global.loadedPackages = null;
+   function Evaluate(enclosure) {
+      this.global = Environment.newGlobal(enclosure);
    }
 
    // This function is used to add a package, in the form of a function
    // expecting arguments "evalLang", "addBuiltin", "Value" (see issue #16)
    Evaluate.addPackage = function addPackage(name, func) {
-      if (packages.hasOwnProperty(name)) {
+      var extendedName;
+
+      extendedName = 'package:' + name;
+      if (packages.hasOwnProperty(extendedName)) {
          console.log('Warning: A package with name ' + name + ' already exists.' +
             ' The old package will no longer be accessible.');
       }
-      packages[name] = func;
+      packages[extendedName] = func;
 
       return Evaluate;
    };
@@ -77,35 +79,24 @@ define(function(require) {
       return vals;
    }
 
-   // Search in the loaded packages starting from "current"
-   function findPackage(packageName, current) {
-      while (current != null) {
-         if (current.name === packageName) {
-            return current.package;
-         }
-
-         current = current.next;
-      }
-
-      return null;
-   }
-
    // Loads a package into the current evaluation.
-   // The package will be stored in the loadedPackages property
-   // of the global environment corresponding to the current environment.
+   // The package will be injected as a parent of the global environment.
    function loadPackage(packageName, env, loc) {
       var global, newEval;
 
-      global = env.getGlobal();  // The global environment
+      packageName = 'package:' + packageName;
+
+      global = env.getGlobal();
 
       if (!packages.hasOwnProperty(packageName)) {
          throw errorInfo('Unknown package: ' + packageName, loc);
       }
 
       // Search for existing package first
-      newEval = findPackage(packageName, global.loadedPackages);
+      newEval = global.getNamedAncestor(packageName);
       if (newEval == null) {
-         newEval = new Evaluate();  // Eval environment for the package
+         // Eval environment for the package
+         newEval = new Evaluate(global.getEnclosure());
          // Load the package, adding to the newEval's environment.
          packages[packageName](
             function evalLang(str) {
@@ -123,15 +114,13 @@ define(function(require) {
                newEval.global.store(name, value);
             }
          );
-         // Now we need to prepend to the global's package list
-         global.loadedPackages = {
-            name: packageName,
-            package: newEval,
-            next: global.loadedPackages
-         };
+         // Now we need to set the package's global to the proper place in
+         // the search path.
+         newEval.global.name = packageName;
+         global.setEnclosure(newEval.global);
       }
 
-      return Value.makePackage(global.loadedPackages);
+      return Value.makePackage(newEval);
    }
 
    // "runs" a certain node to completion.
@@ -198,17 +187,11 @@ define(function(require) {
    /* eslint-enable complexity */
 
    function lookup(symbol, env, loc) {
-      var val, pack;
+      var val;
 
       val = env.lookup(symbol);
+
       if (val === null) {
-         // Need to look through the package chain
-         pack = env.getGlobal().loadedPackages;
-         while (pack !== null) {
-            val = pack.package.global.lookup(symbol);
-            if (val !== null) { return val; }
-            pack = pack.next;
-         }
          throw errorInfo('Unknown symbol: ' + symbol, loc);
       }
       val = val.resolve();
