@@ -2,10 +2,11 @@
 'use strict';
 define(function(require) {
 
-   var Base, evalInEnvironment, Expression;
+   var Base, evalInEnvironment, Expression, Environment;
 
    Base = require('panthrbase/index');
    Expression = require('./expression');
+   Environment = require('./environment');
 
    evalInEnvironment = function(body, env) {
       throw new Error('Need to call call Value.setEvalInEnvironment first');
@@ -246,6 +247,10 @@ define(function(require) {
       });
    };
 
+   Value.makeEnvironment = function makeEnvironment(env) {
+      return Value.makeValue('env', env);
+   };
+
    Value.makePackage = function makePackage(pack) {
       return Value.makeValue('pack', { package: pack });
    };
@@ -273,6 +278,7 @@ define(function(require) {
       if (v === null) { return Value.makeNull(); }
       if (typeof v === 'undefined') { return Value.makeUndefined(); }
       if (v instanceof Value) { return v; }
+      if (v instanceof Environment) { return Value.makeEnvironment(v); }
       if (v instanceof Base.Variable) { return Value.makeVariable(v); }
       if (v instanceof Expression) { return Value.makeExpression(v); }
       if (v instanceof Expression.Symbol) { return Value.makeSymbol(v); }
