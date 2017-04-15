@@ -522,6 +522,18 @@ define(function(require) {
          resolver.addLanguageParameter('expr', true);
       });
 
+      // ENVIRONMENT MANIPULATING FUNCTIONS
+      //
+      //
+      addBuiltin('environment', function(lst, env) {
+         // TODO: Handle the non-null case here
+         return Value.makeEnvironment(env);
+      }, function(resolver) {
+         resolver.addParameter('fun', ['function', 'null'])
+            .addDefault('fun', function() { return Value.makeNull(); });
+      });
+      // END OF ENVIRONMENT MANIPULATING FUNCTIONS
+
       // TODO: Add a whole lot more here.
 
    };
