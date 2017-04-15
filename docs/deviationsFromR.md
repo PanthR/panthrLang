@@ -8,3 +8,8 @@ This file documents areas where our parser deviates from R's parser.
 - `diff` does not currently accept other parameters than the vector `x`.
 - `<-` and `=` assignments are both turned into `<-` in expressions.
 - PanthR does not have NaN. All "missing values" are NA. NaN is parsed and converted internally to NA.
+- `x[]` is parsed by R as having one "empty" argument, while `f()` is not parsed as having any arguments. In panthR they are both treated as having no arguments.
+
+# Design decisions
+
+- "builtin" functions are also provided a secret second argument, the current Environment instance. This allows the base package methods to access the environment, so we can implement the environment-related methods.
