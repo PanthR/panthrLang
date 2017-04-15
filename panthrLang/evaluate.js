@@ -175,7 +175,7 @@ define(function(require) {
          return evalFor(node, env);
       case 'fun_call':
          return evalCall(evalInEnvironment(node.fun, env),
-                         evalActuals(node.args, env), node.fun.loc);
+                         evalActuals(node.args, env), node.fun.loc, env);
       case 'library':
          return loadPackage(node.id, env, node.loc);
       case 'error':
@@ -240,7 +240,7 @@ define(function(require) {
    function evalRange(a, b, env, loc) {
       return evalCall(lookup('seq', env), new Base.List({
          from: a, to: b
-      }), loc);
+      }), loc, env);
    }
 
    function evalSeq(exprs, env) {
@@ -294,7 +294,8 @@ define(function(require) {
       // 4. Call the new function
       funCallResult = evalCall(evalInEnvironment(lvalue.fun, env),
                                args,
-                               lvalue.loc);
+                               lvalue.loc,
+                               env);
       // 5. Make an assign call, with "x" to the result of 4 (local to lvalueEnvironment)
       assign(lvalue.args[0], funCallResult, env, isGlobal);
    }
@@ -315,7 +316,7 @@ define(function(require) {
       actuals.set(evalActuals(node.coords, env));
       fun = lookup('[', env, node.loc);
 
-      return evalCall(fun, actuals, node.loc);
+      return evalCall(fun, actuals, node.loc, env);
    }
 
    // Handles [] assignment
@@ -399,10 +400,10 @@ define(function(require) {
    }
 
    // "actuals" will be a Base.List
-   function evalCall(clos, actuals, loc) {
+   function evalCall(clos, actuals, loc, env) {
       if (clos.type === 'closure' || clos.type === 'builtin') {
          try {
-            return Value.functionFromValue(clos)(actuals);
+            return Value.functionFromValue(clos)(actuals, env);
          } catch (e) {
             if (e instanceof Value.ControlFlowException) {
                throw errorInfo(e.message, e.loc);

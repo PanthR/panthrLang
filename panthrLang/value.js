@@ -70,13 +70,15 @@ define(function(require) {
       // "Builtin" functions are Javascript functions. They expect one argument
       // that is a "list" in the panthrBase sense.
       // "actuals" needs to turn into such a list.
-      return function(actuals) {
+      // "env" is the current environment, and is meant to only be used
+      // by the environment-managing methods in base
+      return function(actuals, env) {
          // Before passing to built-in function, we need to
          // "unvalue" the actuals list.
          var resolvedActuals;
 
          resolvedActuals = resolver.resolve(actuals);
-         return fun(resolvedActuals);
+         return fun(resolvedActuals, env);
       };
    }
 
