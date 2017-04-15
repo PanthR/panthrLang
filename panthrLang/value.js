@@ -344,6 +344,8 @@ define(function(require) {
                 (this.value.loc == null ? ''
                   : this.value.loc.firstLine + ':' +
                      this.value.loc.firstColumn);
+      case 'undefined':
+         return '<undefined: undefined>';
       default:
          return '<' + this.type + ': ' + this.value.toString() + '>';
       }
