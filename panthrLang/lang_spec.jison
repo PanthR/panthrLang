@@ -143,15 +143,20 @@ expr
    ;
 
 actuals
-   : actual ',' actuals    { $3.unshift($1); $$ = $3; }
+   :                       { $$ = []; }
    | actual                { $$ = [$1]; }
+   | actual contActual     { $2.unshift($1); $$ = $2; }
+   | contActual            { $1.unshift(Node.argEmpty(yy.lexer.yylloc)); $$ = $1; }
+   ;
+
+contActual
+   : ',' actuals    { $$ = $2.length === 0 ? [Node.argEmpty(yy.lexer.yylloc)] : $2; }
    ;
 
 actual
    : expr                    { $$ = $1; }
    | VAR EQUALS expr         { $$ = Node.argNamed(yy.lexer.yylloc, $1, $3); }
    | DOTS                    { $$ = Node.argDots(yy.lexer.yylloc); }
-   |                         { $$ = Node.argEmpty(yy.lexer.yylloc); }
    ;
 
 formals

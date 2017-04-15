@@ -52,8 +52,7 @@ describe('The parser parses', function() {
    it('single bracket indexing', function() {
       main.parse('x[]; x[1+2]; x[,]; x[,3]; x[1+2,]\n x[4, 4, 5]', function(nodes) {
          expect(nodes[0].name).to.equal('single_bracket_access');
-         expect(nodes[0].coords.length).to.equal(1);
-         expect(nodes[0].coords[0].name).to.equal('arg_empty');
+         expect(nodes[0].coords.length).to.equal(0);
          expect(nodes[1].name).to.equal('single_bracket_access');
          expect(nodes[1].coords.length).to.equal(1);
          expect(nodes[1].coords[0].name).to.equal('fun_call');

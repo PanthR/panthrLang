@@ -63,12 +63,14 @@ describe('The parser', function() {
       });
    });
    it('parses function definitions and calls with no arguments', function() {
-      ['f(); function() { 2 }'].forEach(function(expr) {
+      ['f(); function() { 2 }; f(,)'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
-            expect(nodes.length).to.equal(2);
-            expect(nodes[0].args.length).to.equal(1);
-            expect(nodes[0].args[0].name).to.equal('arg_empty');
+            expect(nodes.length).to.equal(3);
+            expect(nodes[0].args.length).to.equal(0);
             expect(nodes[1].params.length).to.equal(0);
+            expect(nodes[2].args.length).to.equal(2);
+            expect(nodes[2].args[0].name).to.equal('arg_empty');
+            expect(nodes[2].args[1].name).to.equal('arg_empty');
          });
       });
    });
