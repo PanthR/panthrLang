@@ -526,8 +526,18 @@ define(function(require) {
       //
       //
       addBuiltin('environment', function(lst, env) {
-         // TODO: Handle the non-null case here
-         return Value.makeEnvironment(env);
+         var fun;
+
+         fun = lst.get('fun');
+         if (typeof fun === 'function') {
+            if (fun.hasOwnProperty('env')) {
+               return Value.wrap(fun.env);
+            }
+            // built-in function
+            return Value.makeNull();
+         }
+         // null case, return current env
+         return Value.wrap(env);
       }, function(resolver) {
          resolver.addParameter('fun', ['function', 'null'])
             .addDefault('fun', function() { return Value.makeNull(); });
