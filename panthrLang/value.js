@@ -212,7 +212,13 @@ define(function(require) {
    Value.makeClosure = function makeClosure(fun, env) {
       var f;
 
-      f = evalClosure(fun, env);
+      // create the closure based on values of fun and env
+      // at time of calling the closure value function,
+      // allowing the environment (and function) of the closure
+      // to be changed
+      f = function(actuals) {
+         return evalClosure(f.fun, f.env)(actuals);
+      };
       f.fun = fun;
       f.env = env;
 
