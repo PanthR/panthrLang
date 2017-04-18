@@ -29,4 +29,16 @@ describe('Environment handling methods work:', function() {
       expect(evs.length).to.equal(1);
       expect(envsin.type).to.equal('null');
    });
+   it('environment<- sets the closure\'s environment', function() {
+      var evs = main.eval(
+      	'f = function(){x<-10;function(){x}}; g = f(); x<-5; \
+      	g(); environment(g)<-environment(); environment(g); \
+      	environment(); g()');
+      var envg = evs[5];
+      var envcurr = evs[6];
+      expect(evs.length).to.equal(8);
+      expect(envg.value).to.equal(envcurr.value);
+      expect(evs[3].value.toArray()).to.deep.equal([10]);
+      expect(evs[7].value.toArray()).to.deep.equal([5]);
+   });
 });

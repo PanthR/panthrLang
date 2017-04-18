@@ -354,6 +354,7 @@ define(function(require) {
       .addStandardType('ordinal')
       .addStandardType('list')
       .addStandardType('null')
+      .addStandardType('env')
       .addType('function', function check(v) {
          return v.type === 'builtin' || v.type === 'closure';
       }, Value.functionFromValue)

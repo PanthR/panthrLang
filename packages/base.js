@@ -542,6 +542,19 @@ define(function(require) {
          resolver.addParameter('fun', ['function', 'null'])
             .addDefault('fun', function() { return Value.makeNull(); });
       });
+      addBuiltin('environment<-', function(lst, env) {
+         var fun;
+
+         fun = lst.get('fun');
+         if (fun.hasOwnProperty('env')) {
+            fun.env = lst.get('value');
+         }
+         // assignment functions return the 'x' argument
+         return Value.wrap(fun);
+      }, function(resolver) {
+         resolver.addParameter('fun', ['function'])
+            .addParameter('value', ['env']);
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.
