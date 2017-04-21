@@ -47,4 +47,10 @@ describe('Environment handling methods work:', function() {
       expect(baseenv.type).to.equal('env');
       expect(baseenv.value.frame).to.have.ownProperty('baseenv');
    });
+   it('emptyenv returns the empty environment', function() {
+      var evs = main.eval('emptyenv()');
+      var emptyenv = evs[0];
+      expect(emptyenv.type).to.equal('env');
+      expect(emptyenv.value.getEnclosure()).to.equal(null);
+   });
 });

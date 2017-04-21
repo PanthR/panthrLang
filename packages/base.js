@@ -2,9 +2,10 @@
 'use strict';
 define(function(require) {
 // Example of how a package is structured.
-   var Base;
+   var Base, Environment;
 
    Base = require('panthrbase/index');
+   Environment = require('../panthrLang/environment');
 
 // It needs to always return a function with the following signature:
    /* eslint-disable max-statements */
@@ -561,6 +562,9 @@ define(function(require) {
             return Value.wrap(baseenv);
          });
       }(evalLang('environment()')[0].value));
+      addBuiltin('emptyenv', function(lst) {
+         return Value.wrap(Environment.emptyenv);
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.
