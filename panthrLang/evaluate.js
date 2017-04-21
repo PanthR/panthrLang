@@ -100,7 +100,7 @@ define(function(require) {
          // Load the package, adding to the newEval's environment.
          packages[packageName](
             function evalLang(str) {
-               newEval.parseAndEval(str);
+               return newEval.parseAndEval(str);
             },
             function addBuiltin(name, f, config) {
                var resolver;
