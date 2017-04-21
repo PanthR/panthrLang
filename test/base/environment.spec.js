@@ -53,4 +53,10 @@ describe('Environment handling methods work:', function() {
       expect(emptyenv.type).to.equal('env');
       expect(emptyenv.value.getEnclosure()).to.equal(null);
    });
+   it('globalenv returns the global environment', function() {
+      var evs = main.eval('f <- function() { globalenv() }; f(); environment()');
+      var globalenv = evs[2];
+      expect(evs[1].type).to.equal('env');
+      expect(evs[1].value).to.equal(globalenv.value);
+   });
 });

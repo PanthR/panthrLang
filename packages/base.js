@@ -565,6 +565,9 @@ define(function(require) {
       addBuiltin('emptyenv', function(lst) {
          return Value.wrap(Environment.emptyenv);
       });
+      addBuiltin('globalenv', function(lst, env) {
+         return Value.wrap(env.getGlobal());
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.
