@@ -2,17 +2,6 @@
 'use strict';
 define(function(require) {
 
-   // Used to count the environments that get created
-   // and need a non-specific name.
-   var counter;
-
-   counter = 0;
-   function getNextName() {
-      counter += 1;
-
-      return String(counter);
-   }
-
    /*
     * Constructor for an evaluation environment. It contains:
     * - An `enclosure` pointer to its enclosure environment. Variable lookups will traverse
@@ -25,8 +14,7 @@ define(function(require) {
    function Environment(enclosure, name) {
       this.enclosure = enclosure;
       this.frame = {};
-      // TODO: If name not given, generate random name
-      if (name == null) { name = getNextName(); }
+      if (name == null) { name = ''; }
       this.name = name;
       this.isGlobal = false;
    }
