@@ -568,6 +568,11 @@ define(function(require) {
       addBuiltin('globalenv', function(lst, env) {
          return Value.wrap(env.getGlobal());
       });
+      addBuiltin('environmentName', function(lst) {
+         return Value.makeString(lst.get('env').name);
+      }, function(resolver) {
+         resolver.addParameter('env', ['env'], true);
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.

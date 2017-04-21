@@ -59,4 +59,16 @@ describe('Environment handling methods work:', function() {
       expect(evs[1].type).to.equal('env');
       expect(evs[1].value).to.equal(globalenv.value);
    });
+   it('environmentName returns the name of the environment', function() {
+      var evs = main.eval('environmentName(baseenv()); f<-function() {environmentName(environment())}; f()');
+      var baseName = evs[0];
+      expect(baseName.type).to.equal('string');
+      expect(baseName.value.get(1)).to.match(/base$/);
+      expect(baseName.value.length()).to.equal(1);
+      expect(evs[2].type).to.equal('string');
+      expect(evs[2].value.get(1)).to.equal('');
+      expect(evs[2].value.length()).to.equal(1);
+
+
+   });
 });
