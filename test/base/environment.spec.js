@@ -41,4 +41,10 @@ describe('Environment handling methods work:', function() {
       expect(evs[3].value.toArray()).to.deep.equal([10]);
       expect(evs[7].value.toArray()).to.deep.equal([5]);
    });
+   it('baseenv returns the base environment', function() {
+      var evs = main.eval('baseenv()');
+      var baseenv = evs[0];
+      expect(baseenv.type).to.equal('env');
+      expect(baseenv.value.frame).to.have.ownProperty('baseenv');
+   });
 });

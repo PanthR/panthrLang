@@ -555,6 +555,12 @@ define(function(require) {
          resolver.addParameter('fun', ['function'])
             .addParameter('value', ['env']);
       });
+      // immediate function invocation
+      (function(baseenv) {
+         addBuiltin('baseenv', function(lst, env) {
+            return Value.wrap(baseenv);
+         });
+      }(evalLang('environment()')[0].value));
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.
