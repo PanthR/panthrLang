@@ -9,6 +9,7 @@ This file documents areas where our parser deviates from R's parser.
 - `<-` and `=` assignments are both turned into `<-` in expressions.
 - PanthR does not have NaN. All "missing values" are NA. NaN is parsed and converted internally to NA.
 - `x[]` is parsed by R as having one "empty" argument, while `f()` is not parsed as having any arguments. In panthR they are both treated as having no arguments.
+- Trying to set the environment of a builtin fails silently, instead of setting an environment that is never used.
 - All methods that interact with the environment hierarchy / search path assume that the environment they are called in lies below the global namespace.
 - `.GlobalEnv` is not defined.  Use `globalenv()` to access the global environment.
 
