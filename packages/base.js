@@ -573,6 +573,27 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('env', ['env'], true);
       });
+      addBuiltin('parent.frame', function(lst, env) {
+         return Value.wrap(Environment.getCallFrame(lst.get('n')));
+      }, function(resolver) {
+         resolver.addParameter('n', 'number')
+            .addDefault('n', '1')
+            .addNormalize(function(lst) {
+               if (lst.get('n') < 1) {
+                  throw new Error('Invalid n value (need n > 0).');
+               }
+            });
+      });
+      addBuiltin('new.env', function(lst) {
+         return Value.wrap(lst.get('parent').extend());
+      }, function(resolver) {
+         resolver.addParameter('hash', 'boolean')
+            .addParameter('parent', 'env')
+            .addParameter('size', 'number')
+            .addDefault('hash', 'TRUE')
+            .addDefault('parent', 'parent.frame()')
+            .addDefault('size', '29');
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.

@@ -68,7 +68,24 @@ describe('Environment handling methods work:', function() {
       expect(evs[2].type).to.equal('string');
       expect(evs[2].value.get(1)).to.equal('');
       expect(evs[2].value.length()).to.equal(1);
-
-
+   });
+   it('parent.frame returns the appropriate environment', function() {
+      var evs = main.eval('f = function(n=1) { parent.frame(n)}; g=function(n=1) { f(n) };\
+                           g(); g(2); f(); environment()');
+      expect(evs.length).to.equal(6);
+      expect(evs[2].type).to.equal('env');
+      expect(evs[3].type).to.equal('env');
+      expect(evs[4].type).to.equal('env');
+      expect(evs[2].value.enclosure).to.equal(evs[5].value);
+      expect(evs[3].value).to.equal(evs[5].value);
+      expect(evs[4].value).to.equal(evs[5].value);
+   });
+   it('new.env returns a new environment with correct enclosure', function() {
+      var evs = main.eval('new.env(parent=emptyenv()); new.env(); environment()');
+      expect(evs.length).to.equal(3);
+      expect(evs[0].type).to.equal('env');
+      expect(evs[1].type).to.equal('env');
+      expect(evs[0].value.enclosure.name).to.equal('.EmptyEnv');
+      expect(evs[1].value.enclosure === evs[2].value).to.equal(true);
    });
 });
