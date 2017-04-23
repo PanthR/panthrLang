@@ -19,6 +19,28 @@ define(function(require) {
       this.isGlobal = false;
    }
 
+   // Call stack. Only stores the environments of the currently-pending calls
+   Environment.callStack = [];
+   Environment.pushCall = function pushCall(env) {
+      Environment.callStack.push(env);
+
+      return Environment;
+   };
+   Environment.popCall = function popCall() {
+      Environment.callStack.pop();
+
+      return Environment;
+   };
+   // Access the n-th level of the call stack, where 1 means the current.
+   Environment.getCallFrame = function(n) {
+      var index; // correct index into the call stack
+
+      index = Environment.callStack.length - 1 - n;
+      if (index < 0) { index = 0; }
+
+      return Environment.callStack[index];
+   };
+
    Environment.prototype = {
       // Extends the environment. If obj is provided, it adds the key-value
       // bindings specified by that object.

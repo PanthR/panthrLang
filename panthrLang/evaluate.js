@@ -404,6 +404,7 @@ define(function(require) {
    // "actuals" will be a Base.List
    function evalCall(clos, actuals, loc, env) {
       if (clos.type === 'closure' || clos.type === 'builtin') {
+         Environment.pushCall(env);
          try {
             return Value.functionFromValue(clos)(actuals, env);
          } catch (e) {
@@ -411,6 +412,9 @@ define(function(require) {
                throw errorInfo(e.message, e.loc);
             }
             throw errorInfo(e.message || e.toString(), loc);
+         } finally {
+            // Must fix the call stack regardless of call outcome
+            Environment.popCall();
          }
       }
       throw errorInfo('trying to call non-function ' + clos.toString(), loc);
