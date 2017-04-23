@@ -216,13 +216,17 @@ define(function(require) {
     * This produces a new list, which is then transformed using the `rules` one
     * at a time in the order in which they were inserted in the array.
     *
+    * The parameter `env` is set to the dynamic environment in which
+    * the function was called. It is used to compute defaults in the
+    * correct environment.
+    *
     * Returns an object containing two keys:
     * - `processed`: the resulting list of processed actuals values
     * - `dots`: the list of arguments that matched the dots.
     *
     * Caution: This method will change the `actuals` list.
     */
-   Resolver.prototype.resolve = function(actuals) {
+   Resolver.prototype.resolve = function(actuals, env) {
       var processed, i, j, name, formal, params;
 
       processed = new Base.List();
@@ -277,7 +281,21 @@ define(function(require) {
          switch (rule.type) {
          case 'default':
             if (!processed.has(rule.param)) {
-               processed.set(rule.param, rule.fun(processed));
+               if (typeof rule.fun === 'function') {
+                  processed.set(rule.param, rule.fun(processed));
+               } else if (typeof rule.fun === 'string') {
+                  // Execute as panthrLang
+                  processed.set(rule.param,
+                     // The evaluated default will be a Value. We must
+                     // process through the resolver conversion rules for
+                     // this parameter.
+                     Resolver.resolveValue(this.getParam(rule.param).types)(
+                        evaluateStringInExtended(rule.fun, env, processed)
+                     )
+                  );
+               } else {
+                  throw new Error('Incorrect default specification. Must be a function or string');
+               }
             }
             break;
          case 'dependency':
@@ -292,7 +310,7 @@ define(function(require) {
          default:
             throw new Error('Unknown resolver rule type: ' + rule.type);
          }
-      });
+      }.bind(this));
       // Check required have been provided
       for (i = 0; i < params.length; i += 1) {
          if (params[i].required && !processed.has(params[i].name)) {
@@ -303,6 +321,22 @@ define(function(require) {
       return processed;
    };
    /* eslint-enable complexity, max-statements */
+
+   // Evaluate the string as a PanthrLang language expression in an environment
+   // resulting by extending the dynamic environment `env` with the bindings
+   // from the `processed` list converted to `Value`s.
+   function evaluateStringInExtended(str, env, processed) {
+      var extendedEnv;
+
+      extendedEnv = env.extend();
+      processed.each(function(value, i, name) {
+         extendedEnv.store(name, Value.wrap(value));
+      });
+
+      // parseThenEval returns an array of values. But here we
+      // should only have had one value anyway. Get it out of the array.
+      return Value.parseThenEval(str, extendedEnv)[0];
+   }
 
    Resolver.prototype.resolveDots = function(actuals) {
       return actuals.map(Resolver.resolveValue(['any']));

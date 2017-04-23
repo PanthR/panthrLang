@@ -5,7 +5,9 @@ define(function(require) {
    var Environment, Value, Base, parser, Resolver, packages;
 
    Environment = require('./environment');
-   Value = require('./value').setEvalInEnvironment(evalInEnvironment);
+   Value = require('./value')
+      .setEvalInEnvironment(evalInEnvironment)
+      .setParseThenEval(parseThenEval);
    Base = require('panthrbase/index');
    parser = require('./parser').parser;
    Resolver = require('./resolver');

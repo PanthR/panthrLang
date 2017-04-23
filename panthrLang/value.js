@@ -2,15 +2,11 @@
 'use strict';
 define(function(require) {
 
-   var Base, evalInEnvironment, Expression, Environment;
+   var Base, Expression, Environment;
 
    Base = require('panthrbase/index');
    Expression = require('./expression');
    Environment = require('./environment');
-
-   evalInEnvironment = function(body, env) {
-      throw new Error('Need to call call Value.setEvalInEnvironment first');
-   };
 
    /**
     * Kinds of values produced by the interpreter
@@ -27,6 +23,17 @@ define(function(require) {
       this.type = type;
       this.value = value;
    }
+
+   /*
+    * These are set to the evalInEnvironment and parseThenEval methods in Evaluate.
+    * Only work when Value has been loaded from Evaluate.
+    */
+   Value.evalInEnvironment = function(body, env) {
+      throw new Error('Need to call call Value.setEvalInEnvironment first');
+   };
+   Value.parseThenEval = function(str, env) {
+      throw new Error('Need to call call Value.setParseThenEval first');
+   };
 
    Value.null = new Value('null', null);
    Value.null.value = Value.null;
@@ -53,7 +60,13 @@ define(function(require) {
    };
 
    Value.setEvalInEnvironment = function(f) {
-      evalInEnvironment = f;
+      Value.evalInEnvironment = f;
+
+      return Value;
+   };
+
+   Value.setParseThenEval = function(f) {
+      Value.parseThenEval = f;
 
       return Value;
    };
@@ -77,7 +90,7 @@ define(function(require) {
          // "unvalue" the actuals list.
          var resolvedActuals;
 
-         resolvedActuals = resolver.resolve(actuals);
+         resolvedActuals = resolver.resolve(actuals, env);
          return fun(resolvedActuals, env);
       };
    }
@@ -164,7 +177,7 @@ define(function(require) {
             formals.splice(0, 1);
          }
 
-         return evalInEnvironment(body, closExtEnvironment);
+         return Value.evalInEnvironment(body, closExtEnvironment);
       };
    }
 
@@ -249,7 +262,7 @@ define(function(require) {
 
    Value.makeDelayed = function makeDelayed(expr, env) {
       return Value.makeValue('promise', {
-         thunk: function() { return evalInEnvironment(expr, env); },
+         thunk: function() { return Value.evalInEnvironment(expr, env); },
          node: expr,
          env: env
       });

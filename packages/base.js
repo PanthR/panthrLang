@@ -221,7 +221,7 @@ define(function(require) {
       }, function(resolver) {
          resolver.addDots()
             .addParameter('recursive', 'boolean', false)
-            .addDefault('recursive', function() { return false; });
+            .addDefault('recursive', 'FALSE');
       });
 
       addBuiltin('[', function(lst) {
@@ -236,7 +236,7 @@ define(function(require) {
          resolver.addParameter('x', ['list', 'variable', 'null'], true)
             .addDots()
             .addParameter('drop', 'boolean', false)
-            .addDefault('drop', function() { return true; })
+            .addDefault('drop', 'TRUE')
             .addNormalize(function(lst) {
                var theDots;
 
@@ -366,7 +366,7 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', 'scalar', true)
             .addParameter('base', 'number', false)
-            .addDefault('base', function() { return Math.exp(1); });
+            .addDefault('base', 'exp(1)');
       });
       addBuiltin('log10', function(lst) {
          return Value.makeVariable(
@@ -469,7 +469,7 @@ define(function(require) {
             .addParameter('by', 'number', true)
             .addParameter('length.out', 'number')
             .addParameter('along.with', 'variable')
-            .addDefault('from', function(lst) { return 1; })
+            .addDefault('from', '1')
             .addDependent('length.out', 'along.with', function(alongWith) {
                return alongWith.length();
             })
@@ -541,7 +541,7 @@ define(function(require) {
          return Value.wrap(env);
       }, function(resolver) {
          resolver.addParameter('fun', ['function', 'null'])
-            .addDefault('fun', function() { return null; });
+            .addDefault('fun', 'NULL');
       });
       addBuiltin('environment<-', function(lst, env) {
          var fun;
