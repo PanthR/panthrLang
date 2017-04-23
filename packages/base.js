@@ -541,7 +541,7 @@ define(function(require) {
          return Value.wrap(env);
       }, function(resolver) {
          resolver.addParameter('fun', ['function', 'null'])
-            .addDefault('fun', function() { return Value.makeNull(); });
+            .addDefault('fun', function() { return null; });
       });
       addBuiltin('environment<-', function(lst, env) {
          var fun;
