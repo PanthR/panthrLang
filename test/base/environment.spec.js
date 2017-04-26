@@ -96,4 +96,11 @@ describe('Environment handling methods work:', function() {
       expect(evs[0].value).to.equal(evs[1].value);
       expect(evs[2].value).to.equal(evs[3].value);
    });
+   it('search returns a string variable starting and ending correctly', function() {
+      var evs = main.eval('search()');
+      expect(evs[0].type).to.equal('string');
+      var len = evs[0].value.length();
+      expect(evs[0].value.get(1)).to.match(/globalenv/i);
+      expect(evs[0].value.get(len)).to.match(/base/i);
+   });
 });

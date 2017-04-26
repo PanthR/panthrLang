@@ -568,6 +568,18 @@ define(function(require) {
       addBuiltin('globalenv', function(lst, env) {
          return Value.wrap(env.getGlobal());
       });
+      addBuiltin('search', function(lst, env) {
+         var arr;
+
+         arr = [];
+         env = env.getGlobal();
+         while (env !== Environment.emptyenv) {
+            arr.push(env.name);
+            env = env.getEnclosure();
+         }
+
+         return Value.makeString(arr);
+      });
       addBuiltin('environmentName', function(lst) {
          return Value.makeString(lst.get('env').name);
       }, function(resolver) {
