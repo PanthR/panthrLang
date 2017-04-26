@@ -594,6 +594,18 @@ define(function(require) {
             .addDefault('parent', 'parent.frame()')
             .addDefault('size', '29');
       });
+      addBuiltin('parent.env', function(lst) {
+         var env;
+
+         env = lst.get('env');
+         if (env === Environment.emptyenv) {
+            throw new Error('the empty environment has no parent');
+         }
+
+         return Value.wrap(env.getEnclosure());
+      }, function(resolver) {
+         resolver.addParameter('env', 'env', true);
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.

@@ -12,6 +12,7 @@ This file documents areas where our parser deviates from R's parser.
 - Trying to set the environment of a builtin fails silently, instead of setting an environment that is never used.
 - All methods that interact with the environment hierarchy / search path assume that the environment they are called in lies below the global namespace.
 - `.GlobalEnv` is not defined.  Use `globalenv()` to access the global environment.
+- Will not implement `parent.env<-`.
 
 # Design decisions
 

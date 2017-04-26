@@ -88,4 +88,12 @@ describe('Environment handling methods work:', function() {
       expect(evs[0].value.enclosure.name).to.equal('.EmptyEnv');
       expect(evs[1].value.enclosure === evs[2].value).to.equal(true);
    });
+   it('parent.env returns its argument\'s enclosure', function() {
+      var evs = main.eval('parent.env(new.env()); environment(); parent.env(baseenv()); emptyenv()');
+      expect(evs.length).to.equal(4);
+      expect(evs[0].type).to.equal('env');
+      expect(evs[2].type).to.equal('env');
+      expect(evs[0].value).to.equal(evs[1].value);
+      expect(evs[2].value).to.equal(evs[3].value);
+   });
 });
