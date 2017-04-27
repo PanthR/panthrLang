@@ -382,7 +382,7 @@ define(function(require) {
    Resolver
       .addStandardType('scalar')
       .addStandardType('logical')
-      .addStandardType('string')
+      .addType('character', function check(v) { return v.type === 'string'; })
       .addStandardType('factor')
       .addStandardType('datetime')
       .addStandardType('ordinal')
@@ -394,6 +394,9 @@ define(function(require) {
       }, Value.functionFromValue)
       .addType('number', function check(v) {
          return v.type === 'scalar' && v.value.length() === 1;
+      }, function unwrap(v) { return v.value.get(1); })
+      .addType('string', function check(v) {
+         return v.type === 'string' && v.value.length() === 1;
       }, function unwrap(v) { return v.value.get(1); })
       .addType('boolean', function check(v) {
          return v.type === 'logical' && v.value.length() === 1;
@@ -410,6 +413,17 @@ define(function(require) {
       .addType('expression', function check(v) { return false; })
       .addType('any', function check(v) { return true; })
       .addType('undefined', function check(v) { return v.type === 'undefined'; });
+
+   // Conversions
+   Resolver
+      .addConversion('character', 'string', function(variable) {
+         console.log("conversion happening", variable);
+         if (variable.length() === 0) {
+            throw new Error('cannot convert variable of length 0 to string');
+         }
+
+         return variable.get(1);
+      });
 
    return Resolver;
 

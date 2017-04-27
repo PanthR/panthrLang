@@ -260,7 +260,7 @@ define(function(require) {
    function evalListAccess(lst, index, loc) {
       try {
          lst = Resolver.resolveValue(['list'])(lst);
-         index = Resolver.resolveValue(['scalar', 'string'])(index);
+         index = Resolver.resolveValue(['scalar', 'character'])(index);
          return Value.wrap(lst.deepGet(index));
       } catch (e) {
          throw errorInfo(e.message || e.toString(), loc);
@@ -270,7 +270,7 @@ define(function(require) {
    function evalListAssign(lst, index, rvalue, loc) {
       try {
          lst = Resolver.resolveValue(['list'])(lst);
-         index = Resolver.resolveValue(['scalar', 'string'])(index);
+         index = Resolver.resolveValue(['scalar', 'character'])(index);
          rvalue = Resolver.resolveValue(['any'])(rvalue);
          lst.deepSet(index, rvalue);
       } catch (e) {
