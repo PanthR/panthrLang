@@ -121,16 +121,6 @@ define(function(require) {
 
          return this.getEnclosure().getGlobal();
       },
-      // Looks a symbol up in the global environment.
-      // Only useful before storing something in the global environment.
-      lookupGlobal: function(symbol) {
-         return this.getGlobal().lookup(symbol);
-      },
-      // Stores the value as corresponding to the symbol, in the global environment.
-      storeGlobal: function(symbol, value) {
-         this.getGlobal().store(symbol, value);
-
-         return this;
       }
    };
 
