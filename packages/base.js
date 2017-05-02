@@ -623,6 +623,41 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', ['number', 'string', 'env'], true);
       });
+      addBuiltin('assign', function(lst) {
+         var x, value, env, inherits;
+
+         x = lst.get('x');
+         value = Value.wrap(lst.get('value'));
+         env = lst.get('envir');
+         inherits = lst.get('inherits');
+         env.getEnvironmentForSymbol(x, inherits).store(x, value);
+
+         return value;
+      }, function(resolver) {
+         resolver.addParameter('x', 'string', true)
+            .addParameter('value', 'any', true)
+            .addParameter('pos', ['number', 'env', 'character'])
+            .addParameter('envir', 'env')
+            .addParameter('inherits', 'boolean')
+            .addParameter('immediate', 'boolean')
+            .addDefault('pos', '-1')
+            .addDefault('envir', 'as.environment(pos)')
+            .addDefault('inherits', 'FALSE')
+            .addDefault('immediate', 'TRUE')
+            .addNormalize(function(lst) {
+               var pos;
+
+               pos = lst.get('pos');
+               if (pos instanceof Base.Variable) {
+                  // error for length 0, else use 1st entry
+                  if (pos.length() === 0) {
+                     throw new Error('cannot convert variable of length 0 to string');
+                  }
+                  lst.set('pos', pos.get(1));
+               }
+            });
+      });
+
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.

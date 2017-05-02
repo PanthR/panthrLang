@@ -103,6 +103,57 @@ describe('Environment handling methods work:', function() {
       expect(evs[0].value.get(1)).to.match(/globalenv/i);
       expect(evs[0].value.get(len)).to.match(/base/i);
    });
+   it('assign with pos = -1 or 1', function() {
+      var evs = main.eval('f=function(){assign("x",2:4,-1); assign("x",1:2,1); x}; f(); x');
+      expect(evs.length).to.equal(3);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([2,3,4]);
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([1,2]);
+   });
+   it('assign with pos = environment name', function() {
+      var evs = main.eval('x<-1:2; assign("x",3:6,"package:base"); f=function(){x}; environment(f)<-baseenv(); f(); x');
+      expect(evs.length).to.equal(6);
+      expect(evs[4].type).to.equal('scalar');
+      expect(evs[4].value.toArray()).to.deep.equal([3,4,5,6]);
+      expect(evs[5].type).to.equal('scalar');
+      expect(evs[5].value.toArray()).to.deep.equal([1,2]);
+   });
+   it('assign with pos = an actual environment', function() {
+      var evs = main.eval('env<-new.env(parent=baseenv()); x<-1:2; assign("x",3:6,env); f=function(){x}; environment(f)<-env; f(); x');
+      expect(evs.length).to.equal(7);
+      expect(evs[0].type).to.equal('env');
+      expect(evs[0].value.hasOwnSymbol('x')).to.equal(true);
+      expect(evs[5].type).to.equal('scalar');
+      expect(evs[5].value.toArray()).to.deep.equal([3,4,5,6]);
+      expect(evs[6].type).to.equal('scalar');
+      expect(evs[6].value.toArray()).to.deep.equal([1,2]);
+   });
+   it('assign with inherits = TRUE', function() {
+      var evs = main.eval(
+         'env<-new.env(parent=baseenv()); assign("x",1:2,"package:base"); \
+         assign("x",3:6,env,inherits=TRUE); assign("y",12,env,inherits=TRUE); \
+         x; y; \
+         f=function(){y}; g=function(){x}; \
+         environment(f)<-env; environment(g)<-env; \
+         f(); g()'
+      );
+      var x = evs[4];
+      var y = evs[5];
+      var callf = evs[10];
+      var callg = evs[11];
+
+      console.log(callf.value);
+
+      expect(evs.length).to.equal(12);
+      expect(x.type).to.equal('scalar');
+      expect(y.type).to.equal('scalar');
+      expect(x.value.toArray()).to.deep.equal([3,4,5,6]);
+      expect(y.value.toArray()).to.deep.equal([12]);
+      expect(callf.type).to.equal('error');
+      expect(callg.type).to.equal('scalar');
+      expect(callg.value.toArray()).to.deep.equal([12]);
+   });
    it('as.environment', function() {
       var evs = main.eval('f=function(){as.environment(-1)}; f(); environment()');
       expect(evs.length).to.equal(3);

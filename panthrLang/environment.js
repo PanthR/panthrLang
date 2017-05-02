@@ -121,6 +121,27 @@ define(function(require) {
 
          return this.getEnclosure().getGlobal();
       },
+      // Searches for the environment based on the value of `env`.
+      //  - If `env` is -1, returns the current environment.
+      //  - If `env` is an Environment, `env` is returned.
+      //  - If `env` is a number or a string, returns the environment
+      //    on the search path with that index or name.
+      search: function(x) {
+         var i, currEnv;
+
+         if (x instanceof Environment) { return x; }
+         if (x === -1) { return Environment.getCallFrame(1); }
+
+         i = 1;
+         currEnv = this.getGlobal();
+         while (currEnv !== Environment.emptyenv) {
+            if (i === x || currEnv.name === x) {
+               return currEnv;
+            }
+            i += 1;
+            currEnv = currEnv.getEnclosure();
+         }
+         throw new Error('did not find the desired environment:' + x);
       }
    };
 
