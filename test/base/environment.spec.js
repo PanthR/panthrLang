@@ -12,7 +12,7 @@ describe('Environment handling methods work:', function() {
    });
    it('environment(fun) returns closure\'s environment', function() {
       var evs = main.eval('f = function(){function(){}}; g = f(); \
-      	environment(f); environment(g); environment()');
+         environment(f); environment(g); environment()');
       var envf = evs[2];
       var envg = evs[3];
       var envcurr = evs[4];
@@ -31,9 +31,9 @@ describe('Environment handling methods work:', function() {
    });
    it('environment<- sets the closure\'s environment', function() {
       var evs = main.eval(
-      	'f = function(){x<-10;function(){x}}; g = f(); x<-5; \
-      	g(); environment(g)<-environment(); environment(g); \
-      	environment(); g()');
+         'f = function(){x<-10;function(){x}}; g = f(); x<-5; \
+         g(); environment(g)<-environment(); environment(g); \
+         environment(); g()');
       var envg = evs[5];
       var envcurr = evs[6];
       expect(evs.length).to.equal(8);
