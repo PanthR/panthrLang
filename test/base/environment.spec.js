@@ -103,4 +103,9 @@ describe('Environment handling methods work:', function() {
       expect(evs[0].value.get(1)).to.match(/globalenv/i);
       expect(evs[0].value.get(len)).to.match(/base/i);
    });
+   it('as.environment', function() {
+      var evs = main.eval('f=function(){as.environment(-1)}; f(); environment()');
+      expect(evs.length).to.equal(3);
+      expect(evs[1].value).to.equal(evs[2].value);
+   });
 });

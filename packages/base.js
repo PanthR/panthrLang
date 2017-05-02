@@ -618,6 +618,11 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('env', 'env', true);
       });
+      addBuiltin('as.environment', function(lst, env) {
+         return Value.wrap(env.search(lst.get('x')));
+      }, function(resolver) {
+         resolver.addParameter('x', ['number', 'string', 'env'], true);
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.
