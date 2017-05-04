@@ -6,8 +6,7 @@ define(function(require) {
 
    Environment = require('./environment');
    Value = require('./value')
-      .setEvalInEnvironment(evalInEnvironment)
-      .setParseThenEval(parseThenEval);
+      .setEvalInEnvironment(evalInEnvironment);
    Base = require('panthrbase/index');
    parser = require('./parser').parser;
    Resolver = require('./resolver');
@@ -40,25 +39,65 @@ define(function(require) {
 
    Evaluate.prototype = {
       eval: function(node) {
-         return evalInEnvironment(node, this.global);
+         return this.evalInEnvironment(node, this.global);
       },
       // Parses and evaluates a string in the given Evaluate setup.
       // Returns the array of results.
       parseAndEval: function(str) {
-         return parseThenEval(str, this.global);
+         return this.parseThenEval(str, this.global);
       }
    };
+
+   Object.defineProperties(Evaluate.prototype, {
+      extendParseEval: { value: extendParseEval },
+      parseThenEval: { value: parseThenEval },
+      evalInEnvironment: { value: evalInEnvironment },
+      lookup: { value: lookup },
+      assign: { value: assign },
+      evalRange: { value: evalRange },
+      evalSeq: { value: evalSeq },
+      evalListAccess: { value: evalListAccess },
+      evalListAssign: { value: evalListAssign },
+      evalFunCallAssign: { value: evalFunCallAssign },
+      evalArrayAccess: { value: evalArrayAccess },
+      evalArrayAssign: { value: evalArrayAssign },
+      evalFor: { value: evalFor },
+      evalWhile: { value: evalWhile },
+      evalIf: { value: evalIf },
+      evalCall: { value: evalCall },
+      evalActuals: { value: evalActuals },
+      evalFunDef: { value: evalFunDef },
+      getEnvironmentForSymbol: { value: getEnvironmentForSymbol },
+      loadPackage: { value: loadPackage }
+   });
+
+   // Evaluate the string as a PanthrLang language expression in an environment
+   // resulting by extending the dynamic environment `env` with the bindings
+   // from the `processed` list converted to `Value`s.
+   function extendParseEval(str, env, processed) {
+      var extendedEnv;
+
+      extendedEnv = env.extend();
+      processed.each(function(value, i, name) {
+         extendedEnv.store(name, Value.wrap(value));
+      });
+
+      // parseThenEval returns an array of values. But here we
+      // should only have had one value anyway. Get it out of the array.
+      return this.parseThenEval(str, extendedEnv)[0];
+   }
 
    // Given a string and an "evaluation environment", parses then
    // evaluates that string in that evaluation environment.
    // Returns the array of results (as well as possibly modifying the environment).
    function parseThenEval(str, env) {
-      var vals;
+      var vals, that;
 
+      that = this;
       parser.yy.emit = function(nodes) {
          vals = nodes.map(function(node) {
             try {
-               return evalInEnvironment(node, env);
+               return that.evalInEnvironment(node, env);
             } catch (e) {
                if (e instanceof Value.ControlFlowException) {
                   return errorInfo(e.message, e.loc);
@@ -138,48 +177,48 @@ define(function(require) {
       case 'break': throw Value.break(node.loc);
       case 'next': throw Value.next(node.loc);
       case 'range':
-         return evalRange(evalInEnvironment(node.from, env),
-                          evalInEnvironment(node.to, env),
-                          env, node.from.loc);
+         return this.evalRange(this.evalInEnvironment(node.from, env),
+                               this.evalInEnvironment(node.to, env),
+                               env, node.from.loc);
       case 'variable':
-         return lookup(node.id, env, node.loc);
+         return this.lookup(node.id, env, node.loc);
       case 'assign':
-         return assign(node.lvalue,
-                       evalInEnvironment(node.rvalue, env).clone(),
-                       env,
-                       false);
+         return this.assign(node.lvalue,
+                            this.evalInEnvironment(node.rvalue, env).clone(),
+                            env,
+                            false);
       case 'assign_existing':
-         return assign(node.lvalue,
-                       evalInEnvironment(node.rvalue, env).clone(),
-                       env,
-                       true);
+         return this.assign(node.lvalue,
+                            this.evalInEnvironment(node.rvalue, env).clone(),
+                            env,
+                            true);
       case 'dollar_access':
-         return evalListAccess(evalInEnvironment(node.object, env),
-                               Value.makeString([node.id]),
-                               node.loc);
+         return this.evalListAccess(this.evalInEnvironment(node.object, env),
+                                    Value.makeString([node.id]),
+                                    node.loc);
       case 'dbl_bracket_access':
-         return evalListAccess(evalInEnvironment(node.object, env),
-                               evalInEnvironment(node.index, env),
-                               node.loc);
+         return this.evalListAccess(this.evalInEnvironment(node.object, env),
+                                    this.evalInEnvironment(node.index, env),
+                                    node.loc);
       case 'single_bracket_access':
-         return evalArrayAccess(node, env);
+         return this.evalArrayAccess(node, env);
       case 'fun_def':
-         return evalFunDef(node, env);
+         return this.evalFunDef(node, env);
       case 'block':
-         return evalSeq(node.exprs, env);
+         return this.evalSeq(node.exprs, env);
       case 'parens':
-         return evalInEnvironment(node.expr, env);
+         return this.evalInEnvironment(node.expr, env);
       case 'if':
-         return evalIf(node, env);
+         return this.evalIf(node, env);
       case 'while':
-         return evalWhile(node, env);
+         return this.evalWhile(node, env);
       case 'for':
-         return evalFor(node, env);
+         return this.evalFor(node, env);
       case 'fun_call':
-         return evalCall(evalInEnvironment(node.fun, env),
-                         evalActuals(node.args, env), node.fun.loc, env);
+         return this.evalCall(this.evalInEnvironment(node.fun, env),
+                              this.evalActuals(node.args, env), node.fun.loc, env);
       case 'library':
-         return loadPackage(node.id, env, node.loc);
+         return this.loadPackage(node.id, env, node.loc);
       case 'error':
          return errorInfo('unexpected token: ' + node.error.hash.text, node.loc);
       default:
@@ -211,27 +250,27 @@ define(function(require) {
    function assign(lvalue, rvalue, env, isGlobal) {
       switch (lvalue.name) {
       case 'single_bracket_access':
-         evalArrayAssign(lvalue, rvalue, env, isGlobal);
+         this.evalArrayAssign(lvalue, rvalue, env, isGlobal);
          break;
       case 'dbl_bracket_access':
-         evalListAssign(evalInEnvironment(lvalue.object, env.getRelevantEnvironment(isGlobal)),
-                        evalInEnvironment(lvalue.index, env),
+         this.evalListAssign(this.evalInEnvironment(lvalue.object, env.getRelevantEnvironment(isGlobal)),
+                        this.evalInEnvironment(lvalue.index, env),
                         rvalue,
                         lvalue.loc);
 
          break;
       case 'dollar_access':
-         evalListAssign(evalInEnvironment(lvalue.object, env.getRelevantEnvironment(isGlobal)),
+         this.evalListAssign(this.evalInEnvironment(lvalue.object, env.getRelevantEnvironment(isGlobal)),
                         Value.makeString([lvalue.id]),
                         rvalue,
                         lvalue.loc);
 
       break;
       case 'fun_call':
-         evalFunCallAssign(lvalue, rvalue, env, isGlobal);
+         this.evalFunCallAssign(lvalue, rvalue, env, isGlobal);
          break;
       case 'variable':
-         env.getEnvironmentForSymbol(lvalue.id, isGlobal).store(lvalue.id, rvalue);
+         this.getEnvironmentForSymbol(lvalue.id, env, isGlobal).store(lvalue.id, rvalue);
          break;
       default:
          throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
@@ -240,7 +279,7 @@ define(function(require) {
    }
 
    function evalRange(a, b, env, loc) {
-      return evalCall(lookup('seq', env), new Base.List({
+      return this.evalCall(this.lookup('seq', env), new Base.List({
          from: a, to: b
       }), loc, env);
    }
@@ -249,7 +288,7 @@ define(function(require) {
       var i, val;
 
       for (i = 0; i < exprs.length; i += 1) {
-         val = evalInEnvironment(exprs[i], env);
+         val = this.evalInEnvironment(exprs[i], env);
       }
       return val;
    }
@@ -290,16 +329,16 @@ define(function(require) {
       }
       lvalue.fun.id += '<-';
       // 2. EvalActuals the arguments to the function
-      args = evalActuals(lvalue.args, env.getRelevantEnvironment(isGlobal));
+      args = this.evalActuals(lvalue.args, env.getRelevantEnvironment(isGlobal));
       // 3. Extend them by "value=rhs"
       args.set('value', rvalue);
       // 4. Call the new function
-      funCallResult = evalCall(evalInEnvironment(lvalue.fun, env),
-                               args,
-                               lvalue.loc,
-                               env);
+      funCallResult = this.evalCall(this.evalInEnvironment(lvalue.fun, env),
+                                    args,
+                                    lvalue.loc,
+                                    env);
       // 5. Make an assign call, with "x" to the result of 4 (local to lvalueEnvironment)
-      assign(lvalue.args[0], funCallResult, env, isGlobal);
+      this.assign(lvalue.args[0], funCallResult, env, isGlobal);
    }
 
    // Handles [] access -- "extract"
@@ -314,11 +353,11 @@ define(function(require) {
 
       // Add object as a named argument in actuals
       // Also make sure it is the first argument
-      actuals = new Base.List({ x: evalInEnvironment(node.object, env) });
-      actuals.set(evalActuals(node.coords, env));
-      fun = lookup('[', env, node.loc);
+      actuals = new Base.List({ x: this.evalInEnvironment(node.object, env) });
+      actuals.set(this.evalActuals(node.coords, env));
+      fun = this.lookup('[', env, node.loc);
 
-      return evalCall(fun, actuals, node.loc, env);
+      return this.evalCall(fun, actuals, node.loc, env);
    }
 
    // Handles [] assignment
@@ -326,12 +365,12 @@ define(function(require) {
       var actuals, fun;
 
       actuals = new Base.List({
-         x: evalInEnvironment(node.object, env.getRelevantEnvironment(isGlobal)),
+         x: this.evalInEnvironment(node.object, env.getRelevantEnvironment(isGlobal)),
          value: rvalue
       });
-      actuals.set(evalActuals(node.coords, env));
-      fun = lookup('[<-', env, node.loc);
-      evalCall(fun, actuals, node.loc);
+      actuals.set(this.evalActuals(node.coords, env));
+      fun = this.lookup('[<-', env, node.loc);
+      this.evalCall(fun, actuals, node.loc);
    }
 
    function evalFunDef(node, env) {
@@ -372,7 +411,7 @@ define(function(require) {
       exprs.forEach(function(expr) {
          switch (expr.name) {
          case 'arg_named':
-            addNamedValue(expr.id, Value.makeDelayed(expr.value, env), expr.loc);
+            addNamedValue(expr.id, Value.makeDelayed(expr.value, env, this), expr.loc);
             break;
          case 'arg_dots':
             // Need to look for a defined dots in the immediate environment
@@ -388,15 +427,15 @@ define(function(require) {
                      addValue(value);
                   }
                });
-            }(lookup('...', env, expr.loc)));
+            }(this.lookup('...', env, expr.loc)));
             break;
          case 'arg_empty':
             addValue(Value.makeUndefined());
             break;
          default:
-            addValue(Value.makeDelayed(expr, env));
+            addValue(Value.makeDelayed(expr, env, this));
          }
-      });
+      }, this);
 
       return actuals;
    }
@@ -406,7 +445,7 @@ define(function(require) {
       if (clos.type === 'closure' || clos.type === 'builtin') {
          Environment.pushCall(env);
          try {
-            return Value.functionFromValue(clos)(actuals, env);
+            return Value.functionFromValue(clos).call(this, actuals, env);
          } catch (e) {
             if (e instanceof Value.ControlFlowException) {
                throw errorInfo(e.message, e.loc);
@@ -423,14 +462,14 @@ define(function(require) {
    function evalIf(node, env) {
       var testResult;
 
-      testResult = evalInEnvironment(node.test, env);
+      testResult = this.evalInEnvironment(node.test, env);
       testResult = Resolver.resolveValue(['boolean'])(testResult);
 
       if (testResult) {
-         return evalInEnvironment(node.then, env);
+         return this.evalInEnvironment(node.then, env);
       }
       if (typeof node.else !== 'undefined') {
-         return evalInEnvironment(node.else, env);
+         return this.evalInEnvironment(node.else, env);
       }
       // No else case
       return Value.makeNull();
@@ -442,10 +481,10 @@ define(function(require) {
       try {
          /* eslint-disable no-constant-condition */
          while (true) {
-            testResult = evalInEnvironment(node.test, env);
+            testResult = this.evalInEnvironment(node.test, env);
             testResult = Resolver.resolveValue(['boolean'])(testResult);
             if (!testResult) { break; }
-            evalInEnvironment(node.body, env);
+            this.evalInEnvironment(node.body, env);
          }
          /* eslint-enable no-constant-condition */
       } catch (e) {
@@ -459,19 +498,19 @@ define(function(require) {
    function evalFor(node, env) {
       var seq;
 
-      seq = evalInEnvironment(node.seq, env);
+      seq = this.evalInEnvironment(node.seq, env);
       seq = Resolver.resolveValue(['variable', 'list'])(seq);
 
       try {
          seq.each(function(v) {
             env.store(node.var, Value.wrap(v));
             try {
-               evalInEnvironment(node.body, env);
+               this.evalInEnvironment(node.body, env);
             } catch (e) { // cath a next
                if (!(e instanceof Value.ControlFlowException)) { throw e; }
                if (e.type !== 'next') { throw e; }
             }
-         });
+         }.bind(this));
       } catch (e) { // catch a break
          if (!(e instanceof Value.ControlFlowException)) { throw e; }
          if (e.type !== 'break') { throw e; }
@@ -482,6 +521,10 @@ define(function(require) {
 
    function errorInfo(msg, loc) {
       return Value.makeError({ message: msg, loc: loc });
+   }
+
+   function getEnvironmentForSymbol(id, env, isGlobal) {
+      return env.getEnvironmentForSymbol(id, isGlobal);
    }
 
    return Evaluate;

@@ -31,9 +31,6 @@ define(function(require) {
    Value.evalInEnvironment = function(body, env) {
       throw new Error('Need to call call Value.setEvalInEnvironment first');
    };
-   Value.parseThenEval = function(str, env) {
-      throw new Error('Need to call call Value.setParseThenEval first');
-   };
 
    Value.null = new Value('null', null);
    Value.null.value = Value.null;
@@ -65,12 +62,6 @@ define(function(require) {
       return Value;
    };
 
-   Value.setParseThenEval = function(f) {
-      Value.parseThenEval = f;
-
-      return Value;
-   };
-
    Value.functionFromValue = function(value) {
       if (value.type === 'closure' || value.type === 'builtin') {
          return value.value;
@@ -90,7 +81,7 @@ define(function(require) {
          // "unvalue" the actuals list.
          var resolvedActuals;
 
-         resolvedActuals = resolver.resolve(actuals, env);
+         resolvedActuals = resolver.resolve(actuals, env, this);
          return fun(resolvedActuals, env);
       };
    }
@@ -161,7 +152,7 @@ define(function(require) {
                   // executed unless needed.
                   closExtEnvironment.store(
                      formals[0].id,
-                     Value.makeDelayed(formals[0].default, closExtEnvironment)
+                     Value.makeDelayed(formals[0].default, closExtEnvironment, this)
                   );
                } else {
                   // Need to set to missing value
@@ -177,7 +168,7 @@ define(function(require) {
             formals.splice(0, 1);
          }
 
-         return Value.evalInEnvironment(body, closExtEnvironment);
+         return Value.evalInEnvironment.call(this, body, closExtEnvironment);
       };
    }
 
@@ -230,7 +221,7 @@ define(function(require) {
       // allowing the environment (and function) of the closure
       // to be changed
       f = function(actuals) {
-         return evalClosure(f.fun, f.env)(actuals);
+         return evalClosure.call(this, f.fun, f.env).call(this, actuals);
       };
       f.fun = fun;
       f.env = env;
@@ -260,9 +251,9 @@ define(function(require) {
       return Value.null;
    };
 
-   Value.makeDelayed = function makeDelayed(expr, env) {
+   Value.makeDelayed = function makeDelayed(expr, env, evalInstance) {
       return Value.makeValue('promise', {
-         thunk: function() { return Value.evalInEnvironment(expr, env); },
+         thunk: function() { return Value.evalInEnvironment.call(evalInstance, expr, env); },
          node: expr,
          env: env
       });

@@ -220,13 +220,16 @@ define(function(require) {
     * the function was called. It is used to compute defaults in the
     * correct environment.
     *
+    * `evalInstance` is the instance of Evaluate to be used when
+    * evaluating defaults.
+    *
     * Returns an object containing two keys:
     * - `processed`: the resulting list of processed actuals values
     * - `dots`: the list of arguments that matched the dots.
     *
     * Caution: This method will change the `actuals` list.
     */
-   Resolver.prototype.resolve = function(actuals, env) {
+   Resolver.prototype.resolve = function(actuals, env, evalInstance) {
       var processed, i, j, name, formal, params;
 
       processed = new Base.List();
@@ -290,7 +293,7 @@ define(function(require) {
                      // process through the resolver conversion rules for
                      // this parameter.
                      Resolver.resolveValue(this.getParam(rule.param).types)(
-                        evaluateStringInExtended(rule.fun, env, processed)
+                        evalInstance.extendParseEval(rule.fun, env, processed)
                      )
                   );
                } else {
@@ -321,22 +324,6 @@ define(function(require) {
       return processed;
    };
    /* eslint-enable complexity, max-statements */
-
-   // Evaluate the string as a PanthrLang language expression in an environment
-   // resulting by extending the dynamic environment `env` with the bindings
-   // from the `processed` list converted to `Value`s.
-   function evaluateStringInExtended(str, env, processed) {
-      var extendedEnv;
-
-      extendedEnv = env.extend();
-      processed.each(function(value, i, name) {
-         extendedEnv.store(name, Value.wrap(value));
-      });
-
-      // parseThenEval returns an array of values. But here we
-      // should only have had one value anyway. Get it out of the array.
-      return Value.parseThenEval(str, extendedEnv)[0];
-   }
 
    Resolver.prototype.resolveDots = function(actuals) {
       return actuals.map(Resolver.resolveValue(['any']));
@@ -417,7 +404,6 @@ define(function(require) {
    // Conversions
    Resolver
       .addConversion('character', 'string', function(variable) {
-         console.log("conversion happening", variable);
          if (variable.length() === 0) {
             throw new Error('cannot convert variable of length 0 to string');
          }
