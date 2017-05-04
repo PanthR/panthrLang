@@ -565,14 +565,14 @@ define(function(require) {
       addBuiltin('emptyenv', function(lst) {
          return Value.wrap(Environment.emptyenv);
       });
-      addBuiltin('globalenv', function(lst, env) {
-         return Value.wrap(env.getGlobal());
+      addBuiltin('globalenv', function(lst, env, evalInstance) {
+         return Value.wrap(evalInstance.getGlobalEnv());
       });
-      addBuiltin('search', function(lst, env) {
-         var arr;
+      addBuiltin('search', function(lst, dynEnv, evalInstance) {
+         var arr, env;
 
          arr = [];
-         env = env.getGlobal();
+         env = evalInstance.getGlobalEnv();
          while (env !== Environment.emptyenv) {
             arr.push(env.name);
             env = env.getEnclosure();
@@ -585,8 +585,8 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('env', ['env'], true);
       });
-      addBuiltin('parent.frame', function(lst, env) {
-         return Value.wrap(Environment.getCallFrame(lst.get('n')));
+      addBuiltin('parent.frame', function(lst, env, evalInstance) {
+         return Value.wrap(evalInstance.getCallFrame(lst.get('n')));
       }, function(resolver) {
          resolver.addParameter('n', 'number')
             .addDefault('n', '1')
@@ -618,19 +618,19 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('env', 'env', true);
       });
-      addBuiltin('as.environment', function(lst, env) {
-         return Value.wrap(env.search(lst.get('x')));
+      addBuiltin('as.environment', function(lst, dynEnv, evalInstance) {
+         return Value.wrap(evalInstance.search(lst.get('x')));
       }, function(resolver) {
          resolver.addParameter('x', ['number', 'string', 'env'], true);
       });
-      addBuiltin('assign', function(lst) {
+      addBuiltin('assign', function(lst, dynEnv, evalInstance) {
          var x, value, env, inherits;
 
          x = lst.get('x');
          value = Value.wrap(lst.get('value'));
          env = lst.get('envir');
          inherits = lst.get('inherits');
-         env.getEnvironmentForSymbol(x, inherits).store(x, value);
+         evalInstance.getEnvironmentForSymbol(x, env, inherits).store(x, value);
 
          return value;
       }, function(resolver) {

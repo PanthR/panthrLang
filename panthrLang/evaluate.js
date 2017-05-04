@@ -5,8 +5,7 @@ define(function(require) {
    var Environment, Value, Base, parser, Resolver, packages;
 
    Environment = require('./environment');
-   Value = require('./value')
-      .setEvalInEnvironment(evalInEnvironment);
+   Value = require('./value');
    Base = require('panthrbase/index');
    parser = require('./parser').parser;
    Resolver = require('./resolver');
@@ -17,6 +16,7 @@ define(function(require) {
 
    function Evaluate(enclosure) {
       this.global = Environment.newGlobal(enclosure);
+      this.callStack = [];
    }
 
    // This function is used to add a package, in the form of a function
@@ -68,6 +68,11 @@ define(function(require) {
       evalActuals: { value: evalActuals },
       evalFunDef: { value: evalFunDef },
       getEnvironmentForSymbol: { value: getEnvironmentForSymbol },
+      getGlobalEnv: { value: getGlobalEnv },
+      pushCall: { value: pushCall },
+      popCall: { value: popCall },
+      getCallFrame: { value: getCallFrame },
+      search: { value: search },
       loadPackage: { value: loadPackage }
    });
 
@@ -127,7 +132,7 @@ define(function(require) {
 
       packageName = 'package:' + packageName;
 
-      global = env.getGlobal();
+      global = this.getGlobalEnv();
 
       if (!packages.hasOwnProperty(packageName)) {
          throw errorInfo('Unknown package: ' + packageName, loc);
@@ -253,19 +258,20 @@ define(function(require) {
          this.evalArrayAssign(lvalue, rvalue, env, isGlobal);
          break;
       case 'dbl_bracket_access':
-         this.evalListAssign(this.evalInEnvironment(lvalue.object, env.getRelevantEnvironment(isGlobal)),
-                        this.evalInEnvironment(lvalue.index, env),
-                        rvalue,
-                        lvalue.loc);
+         this.evalListAssign(this.evalInEnvironment(lvalue.object,
+                                env.getRelevantEnvironment(isGlobal)),
+                             this.evalInEnvironment(lvalue.index, env),
+                             rvalue,
+                             lvalue.loc);
 
          break;
       case 'dollar_access':
-         this.evalListAssign(this.evalInEnvironment(lvalue.object, env.getRelevantEnvironment(isGlobal)),
-                        Value.makeString([lvalue.id]),
-                        rvalue,
-                        lvalue.loc);
-
-      break;
+         this.evalListAssign(this.evalInEnvironment(lvalue.object,
+                                env.getRelevantEnvironment(isGlobal)),
+                             Value.makeString([lvalue.id]),
+                             rvalue,
+                             lvalue.loc);
+         break;
       case 'fun_call':
          this.evalFunCallAssign(lvalue, rvalue, env, isGlobal);
          break;
@@ -443,7 +449,7 @@ define(function(require) {
    // "actuals" will be a Base.List
    function evalCall(clos, actuals, loc, env) {
       if (clos.type === 'closure' || clos.type === 'builtin') {
-         Environment.pushCall(env);
+         this.pushCall(env);
          try {
             return Value.functionFromValue(clos).call(this, actuals, env);
          } catch (e) {
@@ -453,7 +459,7 @@ define(function(require) {
             throw errorInfo(e.message || e.toString(), loc);
          } finally {
             // Must fix the call stack regardless of call outcome
-            Environment.popCall();
+            this.popCall();
          }
       }
       throw errorInfo('trying to call non-function ' + clos.toString(), loc);
@@ -523,8 +529,59 @@ define(function(require) {
       return Value.makeError({ message: msg, loc: loc });
    }
 
+   // Returns the correct environment for assigning to a given symbol
+   //   - if isGlobal === true, looks for the symbol, starting from the
+   //     enclosure of `env`; if not found, returns the global environment
+   //   - else, returns `env`
    function getEnvironmentForSymbol(id, env, isGlobal) {
-      return env.getEnvironmentForSymbol(id, isGlobal);
+      if (!isGlobal) { return env; }
+      env = env.getEnclosure().getEnvironmentForSymbol(id);
+
+      return env === null ? this.getGlobalEnv() : env;
+   }
+
+   function getGlobalEnv() { return this.global; }
+
+   function pushCall(env) {
+      this.callStack.push(env);
+
+      return this;
+   }
+   function popCall() {
+      this.callStack.pop();
+
+      return this;
+   }
+   // Access the n-th level of the call stack, where 1 means the current.
+   function getCallFrame(n) {
+      var index; // correct index into the call stack
+
+      index = this.callStack.length - 1 - n;
+      if (index < 0) { index = 0; }
+
+      return this.callStack[index];
+   }
+   // Searches for the environment based on the value of `env`.
+   //  - If `env` is -1, returns the current environment.
+   //  - If `env` is an Environment, `env` is returned.
+   //  - If `env` is a number or a string, returns the environment
+   //    on the search path with that index or name.
+   function search(x) {
+      var i, currEnv;
+
+      if (x instanceof Environment) { return x; }
+      if (x === -1) { return this.getCallFrame(1); }
+
+      i = 1;
+      currEnv = this.getGlobalEnv();
+      while (currEnv !== Environment.emptyenv) {
+         if (i === x || currEnv.name === x) {
+            return currEnv;
+         }
+         i += 1;
+         currEnv = currEnv.getEnclosure();
+      }
+      throw new Error('did not find the desired environment:' + x);
    }
 
    return Evaluate;

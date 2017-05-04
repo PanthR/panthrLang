@@ -19,28 +19,6 @@ define(function(require) {
       this.isGlobal = false;
    }
 
-   // Call stack. Only stores the environments of the currently-pending calls
-   Environment.callStack = [];
-   Environment.pushCall = function pushCall(env) {
-      Environment.callStack.push(env);
-
-      return Environment;
-   };
-   Environment.popCall = function popCall() {
-      Environment.callStack.pop();
-
-      return Environment;
-   };
-   // Access the n-th level of the call stack, where 1 means the current.
-   Environment.getCallFrame = function(n) {
-      var index; // correct index into the call stack
-
-      index = Environment.callStack.length - 1 - n;
-      if (index < 0) { index = 0; }
-
-      return Environment.callStack[index];
-   };
-
    Environment.prototype = {
       // Extends the environment. If obj is provided, it adds the key-value
       // bindings specified by that object.
@@ -76,22 +54,12 @@ define(function(require) {
       hasOwnSymbol: function hasOwnSymbol(symbol) {
          return this.frame.hasOwnProperty(symbol);
       },
-      // Returns the correct environment for assigning to a given symbol
-      // if isGlobal === true, starts looking at the enclosure environment
-      // (or, if current environment is global, uses global environment)
-      // otherwise, looks at current environment only
-      getEnvironmentForSymbol: function getEnvironmentForSymbol(symbol, isGlobal) {
-         var currEnvironment;
+      // Searches for an environment containing the symbol, starting from
+      // `this` environment.
+      getEnvironmentForSymbol: function getEnvironmentForSymbol(symbol) {
+         if (this.hasOwnSymbol(symbol)) { return this; }
 
-         if (this.isGlobal || !isGlobal) { return this; }
-
-         currEnvironment = this.getEnclosure();
-         while (!currEnvironment.hasOwnSymbol(symbol) &&
-                !currEnvironment.isGlobal) {
-            currEnvironment = currEnvironment.getEnclosure();
-         }
-
-         return currEnvironment;
+         return this.getEnclosure().getEnvironmentForSymbol(symbol);
       },
       // returns `this` environment, or `this.enclosure`, whichever is the appropriate
       // evaluation environment for the assignment type (global versus local).
@@ -113,35 +81,6 @@ define(function(require) {
          if (this.name === name) { return this; }
 
          return this.getEnclosure().getNamedAncestor(name);
-      },
-      // Returns the 'global' environment corresponding to the environment, by following
-      // enclosure pointers
-      getGlobal: function() {
-         if (this.isGlobal) { return this; }
-
-         return this.getEnclosure().getGlobal();
-      },
-      // Searches for the environment based on the value of `env`.
-      //  - If `env` is -1, returns the current environment.
-      //  - If `env` is an Environment, `env` is returned.
-      //  - If `env` is a number or a string, returns the environment
-      //    on the search path with that index or name.
-      search: function(x) {
-         var i, currEnv;
-
-         if (x instanceof Environment) { return x; }
-         if (x === -1) { return Environment.getCallFrame(1); }
-
-         i = 1;
-         currEnv = this.getGlobal();
-         while (currEnv !== Environment.emptyenv) {
-            if (i === x || currEnv.name === x) {
-               return currEnv;
-            }
-            i += 1;
-            currEnv = currEnv.getEnclosure();
-         }
-         throw new Error('did not find the desired environment:' + x);
       }
    };
 
@@ -171,6 +110,7 @@ define(function(require) {
    Environment.emptyenv.lookup = function(symbol) {
       return null;
    };
+   Environment.emptyenv.getEnvironmentForSymbol = Environment.emptyenv.lookup;
    Object.freeze(Environment.emptyenv);
 
    return Environment;
