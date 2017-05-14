@@ -322,6 +322,23 @@ define(function(require) {
       return this;
    };
 
+   Value.prototype.matchesMode = function matchesMode(mode) {
+      switch (mode) {
+      case 'numeric': /* fall-through */
+      case 'integer': /* fall-through */
+      case 'double': return this.type === 'scalar';
+      case 'character': return this.type === 'string';
+      case 'NULL': return this.type === 'null';
+      case 'closure': /* fall-through */
+      case 'builtin': /* fall-through */
+      case 'function': return this.type === 'builtin' || this.type === 'closure';
+      case 'environment': return this.type === 'env';
+      case 'name': return this.type === 'symbol';
+      case 'language': return this.type === 'expression';
+      default: return this.type === mode;
+      }
+   };
+
    /**
     *  Returns the unevalauated expression represented by this value.
     *  Note: Only usable for Values that are passed as arguments in

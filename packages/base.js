@@ -646,6 +646,37 @@ define(function(require) {
             .addDefault('immediate', 'TRUE')
             .addNormalize(normalizePosToString);
       });
+      addBuiltin('get', function(lst, dynEnv, evalInstance) {
+         var x, env, inherits, mode, modeFun, foundValue;
+
+         x = lst.get('x');
+         env = lst.get('envir');
+         inherits = lst.get('inherits');
+
+         mode = lst.get('mode');
+         if (mode !== 'any') {
+            modeFun = function(v) { return v.matchesMode(mode); };
+         }
+
+         foundValue = env.lookup(x, inherits, modeFun);
+         if (foundValue == null) {
+            throw new Error('Could not find object ' + x);
+         }
+
+         return Value.wrap(foundValue);
+      }, function(resolver) {
+         resolver.addParameter('x', 'string', true)
+            .addParameter('pos', ['number', 'env', 'character'])
+            .addParameter('envir', 'env')
+            .addParameter('mode', 'string')
+            .addParameter('inherits', 'boolean')
+            .addDefault('pos', '-1')
+            .addDefault('envir', 'as.environment(pos)')
+            .addDefault('mode', function() { return 'any'; })
+            .addDefault('inherits', 'TRUE')
+            .addNormalize(normalizePosToString);
+      });
+
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.

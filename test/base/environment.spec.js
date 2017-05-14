@@ -152,6 +152,48 @@ describe('Environment handling methods work:', function() {
       expect(callg.type).to.equal('scalar');
       expect(callg.value.toArray()).to.deep.equal([3,4,5,6]);
    });
+   it('get with (default) inherits=TRUE', function() {
+      var evs = main.eval('x <- 5; \
+         f = function() { x <- 1; get("x", inherits=TRUE) }; \
+         f(); \
+         g = function() { get("x", inherits=TRUE) }; \
+         g(); \
+         h = function() { x <- 1; get("x", pos=1, inherits=TRUE) }; \
+         h(); \
+         c = 1:5;\
+         get("c", mode="function"); \
+         get("c", mode="integer"); \
+         env <- new.env(baseenv()); \
+         assign("x", 20, envir=env); \
+         get("x", pos=env);\
+         get("x", envir=env); \
+      ');
+      var callf = evs[2];
+      var callg = evs[4];
+      var callh = evs[6];
+
+      expect(callf.type).to.equal('scalar');
+      expect(callg.type).to.equal('scalar');
+      expect(callh.type).to.equal('scalar');
+      expect(callf.value.toArray()).to.deep.equal([1]);
+      expect(callg.value.toArray()).to.deep.equal([5]);
+      expect(callh.value.toArray()).to.deep.equal([5]);
+      expect(evs[8].type).to.equal('builtin');
+      expect(evs[9].type).to.equal('scalar');
+      expect(evs[12].value.toArray()).to.deep.equal([20]);
+      expect(evs[13].value.toArray()).to.deep.equal([20]);
+   });
+   it('get with inherits=FALSE', function() {
+      var evs = main.eval('x <- 5; \
+         f = function() { get("x", inherits=FALSE) }; \
+         f(); \
+         c = 1:5; \
+         get("c", mode="function", inherits=FALSE); \
+      ');
+
+      expect(evs[2].type).to.equal('error');
+      expect(evs[4].type).to.equal('error');
+   });
    it('as.environment', function() {
       var evs = main.eval('f=function(){as.environment(-1)}; f(); environment()');
       expect(evs.length).to.equal(3);

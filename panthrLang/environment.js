@@ -35,14 +35,31 @@ define(function(require) {
 
          return env;
       },
-      // Looks a symbol up in the current environment, continuing to its
-      // enclosure if it is not found.
-      lookup: function lookup(symbol) {
-         if (this.frame.hasOwnProperty(symbol)) {
-            return this.frame[symbol];
-         }
+      // Looks a symbol up in the current environment.
+      //
+      // inherits is a boolean determining whether the search will continue
+      // to the enclosure.
+      //
+      // If modeFun is present it must be a predicate function taking as input
+      // a resolved value and returning whether that value's type is acceptable.
+      // In that case, the first resolved value that passes modeFun is returned.
+      // If modeFun is not specified, then the first found match is returned
+      // unresolved.
+      //
+      // In the case of an unsuccessful search, `null` is returned.
+      lookup: function lookup(symbol, inherits, modeFun) {
+         var value;
 
-         return this.getEnclosure().lookup(symbol);
+         inherits = inherits !== false;  // inherits defaults to true
+         if (this.frame.hasOwnProperty(symbol)) {
+            value = this.frame[symbol];
+            if (typeof modeFun !== 'function') { return value; }
+            value = value.resolve();
+            if (modeFun(value)) { return value; }
+         }
+         if (!inherits) { return null; }
+
+         return this.getEnclosure().lookup(symbol, inherits, modeFun);
       },
       // Stores the symbol-value pair in the environment. Returns the environment
       store: function store(symbol, value) {
