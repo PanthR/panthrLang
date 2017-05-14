@@ -20,6 +20,9 @@ describe('The evaluator', function() {
       expect(evs.length).to.equal(3);
       expect(evs[2].value.toArray()).to.deep.equal([1, 2, 6, 4]);
 
+      evs = main.eval('x = list(g=list(g=3)); f = function() {x = "g", x[[x]][[x]]<<-6}; f(); x$g$g');
+      expect(evs[3].value.toArray()).to.deep.equal([6]);
+
       evs = main.eval('f = function() { x<-10; x<<-12; `names<-`<-function(x, value) { 3 }; names(x)<<-"hi"; names(x) <- "ho"; x }; f(); x; x <- 3; names(x) <- "hi"; x');
       expect(evs[1].value.toArray()).to.deep.equal([3]);
       expect(Base.utils.isMissing(evs[1].value.names())).to.be.ok;
