@@ -644,20 +644,8 @@ define(function(require) {
             .addDefault('envir', 'as.environment(pos)')
             .addDefault('inherits', 'FALSE')
             .addDefault('immediate', 'TRUE')
-            .addNormalize(function(lst) {
-               var pos;
-
-               pos = lst.get('pos');
-               if (pos instanceof Base.Variable) {
-                  // error for length 0, else use 1st entry
-                  if (pos.length() === 0) {
-                     throw new Error('cannot convert variable of length 0 to string');
-                  }
-                  lst.set('pos', pos.get(1));
-               }
-            });
+            .addNormalize(normalizePosToString);
       });
-
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       // TODO: Add a whole lot more here.
@@ -708,6 +696,19 @@ define(function(require) {
 
    function configSingleScalar(resolver) {
       resolver.addParameter('x', 'scalar', true);
+   }
+
+   function normalizePosToString(lst) {
+      var pos;
+
+      pos = lst.get('pos');
+      if (pos instanceof Base.Variable) {
+         // error for length 0, else use 1st entry
+         if (pos.length() === 0) {
+            throw new Error('cannot convert variable of length 0 to string');
+         }
+         lst.set('pos', pos.get(1));
+      }
    }
 });
 
