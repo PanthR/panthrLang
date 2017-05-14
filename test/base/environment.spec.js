@@ -143,8 +143,6 @@ describe('Environment handling methods work:', function() {
       var callf = evs[10];
       var callg = evs[11];
 
-      console.log(callf.value);
-
       expect(evs.length).to.equal(12);
       expect(x.type).to.equal('scalar');
       expect(y.type).to.equal('scalar');
@@ -152,7 +150,7 @@ describe('Environment handling methods work:', function() {
       expect(y.value.toArray()).to.deep.equal([12]);
       expect(callf.type).to.equal('error');
       expect(callg.type).to.equal('scalar');
-      expect(callg.value.toArray()).to.deep.equal([12]);
+      expect(callg.value.toArray()).to.deep.equal([3,4,5,6]);
    });
    it('as.environment', function() {
       var evs = main.eval('f=function(){as.environment(-1)}; f(); environment()');
