@@ -13,6 +13,7 @@ This file documents areas where our parser deviates from R's parser.
 - All methods that interact with the environment hierarchy / search path assume that the environment they are called in lies below the global namespace.
 - `.GlobalEnv` is not defined.  Use `globalenv()` to access the global environment.
 - Will not implement `parent.env<-`.
+- `new.env` takes the `parent` argument first, followed by the `hash` argument. R does the opposite but also accepts a call like `new.env(parentEnv)`.
 
 # Design decisions
 

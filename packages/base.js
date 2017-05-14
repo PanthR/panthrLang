@@ -599,11 +599,11 @@ define(function(require) {
       addBuiltin('new.env', function(lst) {
          return Value.wrap(lst.get('parent').extend());
       }, function(resolver) {
-         resolver.addParameter('hash', 'boolean')
-            .addParameter('parent', 'env')
+         resolver.addParameter('parent', 'env')
+            .addParameter('hash', 'boolean')
             .addParameter('size', 'number')
-            .addDefault('hash', 'TRUE')
             .addDefault('parent', 'parent.frame()')
+            .addDefault('hash', 'TRUE')
             .addDefault('size', '29');
       });
       addBuiltin('parent.env', function(lst) {
