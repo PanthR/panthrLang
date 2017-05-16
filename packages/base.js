@@ -644,7 +644,7 @@ define(function(require) {
             .addDefault('envir', 'as.environment(pos)')
             .addDefault('inherits', 'FALSE')
             .addDefault('immediate', 'TRUE')
-            .addNormalize(normalizePosToString);
+            .addNormalize(normalizeFieldToString('pos'));
       });
       addBuiltin('get', function(lst, dynEnv, evalInstance) {
          var x, env, inherits, mode, modeFun, foundValue;
@@ -674,7 +674,7 @@ define(function(require) {
             .addDefault('envir', 'as.environment(pos)')
             .addDefault('mode', function() { return 'any'; })
             .addDefault('inherits', 'TRUE')
-            .addNormalize(normalizePosToString);
+            .addNormalize(normalizeFieldToString('pos'));
       });
 
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
@@ -729,17 +729,19 @@ define(function(require) {
       resolver.addParameter('x', 'scalar', true);
    }
 
-   function normalizePosToString(lst) {
-      var pos;
+   function normalizeFieldToString(fieldName) {
+      return function(lst) {
+         var fieldValue;
 
-      pos = lst.get('pos');
-      if (pos instanceof Base.Variable) {
-         // error for length 0, else use 1st entry
-         if (pos.length() === 0) {
-            throw new Error('cannot convert variable of length 0 to string');
+         fieldValue = lst.get(fieldName);
+         if (fieldValue instanceof Base.Variable) {
+            // error for length 0, else use 1st entry
+            if (fieldValue.length() === 0) {
+               throw new Error('cannot convert variable of length 0 to string');
+            }
+            lst.set(fieldName, fieldValue.get(1));
          }
-         lst.set('pos', pos.get(1));
-      }
+      };
    }
 });
 
