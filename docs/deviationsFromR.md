@@ -14,6 +14,7 @@ This file documents areas where our parser deviates from R's parser.
 - `.GlobalEnv` is not defined.  Use `globalenv()` to access the global environment.
 - Will not implement `parent.env<-`.
 - `new.env` takes the `parent` argument first, followed by the `hash` argument. R does the opposite but also accepts a call like `new.env(parentEnv)`.
+- `missing` behaves differently, by effectively checking for presence in the current frame: Defaults do not count as missing: `f=function(y=3) { missing(y) }; f()` returns FALSE in panthR but TRUE in R.
 
 # Design decisions
 

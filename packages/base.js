@@ -2,10 +2,11 @@
 'use strict';
 define(function(require) {
 // Example of how a package is structured.
-   var Base, Environment;
+   var Base, Environment, Expression;
 
    Base = require('panthrbase/index');
    Environment = require('../panthrLang/environment');
+   Expression = require('../panthrLang/expression');
 
 // It needs to always return a function with the following signature:
    /* eslint-disable max-statements */
@@ -679,6 +680,26 @@ define(function(require) {
 
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
+      addBuiltin('missing', function(lst, dynEnv) {
+         var symbol, wasUndefined;
+
+         symbol = lst.get('x');
+
+         if (!(symbol instanceof Expression.Symbol)) {
+            throw new Error('invalid use of \'missing\'');
+         }
+
+         if (!dynEnv.hasOwnSymbol(symbol.id)) {
+            throw new Error('can only use \'missing\' for arguments');
+         }
+
+         // Look up without inheriting or resolving
+         wasUndefined = dynEnv.lookup(symbol.id, false).type === 'undefined';
+
+         return Value.wrap(wasUndefined);
+      }, function(resolver) {
+         resolver.addParameter('x', 'expression', true);
+      });
       // TODO: Add a whole lot more here.
 
    };
