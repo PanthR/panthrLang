@@ -213,8 +213,9 @@ define(function(require) {
       // at time of calling the closure value function,
       // allowing the environment (and function) of the closure
       // to be changed
-      f = function(actuals) {
-         return evalClosure.call(this, f.fun, f.env).call(this, actuals);
+      // "this", here, is the current evaluation instance
+      f = function(actuals, dynEnv) {
+         return evalClosure.call(this, f.fun, f.env).call(this, actuals, dynEnv);
       };
       f.fun = fun;
       f.env = env;
