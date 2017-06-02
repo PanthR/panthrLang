@@ -451,20 +451,20 @@ define(function(require) {
       return actuals;
    }
 
-   // "actuals" will be a Base.List
+   // `clos` has the function definition and the evaluation environment
+   // (if it's a user-defined function)
+   // `actuals` will be a Base.List
+   // `env` is the calling environment, aka "parent.frame"
    function evalCall(clos, actuals, loc, env) {
       if (clos.type === 'closure' || clos.type === 'builtin') {
-         this.pushCall(env);
          try {
+            // the current evaluate instance is "this"
             return Value.functionFromValue(clos).call(this, actuals, env);
          } catch (e) {
             if (e instanceof Value.ControlFlowException) {
                throw errorInfo(e.message, e.loc);
             }
             throw errorInfo(e.message || e.toString(), loc);
-         } finally {
-            // Must fix the call stack regardless of call outcome
-            this.popCall();
          }
       }
       throw errorInfo('trying to call non-function ' + clos.toString(), loc);

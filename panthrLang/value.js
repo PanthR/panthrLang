@@ -73,7 +73,7 @@ define(function(require) {
    }
 
    function evalClosure(fun, env) {
-      return function(actuals) {
+      return function(actuals, dynEnv) {
          var formals, body, closExtEnvironment, actualPos;
 
          // Will be messing with the array of formals, so need to copy it
@@ -153,8 +153,15 @@ define(function(require) {
             }
             formals.splice(0, 1);
          }
-
-         return this.evalInEnvironment(body, closExtEnvironment);
+         try {
+            // TODO: need a 4th argument, `call`
+            this.callStack.push(dynEnv, closExtEnvironment, fun);
+            return this.evalInEnvironment(body, closExtEnvironment);
+         } catch (e) {
+            throw e;
+         } finally {
+            this.callStack.pop();
+         }
       };
    }
 
