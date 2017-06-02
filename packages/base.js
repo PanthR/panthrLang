@@ -601,6 +601,15 @@ define(function(require) {
                }
             });
       });
+      addBuiltin('sys.frame', function(lst, env, evalInstance) {
+         return Value.wrap(evalInstance.getCallFrame(lst.get('which')));
+      }, function(resolver) {
+         resolver.addParameter('which', 'number')
+            .addDefault('which', '0')
+            .addNormalize(function(lst) {
+               lst.set('which', Math.round(lst.get('which')));
+            });
+      });
       addBuiltin('new.env', function(lst) {
          return Value.wrap(lst.get('parent').extend());
       }, function(resolver) {
