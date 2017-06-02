@@ -587,7 +587,11 @@ define(function(require) {
          resolver.addParameter('env', ['env'], true);
       });
       addBuiltin('parent.frame', function(lst, env, evalInstance) {
-         return Value.wrap(evalInstance.getCallFrame(lst.get('n')));
+         var which;
+
+         which = evalInstance.convertToWhich(lst.get('n'));
+
+         return Value.wrap(evalInstance.getParent(which));
       }, function(resolver) {
          resolver.addParameter('n', 'number')
             .addDefault('n', '1')

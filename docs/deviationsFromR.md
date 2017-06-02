@@ -15,6 +15,10 @@ This file documents areas where our parser deviates from R's parser.
 - Will not implement `parent.env<-`.
 - `new.env` takes the `parent` argument first, followed by the `hash` argument. R does the opposite but also accepts a call like `new.env(parentEnv)`.
 - `missing` behaves differently, by effectively checking for presence in the current frame: Defaults do not count as missing: `f=function(y=3) { missing(y) }; f()` returns FALSE in panthR but TRUE in R.
+- `as.environment` behaves differently when called in the body of a function.
+In R, `f=function(){as.environment(-1)}; f()` returns the global environment, but
+in PanthR, it returns the body environment of f, that is, the evironment in which
+`as.environment` was called.
 
 # Design decisions
 

@@ -2,13 +2,14 @@
 'use strict';
 define(function(require) {
 
-   var Environment, Value, Base, parser, Resolver, packages;
+   var Environment, Value, Base, parser, Resolver, CallStack, packages;
 
    Environment = require('./environment');
    Value = require('./value');
    Base = require('panthrbase/index');
    parser = require('./parser').parser;
    Resolver = require('./resolver');
+   CallStack = require('./callStack');
 
    // This is where the external program will "setup" packages bound to names.
    // These do not get loaded at this point, but they can be found later.
@@ -16,7 +17,7 @@ define(function(require) {
 
    function Evaluate(enclosure) {
       this.global = Environment.newGlobal(enclosure);
-      this.callStack = [];
+      this.callStack = new CallStack(this.global);
    }
 
    // This function is used to add a package, in the form of a function
@@ -72,6 +73,10 @@ define(function(require) {
       pushCall: { value: pushCall },
       popCall: { value: popCall },
       getCallFrame: { value: getCallFrame },
+      getParent: { value: getParent },
+      getParentOfTop: { value: getParentOfTop },
+      getFrameOfTop: { value: getFrameOfTop },
+      convertToWhich: { value: convertToWhich },
       search: { value: search },
       loadPackage: { value: loadPackage }
    });
@@ -376,7 +381,7 @@ define(function(require) {
       });
       actuals.set(this.evalActuals(node.coords, env));
       fun = this.lookup('[<-', env, node.loc);
-      this.evalCall(fun, actuals, node.loc);
+      this.evalCall(fun, actuals, node.loc, env);
    }
 
    function evalFunDef(node, env) {
@@ -552,25 +557,44 @@ define(function(require) {
 
       return this;
    }
-   // Access the n-th level of the call stack, where 1 means the current.
-   function getCallFrame(n) {
-      var index; // correct index into the call stack
 
-      index = this.callStack.length - 1 - n;
-      if (index < 0) { index = 0; }
-
-      return this.callStack[index];
+   // Access the given level of the call stack where 0 is the global
+   // environment (bottom of the stack).
+   function getCallFrame(which) {
+      return this.callStack.getFrame(which);
    }
-   // Searches for the environment based on the value of `env`.
-   //  - If `env` is -1, returns the current environment.
-   //  - If `env` is an Environment, `env` is returned.
-   //  - If `env` is a number or a string, returns the environment
+
+   function getParent(which) {
+      return this.callStack.getParent(which);
+   }
+
+   function getParentOfTop() {
+      return this.callStack.getParentOfTop();
+   }
+
+   function getFrameOfTop() {
+      return this.callStack.getFrameOfTop();
+   }
+
+   function convertToWhich(n) {
+      var which;
+
+      which = this.callStack.length() - n;
+      if (which < 0) { which = 0; }
+
+      return which;
+   }
+
+   // Searches for the environment based on the value of `x`.
+   //  - If `x` is -1, returns the current environment.
+   //  - If `x` is an Environment, `x` is returned.
+   //  - If `x` is a number or a string, returns the environment
    //    on the search path with that index or name.
    function search(x) {
       var i, currEnv;
 
       if (x instanceof Environment) { return x; }
-      if (x === -1) { return this.getCallFrame(1); }
+      if (x === -1) { return this.getFrameOfTop(); }
 
       i = 1;
       currEnv = this.getGlobalEnv();
@@ -585,7 +609,6 @@ define(function(require) {
    }
 
    return Evaluate;
-
 });
 
 }(typeof define === 'function' && define.amd ? define : function(factory) {

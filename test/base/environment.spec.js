@@ -74,10 +74,10 @@ describe('Environment handling methods work:', function() {
                            g(); g(2); f(); environment()');
       expect(evs.length).to.equal(6);
       expect(evs[2].type).to.equal('env');
-      expect(evs[3].type).to.equal('env');
-      expect(evs[4].type).to.equal('env');
       expect(evs[2].value.enclosure).to.equal(evs[5].value);
+      expect(evs[3].type).to.equal('env');
       expect(evs[3].value).to.equal(evs[5].value);
+      expect(evs[4].type).to.equal('env');
       expect(evs[4].value).to.equal(evs[5].value);
    });
    it('new.env returns a new environment with correct enclosure', function() {
@@ -152,6 +152,15 @@ describe('Environment handling methods work:', function() {
       expect(callg.type).to.equal('scalar');
       expect(callg.value.toArray()).to.deep.equal([3,4,5,6]);
    });
+   it('get with envir specified', function() {
+      var evs = main.eval('env <- new.env(baseenv()); \
+         assign("x", 20, envir=env); \
+         get("x", pos=env);\
+         get("x", envir=env)');
+
+      expect(evs[2].value.toArray()).to.deep.equal([20]);
+      expect(evs[3].value.toArray()).to.deep.equal([20]);
+   });
    it('get with (default) inherits=TRUE', function() {
       var evs = main.eval('x <- 5; \
          f = function() { x <- 1; get("x", inherits=TRUE) }; \
@@ -197,6 +206,17 @@ describe('Environment handling methods work:', function() {
    it('as.environment', function() {
       var evs = main.eval('f=function(){as.environment(-1)}; f(); environment()');
       expect(evs.length).to.equal(3);
-      expect(evs[1].value).to.equal(evs[2].value);
+      expect(evs[1].value.enclosure).to.equal(evs[2].value);
+
+      evs = main.eval('f=function(x=as.environment(-1)){z=as.environment(-1); \
+         list(x=x,y=as.environment(-1),z=z)}; f(); \
+         g=function(){f()}; g()');
+      expect(evs.length).to.equal(4);
+      expect(evs[1].value.get(1)).to.equal(evs[1].value.get(2));
+      expect(evs[1].type).to.equal('list');
+      expect(evs[1].value.get(1)).to.equal(evs[1].value.get(3));
+      expect(evs[3].value.get(1)).to.equal(evs[3].value.get(2));
+      expect(evs[3].type).to.equal('list');
+      expect(evs[3].value.get(1)).to.equal(evs[3].value.get(3));
    });
 });
