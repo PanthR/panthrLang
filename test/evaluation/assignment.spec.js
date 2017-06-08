@@ -20,8 +20,16 @@ describe('The evaluator', function() {
       expect(evs.length).to.equal(3);
       expect(evs[2].value.toArray()).to.deep.equal([1, 2, 6, 4]);
 
-      evs = main.eval('x = list(g=list(g=3)); f = function() {x = "g", x[[x]][[x]]<<-6}; f(); x$g$g');
+      evs = main.eval('x = list(g=list(g=3)); \
+         f = function() {x = "g"; x[[x]][[x]]<<-6}; f(); x$g$g; \
+         f = function() {x = "g"; x[x][[x]][[x]]<<-8}; f(); x$g$g; \
+         f = function() {x = "g"; x[[x]][x][[x]]<<-10}; f(); x$g$g');
+      expect(evs[2].type).to.not.equal('error');
       expect(evs[3].value.toArray()).to.deep.equal([6]);
+      expect(evs[5].type).to.not.equal('error');
+      expect(evs[6].value.toArray()).to.deep.equal([8]);
+      expect(evs[8].type).to.not.equal('error');
+      expect(evs[9].value.toArray()).to.deep.equal([10]);
 
       evs = main.eval('f = function() { x<-10; x<<-12; `names<-`<-function(x, value) { 3 }; names(x)<<-"hi"; names(x) <- "ho"; x }; f(); x; x <- 3; names(x) <- "hi"; x');
       expect(evs[1].value.toArray()).to.deep.equal([3]);
@@ -31,6 +39,18 @@ describe('The evaluator', function() {
       expect(evs[1].value).to.not.equal(evs[2].value);
       expect(evs[5].value.toArray()).to.deep.equal([3]);
       expect(evs[5].value.names().toArray()).to.deep.equal(["hi"]);
+   });
+   it('evaluates [[-[-[[ assignment chain correctly', function() {
+      var evs = main.eval('x = list(g=list(g=3)); \
+         f = function() {x = "g"; x[[x]][x][[x]]<<-10}; f(); x$g$g');
+      expect(evs[2].type).to.not.equal('error');
+      expect(evs[3].value.toArray()).to.deep.equal([10]);
+   });
+   it('evaluates combination of function call and [ assignment correctly', function() {
+      var evs = main.eval('x = list(g=1:2); \
+         f = function() {x = "g"; names(x[[x]])[2] <<-"b" }; f(); names(x$g)[2]');
+      expect(evs[2].type).to.not.equal('error');
+      expect(evs[3].value.toArray()).to.deep.equal(['b']);
    });
    it('evaluates single-bracket lvalue assignment properly', function() {
       var evs = main.eval('x<-1:4; x[2]<-6; x[2]; x');
