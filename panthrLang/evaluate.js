@@ -63,6 +63,7 @@ define(function(require) {
       evalFunCallAssign: { value: evalFunCallAssign },
       evalArrayAccess: { value: evalArrayAccess },
       evalArrayAssign: { value: evalArrayAssign },
+      evalAssignLvalue: { value: evalAssignLvalue },
       evalFor: { value: evalFor },
       evalWhile: { value: evalWhile },
       evalIf: { value: evalIf },
@@ -262,19 +263,18 @@ define(function(require) {
          this.evalArrayAssign(lvalue, rvalue, env, isGlobal);
          break;
       case 'dbl_bracket_access':
-         this.evalListAssign(this.evalInEnvironment(lvalue.object,
-                                env.getRelevantEnvironment(isGlobal)),
-                             this.evalInEnvironment(lvalue.index, env),
-                             rvalue,
-                             lvalue.loc);
-
+         this.evalListAssign(
+            this.evalAssignLvalue(lvalue.object, env, isGlobal),
+            this.evalInEnvironment(lvalue.index, env),
+            rvalue,
+            lvalue.loc);
          break;
       case 'dollar_access':
-         this.evalListAssign(this.evalInEnvironment(lvalue.object,
-                                env.getRelevantEnvironment(isGlobal)),
-                             Value.makeString([lvalue.id]),
-                             rvalue,
-                             lvalue.loc);
+         this.evalListAssign(
+               this.evalAssignLvalue(lvalue.object, env, isGlobal),
+               Value.makeString([lvalue.id]),
+               rvalue,
+               lvalue.loc);
          break;
       case 'fun_call':
          this.evalFunCallAssign(lvalue, rvalue, env, isGlobal);
@@ -286,6 +286,40 @@ define(function(require) {
          throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
       }
       return rvalue;
+   }
+
+   // Evaluates the "lvalue" part as if it was a piece of the l-value in an assignment
+   function evalAssignLvalue(lvalue, env, isGlobal) {
+      var actuals, fun;
+
+      switch (lvalue.name) {
+      case 'single_bracket_access':
+         actuals = this.evalActuals(lvalue.coords, env)
+            .prepend(this.evalAssignLvalue(lvalue.object, env, isGlobal), 'x');
+         fun = this.lookup('[', env, lvalue.loc);
+
+         return this.evalCall(fun, actuals, lvalue.loc, env);
+      case 'dbl_bracket_access':
+         return this.evalListAccess(
+            this.evalAssignLvalue(lvalue.object, env, isGlobal),
+            this.evalInEnvironment(lvalue.index, env),
+            lvalue.loc);
+      case 'dollar_access':
+         return this.evalListAccess(
+            this.evalAssignLvalue(lvalue.object, env, isGlobal),
+            Value.makeString([lvalue.id]),
+            lvalue.loc);
+      case 'fun_call':
+         return this.evalCall(
+            this.evalInEnvironment(lvalue.fun, env),
+            this.evalActuals(lvalue.args, env.getRelevantEnvironment(isGlobal)),
+            lvalue.loc,
+            env);
+      case 'variable':
+         return this.getEnvironmentForSymbol(lvalue.id, env, isGlobal).lookup(lvalue.id);
+      default:
+         throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
+      }
    }
 
    function evalRange(a, b, env, loc) {
