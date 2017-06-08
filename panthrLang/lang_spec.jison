@@ -171,10 +171,13 @@ formal
    ;
 
 lvalue
-   : VAR                 { $$ = Node.variable(yy.lexer.yylloc, $1); }
-   | expr DOLLAR VAR { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
-   | expr '[' actuals ']' { $$ = Node.singleBracketAccess(yy.lexer.yylloc, $1, $3); }
+   : lvalueVar                 { $$ = $1; }
+   | expr DOLLAR lvalueVar     { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
+   | expr '[' actuals ']'      { $$ = Node.singleBracketAccess(yy.lexer.yylloc, $1, $3); }
    | expr '[' '[' expr ']' ']' { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1, $4); }
-   | expr '(' actuals ')' { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
+   | expr '(' actuals ')'      { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
    ;
 
+lvalueVar
+   : VAR                 { $$ = Node.variable(yy.lexer.yylloc, $1); }
+   ;

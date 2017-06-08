@@ -225,6 +225,23 @@ define(function(require) {
             .addDefault('recursive', 'FALSE');
       });
 
+      addBuiltin('$', function(lst) {
+         var obj, subscriptExpr, subscript;
+         subscriptExpr = lst.get('i');
+         if (!subscriptExpr instanceof Expression.Symbol) {
+            throw new Error('Invalid subscript type');
+         }
+         subscript = subscriptExpr.toString();
+         obj = lst.get('x');
+         if (!obj.has(subscript)) {
+            return Value.makeNull();
+         }
+
+         return Value.wrap(obj.get(subscript));
+      }, function(resolver) {
+         resolver.addParameter('x', 'list', true)
+            .addParameter('i', 'expression', true);
+      });
       addBuiltin('[', function(lst) {
          var x, dots;
 

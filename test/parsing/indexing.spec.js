@@ -10,7 +10,7 @@ describe('The parser parses', function() {
             var node = nodes[0];
             expect(node.name).to.equal('dollar_access');
             expect(node.object.name).to.equal('variable');
-            expect(node.id).to.be.a('string');
+            expect(node.id.name).to.equal('variable');
          });
       });
    });

@@ -147,7 +147,7 @@ define(function(require) {
          return new Expression([
             new Expression.Symbol('$'),
             this.visit(node.object),
-            new Expression.Symbol(node.id)
+            this.visit(node.id)
          ]);
       },
       visitDblBracketAccess: function(node) {

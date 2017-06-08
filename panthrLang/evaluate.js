@@ -57,6 +57,7 @@ define(function(require) {
       assign: { value: assign },
       evalRange: { value: evalRange },
       evalSeq: { value: evalSeq },
+      evalDollarAccess: { value: evalDollarAccess },
       evalListAccess: { value: evalListAccess },
       evalListAssign: { value: evalListAssign },
       evalFunCallAssign: { value: evalFunCallAssign },
@@ -203,9 +204,7 @@ define(function(require) {
                             env,
                             true);
       case 'dollar_access':
-         return this.evalListAccess(this.evalInEnvironment(node.object, env),
-                                    Value.makeString([node.id]),
-                                    node.loc);
+         return this.evalDollarAccess(node.object, node.id, env, node.loc);
       case 'dbl_bracket_access':
          return this.evalListAccess(this.evalInEnvironment(node.object, env),
                                     this.evalInEnvironment(node.index, env),
@@ -304,7 +303,20 @@ define(function(require) {
       return val;
    }
 
-   // Handles $ access and [[]] access
+   // Handles $ access
+   function evalDollarAccess(obj, id, env, loc) {
+      var actuals, fun;
+
+      // Add object as a named argument in actuals
+      // Also make sure it is the first argument
+      actuals = new Base.List({ x: this.evalInEnvironment(obj, env) });
+      actuals.push(Value.makeDelayed(id, env, this));
+      fun = this.lookup('$', env, loc);
+
+      return this.evalCall(fun, actuals, loc, env);
+   }
+
+   // Handles [[]] access
    // `index` is a variable Value of some sort
    // returns a single component from somewhere in the list
    function evalListAccess(lst, index, loc) {
