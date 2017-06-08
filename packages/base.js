@@ -690,7 +690,35 @@ define(function(require) {
             .addDefault('inherits', 'TRUE')
             .addNormalize(normalizeFieldToString('pos'));
       });
+      addBuiltin('exists', function(lst, dynEnv, evalInstance) {
+         var x, env, inherits, mode, modeFun, foundValue;
 
+         x = lst.get('x');
+         env = lst.get('envir');
+         inherits = lst.get('inherits');
+
+         mode = lst.get('mode');
+         if (mode !== 'any') {
+            modeFun = function(v) { return v.matchesMode(mode); };
+         }
+
+         foundValue = env.lookup(x, inherits, modeFun);
+
+         // Returns panthrLang boolean
+         return Value.wrap(foundValue != null);
+      }, function(resolver) {
+         resolver.addParameter('x', 'string', true)
+            .addParameter('where', ['number', 'env', 'character'])
+            .addParameter('envir', 'env')
+            .addParameter('frame', 'number')
+            .addParameter('mode', 'string')
+            .addParameter('inherits', 'boolean')
+            .addDefault('where', '-1')
+            .addDefault('mode', function() { return 'any'; })
+            .addDefault('inherits', 'TRUE')
+            .addDefault('envir', 'if (missing(frame)) as.environment(where) else sys.frame(frame)')
+            .addNormalize(normalizeFieldToString('where'));
+      });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       addBuiltin('missing', function(lst, dynEnv) {
