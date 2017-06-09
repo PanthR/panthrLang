@@ -243,6 +243,27 @@ define(function(require) {
          resolver.addParameter('x', ['list', 'null'], true)
             .addParameter('i', 'expression', true);
       });
+
+      addBuiltin('[[', function(lst) {
+         var x, index;
+
+         x = lst.get('x');
+         index = lst.get('i');
+         if (x == null) { return Value.wrap(null); }
+         if (!lst.has('i') || lst.has('j') || lst.get('...').length() > 0) {
+            throw new Error('incorrect number of subscripts');
+         }
+
+         return Value.wrap(x.deepGet(index));
+      }, function(resolver) {
+         resolver.addParameter('x', ['list', 'null'], true)
+            .addParameter('i', ['scalar', 'character', 'null'])
+            .addParameter('j', ['scalar', 'character', 'null'])
+            .addDots()
+            .addParameter('exact', 'boolean')
+            .addDefault('exact', 'TRUE');
+      });
+
       addBuiltin('[', function(lst) {
          var x, dots;
 

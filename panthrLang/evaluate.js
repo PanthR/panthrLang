@@ -58,7 +58,7 @@ define(function(require) {
       evalRange: { value: evalRange },
       evalSeq: { value: evalSeq },
       evalDollarAccess: { value: evalDollarAccess },
-      evalListAccess: { value: evalListAccess },
+      evalDblBracketAccess: { value: evalDblBracketAccess },
       evalListAssign: { value: evalListAssign },
       evalFunCallAssign: { value: evalFunCallAssign },
       evalArrayAccess: { value: evalArrayAccess },
@@ -207,9 +207,7 @@ define(function(require) {
       case 'dollar_access':
          return this.evalDollarAccess(node.object, node.id, env, node.loc);
       case 'dbl_bracket_access':
-         return this.evalListAccess(this.evalInEnvironment(node.object, env),
-                                    this.evalInEnvironment(node.index, env),
-                                    node.loc);
+         return this.evalDblBracketAccess(node.object, node.index, env, node.loc);
       case 'single_bracket_access':
          return this.evalArrayAccess(node, env);
       case 'fun_def':
@@ -353,14 +351,18 @@ define(function(require) {
    // Handles [[]] access
    // `index` is a variable Value of some sort
    // returns a single component from somewhere in the list
-   function evalListAccess(lst, index, loc) {
-      try {
-         lst = Resolver.resolveValue(['list'])(lst);
-         index = Resolver.resolveValue(['scalar', 'character'])(index);
-         return Value.wrap(lst.deepGet(index));
-      } catch (e) {
-         throw errorInfo(e.message || e.toString(), loc);
+   function evalDblBracketAccess(obj, index, env, loc) {
+      var actuals, fun;
+
+      // Add object as a named argument in actuals
+      // Also make sure it is the first argument
+      actuals = new Base.List({ x: this.evalInEnvironment(obj, env) });
+      if (typeof index !== 'undefined') {
+         actuals.set('i', Value.makeDelayed(index, env, this));
       }
+      fun = this.lookup('[[', env, loc);
+
+      return this.evalCall(fun, actuals, loc, env);
    }
 
    function evalListAssign(lst, index, rvalue, loc) {

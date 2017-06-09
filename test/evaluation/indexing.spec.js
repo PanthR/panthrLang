@@ -25,6 +25,13 @@ describe('The evaluator', function() {
       expect(evs[2].type).to.equal('scalar');
       expect(evs[2].value.toArray()).to.deep.equal([1, 2, 3, 4]);
    });
+   it('errors for double-bracket access on null', function() {
+      var evs = main.eval('x[[NULL]]; NULL[[3]]; NULL[[]]');
+
+      expect(evs[0].type).to.equal('error');
+      expect(evs[1].type).to.equal('null');
+      expect(evs[2].type).to.equal('null');
+   });
    it('evaluates double-bracket list access with position numbers', function() {
       var evs = main.eval('x <- list(a=list(d=1:4, e=5:6), b=2, c=TRUE); x[[1]]; x[[4]]; x[[c(1, 1)]]; x[[c(1, 2)]]');
 
