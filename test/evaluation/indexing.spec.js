@@ -14,6 +14,10 @@ describe('The evaluator', function() {
       expect(evs[3].type).to.equal('logical');
       expect(evs[3].value.toArray()).to.deep.equal([true]);
       expect(evs[4].type).to.equal('null');
+
+      evs = main.eval('NULL$g');
+      expect(evs.length).to.equal(1);
+      expect(evs[0].type).to.equal('null');
    });
    it('evaluates double-bracket list access with strings', function() {
       var evs = main.eval('x <- list(a=list(d=1:4, e=5:6), b=2); x[["a"]]; x[[c("a", "d")]]');

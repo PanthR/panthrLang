@@ -227,19 +227,20 @@ define(function(require) {
 
       addBuiltin('$', function(lst) {
          var obj, subscriptExpr, subscript;
+
          subscriptExpr = lst.get('i');
          if (!subscriptExpr instanceof Expression.Symbol) {
             throw new Error('Invalid subscript type');
          }
          subscript = subscriptExpr.toString();
          obj = lst.get('x');
-         if (!obj.has(subscript)) {
+         if (obj === null || !obj.has(subscript)) {
             return Value.makeNull();
          }
 
          return Value.wrap(obj.get(subscript));
       }, function(resolver) {
-         resolver.addParameter('x', 'list', true)
+         resolver.addParameter('x', ['list', 'null'], true)
             .addParameter('i', 'expression', true);
       });
       addBuiltin('[', function(lst) {

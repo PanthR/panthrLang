@@ -103,7 +103,6 @@ expr
    | TRUE          { $$ = Node.boolean(yy.lexer.yylloc, true); }
    | FALSE         { $$ = Node.boolean(yy.lexer.yylloc, false); }
    | MISSING       { $$ = Node.missing(yy.lexer.yylloc); }
-   | NULL          { $$ = Node.null(yy.lexer.yylloc); }
    | lvalue        { $$ = $1; }
    | lvalue LARROW expr { $$ = Node.assign(yy.lexer.yylloc, $1, $3); }
    | lvalue LLARROW expr { $$ = Node.assignExisting(yy.lexer.yylloc, $1, $3); }
@@ -175,7 +174,9 @@ lvalue
    | expr DOLLAR lvalueVar     { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
    | expr '[' actuals ']'      { $$ = Node.singleBracketAccess(yy.lexer.yylloc, $1, $3); }
    | expr '[' '[' expr ']' ']' { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1, $4); }
+   | expr '[' '[' ']' ']'      { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1); }
    | expr '(' actuals ')'      { $$ = Node.funCall(yy.lexer.yylloc, $1, $3); }
+   | NULL                      { $$ = Node.null(yy.lexer.yylloc); }
    ;
 
 lvalueVar
