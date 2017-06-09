@@ -57,11 +57,8 @@ define(function(require) {
       assign: { value: assign },
       evalRange: { value: evalRange },
       evalSeq: { value: evalSeq },
-      evalDollarAccess: { value: evalDollarAccess },
-      evalDblBracketAccess: { value: evalDblBracketAccess },
       evalListAssign: { value: evalListAssign },
       evalFunCallAssign: { value: evalFunCallAssign },
-      evalArrayAccess: { value: evalArrayAccess },
       evalArrayAssign: { value: evalArrayAssign },
       evalAssignLvalue: { value: evalAssignLvalue },
       evalFor: { value: evalFor },
@@ -205,11 +202,9 @@ define(function(require) {
                             env,
                             true);
       case 'dollar_access':
-         return this.evalDollarAccess(node.object, node.id, env, node.loc);
       case 'dbl_bracket_access':
-         return this.evalDblBracketAccess(node.object, node.index, env, node.loc);
       case 'single_bracket_access':
-         return this.evalArrayAccess(node, env);
+         return this.evalInEnvironment(node.transformAccessToCall(), env);
       case 'fun_def':
          return this.evalFunDef(node, env);
       case 'block':
@@ -335,36 +330,6 @@ define(function(require) {
       return val;
    }
 
-   // Handles $ access
-   function evalDollarAccess(obj, id, env, loc) {
-      var actuals, fun;
-
-      // Add object as a named argument in actuals
-      // Also make sure it is the first argument
-      actuals = new Base.List({ x: this.evalInEnvironment(obj, env) });
-      actuals.push(Value.makeDelayed(id, env, this));
-      fun = this.lookup('$', env, loc);
-
-      return this.evalCall(fun, actuals, loc, env);
-   }
-
-   // Handles [[]] access
-   // `index` is a variable Value of some sort
-   // returns a single component from somewhere in the list
-   function evalDblBracketAccess(obj, index, env, loc) {
-      var actuals, fun;
-
-      // Add object as a named argument in actuals
-      // Also make sure it is the first argument
-      actuals = new Base.List({ x: this.evalInEnvironment(obj, env) });
-      if (typeof index !== 'undefined') {
-         actuals.set('i', Value.makeDelayed(index, env, this));
-      }
-      fun = this.lookup('[[', env, loc);
-
-      return this.evalCall(fun, actuals, loc, env);
-   }
-
    function evalListAssign(lst, index, rvalue, loc) {
       try {
          lst = Resolver.resolveValue(['list'])(lst);
@@ -398,25 +363,6 @@ define(function(require) {
                                     env);
       // 5. Make an assign call, with "x" to the result of 4 (local to lvalueEnvironment)
       this.assign(lvalue.args[0], funCallResult, env, isGlobal);
-   }
-
-   // Handles [] access -- "extract"
-   // The node contains the call's object in node.object and
-   // the "coordinates" in node.coords.
-   // If object is a list, returns a sublist of values
-   // If object is a variable, returns a subvariable of values
-   // If object is a matrix or an array, the coordinates indicate the location(s)
-   //    from which the result's value is to be obtained.
-   function evalArrayAccess(node, env) {
-      var actuals, fun;
-
-      // Add object as a named argument in actuals
-      // Also make sure it is the first argument
-      actuals = new Base.List({ x: this.evalInEnvironment(node.object, env) });
-      actuals.set(this.evalActuals(node.coords, env));
-      fun = this.lookup('[', env, node.loc);
-
-      return this.evalCall(fun, actuals, node.loc, env);
    }
 
    // Handles [] assignment

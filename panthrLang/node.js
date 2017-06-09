@@ -214,6 +214,34 @@ define(function(require) {
          }
 
          return visitor[methodName](this);
+      },
+      transformAccessToCall: function() {
+         var actuals;
+
+         switch (this.name) {
+         case 'single_bracket_access':
+            this.coords.unshift(Node.argNamed(this.loc, 'x', this.object));
+
+            return Node.funCall(
+               this.loc,
+               Node.variable(this.loc, '['),
+               this.coords);
+         case 'dbl_bracket_access':
+            actuals = [Node.argNamed(this.loc, 'x', this.object)];
+            if (typeof this.index !== 'undefined') { actuals.push(this.index); }
+
+            return Node.funCall(
+               this.loc,
+               Node.variable(this.loc, '[['),
+               actuals);
+         case 'dollar_access':
+            return Node.funCall(
+               this.loc,
+               Node.variable(this.loc, '$'),
+               [Node.argNamed(this.loc, 'x', this.object), this.id]);
+         default:
+            throw new Error('should not call transformAccessToCall in this case');
+         }
       }
    };
 
