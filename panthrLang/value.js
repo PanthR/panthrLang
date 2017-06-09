@@ -25,7 +25,6 @@ define(function(require) {
    }
 
    Value.null = new Value('null', null);
-   Value.null.value = Value.null;
    Value.undefined = new Value('undefined' /* , undefined */);
 
    Value.ControlFlowException = function ControlFlowException(message, loc, type) {

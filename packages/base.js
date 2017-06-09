@@ -248,7 +248,7 @@ define(function(require) {
          x = lst.get('x');
          dots = lst.get('...');
          // x is either a list, a variable, or null
-         if (x == null) { return Value.null; }
+         if (x == null) { return Value.wrap(null); }
          return Value.wrap(x.index.apply(x, dots.get()));
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'variable', 'null'], true)
@@ -263,10 +263,6 @@ define(function(require) {
                /* eslint-disable max-nested-callbacks */
                theDots.each(function(v, i) {
                   if (typeof v === 'undefined') { return; }
-                  if (v === Value.null) {
-                     theDots.set(i, null);
-                     return;
-                  }
                   if (v instanceof Base.Variable) { return; }
                   throw new Error('inappropriate index ' + v);
                });
@@ -295,10 +291,6 @@ define(function(require) {
                /* eslint-disable max-nested-callbacks */
                theDots.each(function(v, i) {
                   if (typeof v === 'undefined') { return; }
-                  if (v === Value.null) {
-                     theDots.set(i, null);
-                     return;
-                  }
                   if (v instanceof Base.Variable) { return; }
                   throw new Error('inappropriate index ' + v);
                });
