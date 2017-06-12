@@ -143,26 +143,6 @@ define(function(require) {
          return this.makeSpecial('<<-', node.lvalue, node.rvalue);
 
       },
-      visitDollarAccess: function(node) {
-         return new Expression([
-            new Expression.Symbol('$'),
-            this.visit(node.object),
-            this.visit(node.id)
-         ]);
-      },
-      visitDblBracketAccess: function(node) {
-         return this.makeSpecial('[[', node.object, node.index);
-      },
-      visitSingleBracketAccess: function(node) {
-         // Need to pass the coords as separate arguments, not an array
-         var allTerms;
-
-         allTerms = new Expression();
-         allTerms.push(new Expression.Symbol('['));
-         allTerms.push(this.visit(node.object));
-
-         return this.buildActualArguments(node.coords, allTerms);
-      },
       visitFunDef: function(node) {
          return new Expression([
             new Expression.Symbol('function'),

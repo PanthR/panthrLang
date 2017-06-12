@@ -201,10 +201,6 @@ define(function(require) {
                             this.evalInEnvironment(node.rvalue, env).clone(),
                             env,
                             true);
-      case 'dollar_access':
-      case 'dbl_bracket_access':
-      case 'single_bracket_access':
-         return this.evalInEnvironment(node.transformAccessToCall(), env);
       case 'fun_def':
          return this.evalFunDef(node, env);
       case 'block':
