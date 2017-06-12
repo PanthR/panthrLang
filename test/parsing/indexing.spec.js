@@ -11,7 +11,7 @@ describe('The parser parses', function() {
             expect(node.name).to.equal('fun_call');
             expect(node.fun.name).to.equal('variable');
             expect(node.fun.id).to.equal('$');
-            expect(node.args[0].name).to.equal('arg_named');
+            expect(node.args[0].name).to.equal('variable');
             expect(node.args[0].id).to.equal('x');
             expect(node.args[1].name).to.equal('variable');
          });
@@ -24,7 +24,7 @@ describe('The parser parses', function() {
          expect(node.name).to.equal('fun_call');
          expect(node.fun.name).to.equal('variable');
          expect(node.fun.id).to.equal('[[');
-         expect(node.args[0].name).to.equal('arg_named');
+         expect(node.args[0].name).to.equal('variable');
          expect(node.args[0].id).to.equal('x');
          expect(node.args[1].name).to.equal('number');
       });
@@ -33,26 +33,26 @@ describe('The parser parses', function() {
       main.parse('x[[3]][[2]]', function(nodes) {
          expect(nodes[0].name).to.equal('fun_call');
          expect(nodes[0].fun.id).to.equal('[[');
-         expect(nodes[0].args[0].value.name).to.equal('fun_call');
-         expect(nodes[0].args[0].value.fun.id).to.equal('[[');
+         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].fun.id).to.equal('[[');
       });
       main.parse('x$y$z', function(nodes) {
          expect(nodes[0].name).to.equal('fun_call');
          expect(nodes[0].fun.id).to.equal('$');
-         expect(nodes[0].args[0].value.name).to.equal('fun_call');
-         expect(nodes[0].args[0].value.fun.id).to.equal('$');
+         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].fun.id).to.equal('$');
       });
       main.parse('x[[3]]$y', function(nodes) {
          expect(nodes[0].name).to.equal('fun_call');
          expect(nodes[0].fun.id).to.equal('$');
-         expect(nodes[0].args[0].value.name).to.equal('fun_call');
-         expect(nodes[0].args[0].value.fun.id).to.equal('[[');
+         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].fun.id).to.equal('[[');
       });
       main.parse('x$y[[3]]', function(nodes) {
          expect(nodes[0].name).to.equal('fun_call');
          expect(nodes[0].fun.id).to.equal('[[');
-         expect(nodes[0].args[0].value.name).to.equal('fun_call');
-         expect(nodes[0].args[0].value.fun.id).to.equal('$');
+         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].fun.id).to.equal('$');
       });
       main.parse('x[[y$z]]', function(nodes) {
          expect(nodes[0].name).to.equal('fun_call');

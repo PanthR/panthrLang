@@ -14,7 +14,7 @@ define(function(require) {
       var key;
 
       this.name = name;
-      this.loc = {
+      this.loc = loc.hasOwnProperty('firstLine') ? loc : {
          firstLine: loc.first_line,
          lastLine: loc.last_line,
          firstColumn: loc.first_column,
@@ -98,21 +98,21 @@ define(function(require) {
       return Node.funCall(
          loc,
          Node.variable(loc, '$'),
-         [Node.argNamed(loc, 'x', object), id]
+         [object, id]
       );
    };
 
    Node.dblBracketAccess = function makeDblBracketAccess(loc, object, index) {
       var actuals;
 
-      actuals = [Node.argNamed(loc, 'x', object)];
+      actuals = [object];
       if (typeof index !== 'undefined') { actuals.push(index); }
 
       return Node.funCall(loc, Node.variable(loc, '[['), actuals);
    };
 
    Node.singleBracketAccess = function singleBracketAccess(loc, object, coords) {
-      coords.unshift(Node.argNamed(loc, 'x', object));
+      coords.unshift(object);
 
       return Node.funCall(loc, Node.variable(loc, '['), coords);
    };
@@ -219,6 +219,41 @@ define(function(require) {
          }
 
          return visitor[methodName](this);
+      }
+   };
+
+   // Transforms an "assign" or "assign_existing" into a "proper" form
+   // where the lhs is simply x and the rhs contains the various function calls
+   // and indexing that was on the lhs before.
+   Node.transformAssign = function(node) {
+      var oldLhs, newLhs, newArgs, newRhs;
+
+      oldLhs = node.lvalue;
+
+      switch (oldLhs.name) {
+      case 'fun_call':
+         if (oldLhs.fun.name !== 'variable') {
+            throw new Error('Wrong function specification on oldLhs of assignment');
+         }
+
+         newLhs = oldLhs.args[0];
+         // Need to call the function with "<-" appended on an
+         // argument list expanded to include the rhs.
+         newArgs = oldLhs.args.slice();
+         newArgs.push(Node.argNamed(node.loc, 'value', node.rvalue));
+
+         newRhs = Node.funCall(node.loc,
+            Node.variable(node.loc, oldLhs.fun.id + '<-'),
+            newArgs
+         );
+
+         return Node.transformAssign(
+            new Node(node.name, node.loc, { lvalue: newLhs, rvalue: newRhs })
+         );
+      case 'variable':
+         return node;
+      default:
+         throw new Error('Should not have to handle a lhs: ' + node.lvalue.name);
       }
    };
 
