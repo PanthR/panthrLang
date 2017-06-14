@@ -226,14 +226,10 @@ define(function(require) {
       });
 
       addBuiltin('$', function(lst) {
-         var obj, subscriptExpr, subscript;
+         var obj, subscript;
 
-         subscriptExpr = lst.get('i');
-         if (!subscriptExpr instanceof Expression.Symbol) {
-            throw new Error('Invalid subscript type');
-         }
-         subscript = subscriptExpr.toString();
          obj = lst.get('x');
+         subscript = lst.get('i');
          if (obj === null || !obj.has(subscript)) {
             return Value.makeNull();
          }
@@ -241,7 +237,41 @@ define(function(require) {
          return Value.wrap(obj.get(subscript));
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'null'], true)
-            .addParameter('i', 'expression', true);
+            .addParameter('i', 'expression', true)
+            .addNormalize(function(lst) {
+               var subscriptExpr;
+
+               subscriptExpr = lst.get('i');
+               if (!subscriptExpr instanceof Expression.Symbol) {
+                  throw new Error('Invalid subscript type');
+               }
+               lst.set('i', subscriptExpr.toString());
+            });
+      });
+
+      addBuiltin('$<-', function(lst) {
+         var obj;
+
+         obj = lst.get('x');
+
+         if (obj === null) { return Value.makeNull(); }
+
+         obj.set(lst.get('i'), lst.get('value'));
+
+         return Value.wrap(obj);
+      }, function(resolver) {
+         resolver.addParameter('x', ['list', 'null'], true)
+            .addParameter('i', 'expression', true)
+            .addParameter('value', 'any', true)
+            .addNormalize(function(lst) {
+               var subscriptExpr;
+
+               subscriptExpr = lst.get('i');
+               if (!subscriptExpr instanceof Expression.Symbol) {
+                  throw new Error('Invalid subscript type');
+               }
+               lst.set('i', subscriptExpr.toString());
+            });
       });
 
       addBuiltin('[[', function(lst) {
@@ -262,6 +292,25 @@ define(function(require) {
             .addDots()
             .addParameter('exact', 'boolean')
             .addDefault('exact', 'TRUE');
+      });
+
+      addBuiltin('[[<-', function(lst) {
+         var x, i;
+
+         x = lst.get('x');
+         i = lst.get('i');
+         if (lst.has('j') || lst.get('...').length() > 0) {
+            throw new Error('Incorrect number of subscripts');
+         }
+         x.deepSet(i, lst.get('value'));
+
+         return Value.wrap(x);
+      }, function(resolver) {
+         resolver.addParameter('x', ['list', 'null'], true)
+            .addParameter('i', ['scalar', 'character', 'null'])
+            .addParameter('j', ['scalar', 'character', 'null'])
+            .addDots()
+            .addParameter('value', 'any', true);
       });
 
       addBuiltin('[', function(lst) {
@@ -296,6 +345,8 @@ define(function(require) {
          var x, dots;
 
          x = lst.get('x');
+         // lst.get('...') is a list, but we don't need its list nature.
+         // .get() turns it into an array, forgoing the names.
          dots = lst.get('...').get();
          dots.unshift(lst.get('value'));
          x.indexSet.apply(x, dots);
@@ -303,8 +354,8 @@ define(function(require) {
          return Value.wrap(x);
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'variable'], true)
-            .addParameter('value', ['variable', 'list'], true)
             .addDots()
+            .addParameter('value', ['variable', 'list'], true)
             .addNormalize(function(lst) {
                var theDots;
 

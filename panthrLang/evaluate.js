@@ -57,10 +57,6 @@ define(function(require) {
       assign: { value: assign },
       evalRange: { value: evalRange },
       evalSeq: { value: evalSeq },
-      evalListAssign: { value: evalListAssign },
-      evalFunCallAssign: { value: evalFunCallAssign },
-      evalArrayAssign: { value: evalArrayAssign },
-      evalAssignLvalue: { value: evalAssignLvalue },
       evalFor: { value: evalFor },
       evalWhile: { value: evalWhile },
       evalIf: { value: evalIf },
@@ -177,6 +173,21 @@ define(function(require) {
    // Emits the resulting value
    /* eslint-disable complexity */
    function evalInEnvironment(node, env) {
+      // These two special cases are used by assignment:
+      // The rhs value of an assignment needs to be stored and finally
+      // returned.
+      if (node.store) {
+         node.store = false;
+         node.computedValue = this.evalInEnvironment(node, env);
+
+         return node.computedValue;
+      }
+      // And the lhs target variable needs to be evaluated specially
+      // in some cases ("global" lookup)
+      if (typeof node.specialEval === 'function') {
+         return node.specialEval();
+      }
+
       switch (node.name) {
       case 'number': return Value.makeScalar([node.value]);
       case 'boolean': return Value.makeLogical([node.value]);
@@ -192,15 +203,9 @@ define(function(require) {
       case 'variable':
          return this.lookup(node.id, env, node.loc);
       case 'assign':
-         return this.assign(node.lvalue,
-                            this.evalInEnvironment(node.rvalue, env).clone(),
-                            env,
-                            false);
+         return this.assign(node, env, false);
       case 'assign_existing':
-         return this.assign(node.lvalue,
-                            this.evalInEnvironment(node.rvalue, env).clone(),
-                            env,
-                            true);
+         return this.assign(node, env, true);
       case 'fun_def':
          return this.evalFunDef(node, env);
       case 'block':
@@ -243,72 +248,36 @@ define(function(require) {
    }
 
    // Carries out an assignment with a possibly complex lvalue
-   // lvalue is a Node
-   // rvalue is a Value
    // isGlobal: true for <<-, false for <-
-   function assign(lvalue, rvalue, env, isGlobal) {
-      switch (lvalue.name) {
-      case 'single_bracket_access':
-         this.evalArrayAssign(lvalue, rvalue, env, isGlobal);
-         break;
-      case 'dbl_bracket_access':
-         this.evalListAssign(
-            this.evalAssignLvalue(lvalue.object, env, isGlobal),
-            this.evalInEnvironment(lvalue.index, env),
-            rvalue,
-            lvalue.loc);
-         break;
-      case 'dollar_access':
-         this.evalListAssign(
-               this.evalAssignLvalue(lvalue.object, env, isGlobal),
-               Value.makeString([lvalue.id]),
-               rvalue,
-               lvalue.loc);
-         break;
-      case 'fun_call':
-         this.evalFunCallAssign(lvalue, rvalue, env, isGlobal);
-         break;
-      case 'variable':
-         this.getEnvironmentForSymbol(lvalue.id, env, isGlobal).store(lvalue.id, rvalue);
-         break;
-      default:
-         throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
+   function assign(oldNode, env, isGlobal) {
+      var newNode, lhsId, lhsRelevantEnv;
+
+      try {
+         // Tell rhs to store its result
+         oldNode.rvalue.store = true;
+         // Need to keep the oldNode around in order to evaluate
+         // the correct return value from the assignment.
+         newNode = oldNode.transformAssign();
+      } catch (e) {
+         throw errorInfo(e.message, oldNode.loc);
       }
-      return rvalue;
-   }
+      lhsId = newNode.lvalue.id;
+      lhsRelevantEnv = this.getEnvironmentForSymbol(lhsId, env, isGlobal);
 
-   // Evaluates the "lvalue" part as if it was a piece of the l-value in an assignment
-   function evalAssignLvalue(lvalue, env, isGlobal) {
-      var actuals, fun;
-
-      switch (lvalue.name) {
-      case 'single_bracket_access':
-         actuals = this.evalActuals(lvalue.coords, env)
-            .prepend(this.evalAssignLvalue(lvalue.object, env, isGlobal), 'x');
-         fun = this.lookup('[', env, lvalue.loc);
-
-         return this.evalCall(fun, actuals, lvalue.loc, env);
-      case 'dbl_bracket_access':
-         return this.evalListAccess(
-            this.evalAssignLvalue(lvalue.object, env, isGlobal),
-            this.evalInEnvironment(lvalue.index, env),
-            lvalue.loc);
-      case 'dollar_access':
-         return this.evalListAccess(
-            this.evalAssignLvalue(lvalue.object, env, isGlobal),
-            Value.makeString([lvalue.id]),
-            lvalue.loc);
-      case 'fun_call':
-         return this.evalCall(
-            this.evalInEnvironment(lvalue.fun, env),
-            this.evalActuals(lvalue.args, env.getRelevantEnvironment(isGlobal)),
-            lvalue.loc,
-            env);
-      case 'variable':
-         return this.getEnvironmentForSymbol(lvalue.id, env, isGlobal).lookup(lvalue.id);
-      default:
-         throw errorInfo('Invalid expression for left-hand-side of assignment', lvalue.loc);
+      // newNode.lvalue is the node that needs to be evaluated specially
+      // on the rhs. We need to set up special evaluation here.
+      if (isGlobal) {
+         newNode.lvalue.specialEval = function() {
+            return lookup(lhsId, lhsRelevantEnv, newNode.lvalue.loc);
+         };
       }
+
+      lhsRelevantEnv.store(
+         lhsId,
+         this.evalInEnvironment(newNode.rvalue, env).clone()
+      );
+
+      return oldNode.rvalue.computedValue;
    }
 
    function evalRange(a, b, env, loc) {
@@ -324,54 +293,6 @@ define(function(require) {
          val = this.evalInEnvironment(exprs[i], env);
       }
       return val;
-   }
-
-   function evalListAssign(lst, index, rvalue, loc) {
-      try {
-         lst = Resolver.resolveValue(['list'])(lst);
-         index = Resolver.resolveValue(['scalar', 'character'])(index);
-         rvalue = Resolver.resolveValue(['any'])(rvalue);
-         lst.deepSet(index, rvalue);
-      } catch (e) {
-         throw errorInfo(e.message || e.toString(), loc);
-      }
-   }
-
-   function evalFunCallAssign(lvalue, rvalue, env, isGlobal) {
-      var args, funCallResult;
-
-      if (lvalue.args.length !== 1 || lvalue.args[0].name === 'arg_empty') {
-         throw errorInfo('Wrong arguments for function call on lhs of assignment', lvalue.loc);
-      }
-      // 1. change the name of the function.
-      if (lvalue.fun.name !== 'variable') {
-         throw errorInfo('Wrong function specification on lhs of assignment', lvalue.loc);
-      }
-      lvalue.fun.id += '<-';
-      // 2. EvalActuals the arguments to the function
-      args = this.evalActuals(lvalue.args, env.getRelevantEnvironment(isGlobal));
-      // 3. Extend them by "value=rhs"
-      args.set('value', rvalue);
-      // 4. Call the new function
-      funCallResult = this.evalCall(this.evalInEnvironment(lvalue.fun, env),
-                                    args,
-                                    lvalue.loc,
-                                    env);
-      // 5. Make an assign call, with "x" to the result of 4 (local to lvalueEnvironment)
-      this.assign(lvalue.args[0], funCallResult, env, isGlobal);
-   }
-
-   // Handles [] assignment
-   function evalArrayAssign(node, rvalue, env, isGlobal) {
-      var actuals, fun;
-
-      actuals = new Base.List({
-         x: this.evalInEnvironment(node.object, env.getRelevantEnvironment(isGlobal)),
-         value: rvalue
-      });
-      actuals.set(this.evalActuals(node.coords, env));
-      fun = this.lookup('[<-', env, node.loc);
-      this.evalCall(fun, actuals, node.loc, env);
    }
 
    function evalFunDef(node, env) {
