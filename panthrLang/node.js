@@ -219,41 +219,39 @@ define(function(require) {
          }
 
          return visitor[methodName](this);
-      }
-   };
+      },
+      // Transforms an "assign" or "assign_existing" into a "proper" form
+      // where the lhs is simply x and the rhs contains the various function calls
+      // and indexing that was on the lhs before.
+      transformAssign: function transformAssign() {
+         var oldLhs, newLhs, newArgs, newRhs;
 
-   // Transforms an "assign" or "assign_existing" into a "proper" form
-   // where the lhs is simply x and the rhs contains the various function calls
-   // and indexing that was on the lhs before.
-   Node.transformAssign = function(node) {
-      var oldLhs, newLhs, newArgs, newRhs;
+         oldLhs = this.lvalue;
 
-      oldLhs = node.lvalue;
+         switch (oldLhs.name) {
+         case 'fun_call':
+            if (oldLhs.fun.name !== 'variable') {
+               throw new Error('Wrong function specification on oldLhs of assignment');
+            }
 
-      switch (oldLhs.name) {
-      case 'fun_call':
-         if (oldLhs.fun.name !== 'variable') {
-            throw new Error('Wrong function specification on oldLhs of assignment');
+            newLhs = oldLhs.args[0];
+            // Need to call the function with "<-" appended on an
+            // argument list expanded to include the rhs.
+            newArgs = oldLhs.args.slice();
+            newArgs.push(Node.argNamed(this.loc, 'value', this.rvalue));
+
+            newRhs = Node.funCall(this.loc,
+               Node.variable(this.loc, oldLhs.fun.id + '<-'),
+               newArgs
+            );
+
+            return new Node(this.name, this.loc, { lvalue: newLhs, rvalue: newRhs })
+                     .transformAssign();
+         case 'variable':
+            return this;
+         default:
+            throw new Error('Should not have to handle a lhs: ' + this.lvalue.name);
          }
-
-         newLhs = oldLhs.args[0];
-         // Need to call the function with "<-" appended on an
-         // argument list expanded to include the rhs.
-         newArgs = oldLhs.args.slice();
-         newArgs.push(Node.argNamed(node.loc, 'value', node.rvalue));
-
-         newRhs = Node.funCall(node.loc,
-            Node.variable(node.loc, oldLhs.fun.id + '<-'),
-            newArgs
-         );
-
-         return Node.transformAssign(
-            new Node(node.name, node.loc, { lvalue: newLhs, rvalue: newRhs })
-         );
-      case 'variable':
-         return node;
-      default:
-         throw new Error('Should not have to handle a lhs: ' + node.lvalue.name);
       }
    };
 

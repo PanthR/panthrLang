@@ -7,7 +7,7 @@ describe('Assignment nodes can be transformed:', function() {
    it('function calls get converted properly', function() {
       main.parse('names(x)<-5; names(x) <<- 5', function(nodes) {
          nodes.forEach(function(node) {
-            var transformedNode = Node.transformAssign(node);
+            var transformedNode = node.transformAssign();
 
             expect(transformedNode.name).to.equal(node.name);
             expect(transformedNode.lvalue.name).to.equal('variable');
@@ -24,7 +24,7 @@ describe('Assignment nodes can be transformed:', function() {
 
       main.parse('names(x)[3]<-5; names(x)[3]<<-5', function(nodes) {
          nodes.forEach(function(node) {
-            var transformedNode = Node.transformAssign(node);
+            var transformedNode = node.transformAssign();
 
             expect(transformedNode.name).to.equal(node.name);
             expect(transformedNode.lvalue.name).to.equal('variable');
