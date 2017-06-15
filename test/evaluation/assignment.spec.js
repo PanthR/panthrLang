@@ -47,7 +47,20 @@ describe('The evaluator', function() {
       expect(evs[3].value.toArray()).to.deep.equal([10]);
    });
    it('evaluates combination of function call and [ assignment correctly', function() {
-      var evs = main.eval('x = list(g=1:2); \
+      var evs = main.eval('x = 1:2; names(x)[2] <-"b"; names(x)[2]');
+      expect(evs[1].type).to.not.equal('error');
+      expect(evs[2].value.toArray()).to.deep.equal(['b']);
+
+      evs = main.eval('x = list(g=1:2); names(x$g)[2] <-"b"; names(x$g)[2]');
+      expect(evs[1].type).to.not.equal('error');
+      expect(evs[2].value.toArray()).to.deep.equal(['b']);
+
+      evs = main.eval('x = list(g=1:2); \
+         f = function() {x = "foo"; names(x$g)[2] <<-"b" }; f(); names(x$g)[2]');
+      expect(evs[2].type).to.not.equal('error');
+      expect(evs[3].value.toArray()).to.deep.equal(['b']);
+
+      evs = main.eval('x = list(g=1:2); \
          f = function() {x = "g"; names(x[[x]])[2] <<-"b" }; f(); names(x$g)[2]');
       expect(evs[2].type).to.not.equal('error');
       expect(evs[3].value.toArray()).to.deep.equal(['b']);

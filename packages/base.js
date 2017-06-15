@@ -342,18 +342,25 @@ define(function(require) {
       });
 
       addBuiltin('[<-', function(lst) {
-         var x, dots;
+         var x, dots, value;
 
          x = lst.get('x');
+         value = lst.get('value');
          // lst.get('...') is a list, but we don't need its list nature.
          // .get() turns it into an array, forgoing the names.
          dots = lst.get('...').get();
-         dots.unshift(lst.get('value'));
+         dots.unshift(value);
+
+         if (x == null) {
+            if (value == null) { return null; }
+            x = value.reproduce([]);
+         }
+
          x.indexSet.apply(x, dots);
 
          return Value.wrap(x);
       }, function(resolver) {
-         resolver.addParameter('x', ['list', 'variable'], true)
+         resolver.addParameter('x', ['list', 'variable', 'null'], true)
             .addDots()
             .addParameter('value', ['variable', 'list'], true)
             .addNormalize(function(lst) {
