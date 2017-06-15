@@ -198,6 +198,13 @@ define(function(require) {
       }, function(resolver) { resolver.addDots(); });
 
       addBuiltin('names', function(lst) {
+         var names;
+
+         names = lst.get('x').names();
+         if (Base.utils.isMissing(names)) {
+            return Value.makeNull();
+         }
+
          return Value.makeVariable(lst.get('x').names());
       }, function(resolver) {
          resolver.addParameter('x', ['variable', 'list'], true);
