@@ -88,4 +88,18 @@ describe('The evaluator', function() {
       var evs = main.eval('`ours<-` <- function(x, value) { value }; x<-1:5; ours(x)<-3:4; x');
       expect(evs[3].value.toArray()).to.deep.equal([3, 4]);
    });
+   it('evaluates single-bracket assignment with empty argument correctly', function() {
+      var evs = main.eval('x<-list(a=1:5, b=2:4); x[] <- list(c=1:2, d=1:3); x');
+      expect(evs[2].type).to.equal('list');
+      expect(evs[2].value.length()).to.equal(2);
+      expect(evs[2].value.names().toArray()).to.deep.equal(['a', 'b']);
+      expect(evs[2].value.get(1).toArray()).to.deep.equal([1, 2]);
+      expect(evs[2].value.get(2).toArray()).to.deep.equal([1, 2, 3]);
+   });
+   it('evaluates single-bracket assignment with index out of range correctly', function() {
+      var evs = main.eval('x<-list(a=1:5, b=2:4); x[3] <- list(c=1:2); x');
+      expect(evs[2].type).to.equal('list');
+      expect(evs[2].value.length()).to.equal(3);
+      expect(evs[2].value.get(3).toArray()).to.deep.equal([1, 2]);
+   });
 });
