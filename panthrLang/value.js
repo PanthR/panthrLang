@@ -368,6 +368,8 @@ define(function(require) {
                      this.value.loc.firstColumn);
       case 'undefined':
          return '<undefined: undefined>';
+      case 'null':
+         return '<null: null>';
       default:
          return '<' + this.type + ': ' + this.value.toString() + '>';
       }
