@@ -8,13 +8,13 @@ describe('The evaluator', function() {
       expect(evs.length).to.equal(1);
       expect(evs[0].type).to.equal('closure');
       expect(evs[0].value).to.have.keys(['env', 'fun']);
-      expect(evs[0].value.fun.name).to.equal('fun_def');
+      expect(evs[0].value.fun.type).to.equal('fun_def');
 
       evs = main.eval('function(x, y) x + y / 2');
       expect(evs.length).to.equal(1);
       expect(evs[0].type).to.equal('closure');
       expect(evs[0].value).to.have.keys(['env', 'fun']);
-      expect(evs[0].value.fun.name).to.equal('fun_def');
+      expect(evs[0].value.fun.type).to.equal('fun_def');
    });
    it('evaluates blocks properly', function() {
       var evs = main.eval('x <- { 3 + 4\n2*3\n}\n x');

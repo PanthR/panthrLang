@@ -188,7 +188,7 @@ define(function(require) {
          return node.specialEval();
       }
 
-      switch (node.name) {
+      switch (node.type) {
       case 'number': return Value.makeScalar([node.value]);
       case 'boolean': return Value.makeLogical([node.value]);
       case 'string': return Value.makeString([node.value]);
@@ -226,7 +226,7 @@ define(function(require) {
       case 'error':
          return errorInfo('unexpected token: ' + node.error.hash.text, node.loc);
       default:
-         throw new Error('Unknown node: ' + node.name);
+         throw new Error('Unknown node: ' + node.type);
       }
    }
    /* eslint-enable complexity */
@@ -301,7 +301,7 @@ define(function(require) {
       formals = {};
 
       for (i = 0; i < node.params.length; i += 1) {
-         formal = node.params[i].name === 'param_dots' ? '...' : node.params[i].id;
+         formal = node.params[i].type === 'param_dots' ? '...' : node.params[i].id;
          if (formals.hasOwnProperty(formal)) {
             return errorInfo('repeated formal argument: ' + formal, node.loc);
          }
@@ -331,7 +331,7 @@ define(function(require) {
          actuals.set(name, value);
       }
       exprs.forEach(function(expr) {
-         switch (expr.name) {
+         switch (expr.type) {
          case 'arg_named':
             addNamedValue(expr.id, Value.makeDelayed(expr.value, env, this), expr.loc);
             break;

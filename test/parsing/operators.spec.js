@@ -10,8 +10,8 @@ describe('The parser handles operators', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('fun_call');
-            expect(node.fun.name).to.equal('variable');
+            expect(node.type).to.equal('fun_call');
+            expect(node.fun.type).to.equal('variable');
             expect(node.args.length).to.equal(2);
          });
       });
@@ -42,8 +42,8 @@ describe('The parser handles operators', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('fun_call');
-            expect(node.fun.name).to.equal('variable');
+            expect(node.type).to.equal('fun_call');
+            expect(node.fun.type).to.equal('variable');
             expect(node.args.length).to.equal(2);
          });
       });
@@ -66,39 +66,39 @@ describe('The parser handles operators', function() {
    });
    it('logical pointwise', function() {
       main.parse('5 | 3', function(nodes) {
-         expect(nodes[0].name).to.equal('fun_call');
-         expect(nodes[0].fun.name).to.equal('variable');
+         expect(nodes[0].type).to.equal('fun_call');
+         expect(nodes[0].fun.type).to.equal('variable');
          expect(nodes[0].fun.id).to.equal('|');
       });
       main.parse('5 | 3 | 2', function(nodes) {
-         expect(nodes[0].name).to.equal('fun_call');
-         expect(nodes[0].args[0].name).to.equal('fun_call');
-         expect(nodes[0].args[1].name).to.not.equal('fun_call');
+         expect(nodes[0].type).to.equal('fun_call');
+         expect(nodes[0].args[0].type).to.equal('fun_call');
+         expect(nodes[0].args[1].type).to.not.equal('fun_call');
       });
       main.parse('5 & 3', function(nodes) {
-         expect(nodes[0].name).to.equal('fun_call');
+         expect(nodes[0].type).to.equal('fun_call');
       });
       main.parse('5 & 3 & 2', function(nodes) {
-         expect(nodes[0].name).to.equal('fun_call');
-         expect(nodes[0].args[0].name).to.equal('fun_call');
-         expect(nodes[0].args[1].name).to.not.equal('fun_call');
+         expect(nodes[0].type).to.equal('fun_call');
+         expect(nodes[0].args[0].type).to.equal('fun_call');
+         expect(nodes[0].args[1].type).to.not.equal('fun_call');
       });
       main.parse('! 3', function(nodes) {
-         expect(nodes[0].name).to.equal('fun_call');
+         expect(nodes[0].type).to.equal('fun_call');
       });
       main.parse('! ! 3', function(nodes) {
-         expect(nodes[0].name).to.equal('fun_call');
+         expect(nodes[0].type).to.equal('fun_call');
          expect(nodes[0].args.length).to.equal(1);
-         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].type).to.equal('fun_call');
       });
       main.parse('!5 | 3 & 2', function(nodes) {
          expect(nodes[0].fun.id).to.equal('|');
-         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].type).to.equal('fun_call');
          expect(nodes[0].args[1].fun.id).to.equal('&');
       });
       main.parse('!5 || 3 && 2', function(nodes) {
          expect(nodes[0].fun.id).to.equal('||');
-         expect(nodes[0].args[0].name).to.equal('fun_call');
+         expect(nodes[0].args[0].type).to.equal('fun_call');
          expect(nodes[0].args[1].fun.id).to.equal('&&');
       });
    });
@@ -113,9 +113,9 @@ describe('The parser handles operators', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('fun_call');
+            expect(node.type).to.equal('fun_call');
             expect(['<', '>', '<=', '>=', '==', '!=']).to.contain(node.fun.id);
-            expect(node.fun.name).to.equal('variable');
+            expect(node.fun.type).to.equal('variable');
             expect(node.args.length).to.equal(2);
          });
       });

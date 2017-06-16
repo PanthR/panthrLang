@@ -6,14 +6,14 @@ define(function(require) {
    /**
     * Simple AST structure for PanthrLang.
     *
-    * Each node consists of a name and a (possibly empty) list of arguments.
+    * Each node consists of a type and a (possibly empty) list of arguments.
     *
     * Never call this directly. Use makeNode instead.
     */
-   function Node(name, loc, obj) {
+   function Node(type, loc, obj) {
       var key;
 
-      this.name = name;
+      this.type = type;
       this.loc = loc.hasOwnProperty('firstLine') ? loc : {
          firstLine: loc.first_line,
          lastLine: loc.last_line,
@@ -169,7 +169,7 @@ define(function(require) {
    };
 
    /*
-    * Lookup table for node-name ---> visitor-method correspondence
+    * Lookup table for node-type ---> visitor-method correspondence
     */
    /* eslint-disable quote-props */
    nameMethodLookup = {
@@ -209,10 +209,10 @@ define(function(require) {
       accept: function(visitor) {
          var methodName;
 
-         if (!nameMethodLookup.hasOwnProperty(this.name)) {
-            throw new Error('No known method for node type: ' + this.name);
+         if (!nameMethodLookup.hasOwnProperty(this.type)) {
+            throw new Error('No known method for node type: ' + this.type);
          }
-         methodName = nameMethodLookup[this.name];
+         methodName = nameMethodLookup[this.type];
 
          if (typeof visitor[methodName] !== 'function') {
             throw new Error('Visitors must implement: ' + methodName);
@@ -228,9 +228,9 @@ define(function(require) {
 
          oldLhs = this.lvalue;
 
-         switch (oldLhs.name) {
+         switch (oldLhs.type) {
          case 'fun_call':
-            if (oldLhs.fun.name !== 'variable') {
+            if (oldLhs.fun.type !== 'variable') {
                throw new Error('Wrong function specification on oldLhs of assignment');
             }
 
@@ -245,12 +245,12 @@ define(function(require) {
                newArgs
             );
 
-            return new Node(this.name, this.loc, { lvalue: newLhs, rvalue: newRhs })
+            return new Node(this.type, this.loc, { lvalue: newLhs, rvalue: newRhs })
                      .transformAssign();
          case 'variable':
             return this;
          default:
-            throw new Error('Should not have to handle a lhs: ' + this.lvalue.name);
+            throw new Error('Should not have to handle a lhs: ' + this.lvalue.type);
          }
       }
    };

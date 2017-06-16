@@ -91,8 +91,8 @@ define(function(require) {
             name = actuals.names(i);
             if (!name) { return matchNamed(i + 1, 0); }
             if (j >= formals.length) { return matchNamed(i + 1, 0); }
-            if ((formals[j].name === 'param' ||
-                 formals[j].name === 'param_default') &&
+            if ((formals[j].type === 'param' ||
+                 formals[j].type === 'param_default') &&
                 formals[j].id === name) {
                // found match
                closExtEnvironment.store(formals[j].id, actual);
@@ -120,7 +120,7 @@ define(function(require) {
                    actuals.names(actualPos)) {
                actualPos += 1; // Find first unnamed argument
             }
-            if (formals[0].name === 'param_dots') {
+            if (formals[0].type === 'param_dots') {
                // Need to eat up all remaining actuals.
                closExtEnvironment.store('...', Value.makeList(actuals));
                actuals = new Base.List();
@@ -130,7 +130,7 @@ define(function(require) {
                closExtEnvironment.store(formals[0].id, actuals.get(actualPos));
                actuals.delete(actualPos);
             } else {
-               if (formals[0].name === 'param_default') {
+               if (formals[0].type === 'param_default') {
                   // Need to evaluate the default value
                   // Cannot evaluate right away because it might depend on
                   // later defaults. Must create a promise. It will not be

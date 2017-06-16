@@ -11,9 +11,9 @@ describe('The parser parses', function() {
       main.parse('(2 + 3) * (5)', function(nodes) {
          expect(nodes.length).to.equal(1);
          var node = nodes[0];
-         expect(node.name).to.equal('fun_call');
-         expect(node.args[0].name).to.equal('parens');
-         expect(node.args[1].name).to.equal('parens');
+         expect(node.type).to.equal('fun_call');
+         expect(node.args[0].type).to.equal('parens');
+         expect(node.args[1].type).to.equal('parens');
       });
    });
    it('integers correctly', function() {
@@ -21,7 +21,7 @@ describe('The parser parses', function() {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('number');
+            expect(node.type).to.equal('number');
             expect(node.value).to.be.a('number');
          });
       });
@@ -33,7 +33,7 @@ describe('The parser parses', function() {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('number');
+            expect(node.type).to.equal('number');
             expect(node.value).to.be.a('number');
             expect(node.value).to.equal(val);
          });
@@ -44,55 +44,55 @@ describe('The parser parses', function() {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('number');
+            expect(node.type).to.equal('number');
             expect(node.value).to.equal(parseFloat(num));
          });
       });
    });
    it('boolean literals', function() {
       main.parse('TRUE', function(nodes) {
-         expect(nodes[0].name).to.equal('boolean');
+         expect(nodes[0].type).to.equal('boolean');
          expect(nodes[0].value).to.equal(true);
       });
       main.parse('FALSE', function(nodes) {
-         expect(nodes[0].name).to.equal('boolean');
+         expect(nodes[0].type).to.equal('boolean');
          expect(nodes[0].value).to.equal(false);
       });
    });
    it('string literals', function() {
       main.parse('"a"; "\\\\n\\n\n"; "\\\'\\"\t"', function(nodes) {
-         expect(nodes[0].name).to.equal('string');
+         expect(nodes[0].type).to.equal('string');
          expect(nodes[0].value).to.equal('a');
-         expect(nodes[1].name).to.equal('string');
+         expect(nodes[1].type).to.equal('string');
          expect(nodes[1].value).to.equal('\\n\n\n');
-         expect(nodes[2].name).to.equal('string');
+         expect(nodes[2].type).to.equal('string');
          expect(nodes[2].value).to.equal('\'"\t');
       });
       main.parse("'a'; '\\\\n\\n\n'; '\\'\\\"\t'", function(nodes) {
-         expect(nodes[0].name).to.equal('string');
+         expect(nodes[0].type).to.equal('string');
          expect(nodes[0].value).to.equal('a');
-         expect(nodes[1].name).to.equal('string');
+         expect(nodes[1].type).to.equal('string');
          expect(nodes[1].value).to.equal('\\n\n\n');
-         expect(nodes[2].name).to.equal('string');
+         expect(nodes[2].type).to.equal('string');
          expect(nodes[2].value).to.equal('\'"\t');
       });
    });
    it('missing values', function() {
       main.parse('NA; NaN', function(nodes) {
-         expect(nodes[0].name).to.equal('missing');
-         expect(nodes[1].name).to.equal('missing');
+         expect(nodes[0].type).to.equal('missing');
+         expect(nodes[1].type).to.equal('missing');
       });
    });
    it('null', function() {
       main.parse('NULL', function(nodes) {
-         expect(nodes[0].name).to.equal('null');
+         expect(nodes[0].type).to.equal('null');
       });
    });
    it('variables', function() {
       ['xy23', '_foo', 'test.this', '.allowed','ok_with_this.1', '..'].forEach(function(str) {
          main.parse(str, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].name).to.equal('variable');
+            expect(nodes[0].type).to.equal('variable');
             expect(nodes[0].id).to.equal(str);
          });
       });
@@ -101,7 +101,7 @@ describe('The parser parses', function() {
       ['`xy23`', '`_foo`', '`test.this`', '`+`', '`%/%`'].forEach(function(str) {
          main.parse(str, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].name).to.equal('variable');
+            expect(nodes[0].type).to.equal('variable');
             expect(nodes[0].id).to.equal(str.replace(/`/g, ''));
          });
       });
@@ -110,8 +110,8 @@ describe('The parser parses', function() {
       ['-0.23 * (2 + 3)', '(-0.23 + 2) * 3'].forEach(function(num) {
          main.parse(num, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].name).to.equal('fun_call');
-            expect(nodes[0].fun.name).to.equal('variable');
+            expect(nodes[0].type).to.equal('fun_call');
+            expect(nodes[0].fun.type).to.equal('variable');
             expect(nodes[0].fun.id).to.equal('*');
          });
       });
@@ -121,7 +121,7 @@ describe('The parser parses', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
             var node = nodes[0];
-            expect(node.name).to.equal('assign');
+            expect(node.type).to.equal('assign');
          });
       });
    });
@@ -130,10 +130,10 @@ describe('The parser parses', function() {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(4);
             var node = nodes[0];
-            expect(node.name).to.equal('assign_existing');
-            expect(nodes[1].rvalue.body.name).to.equal('block');
+            expect(node.type).to.equal('assign_existing');
+            expect(nodes[1].rvalue.body.type).to.equal('block');
             expect(nodes[1].rvalue.body.exprs.length).to.equal(1);
-            expect(nodes[1].rvalue.body.exprs[0].name).to.equal('assign_existing');
+            expect(nodes[1].rvalue.body.exprs[0].type).to.equal('assign_existing');
          });
       });
    });
@@ -142,7 +142,7 @@ describe('The parser parses', function() {
       ['library(base)'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].name).to.equal('library');
+            expect(nodes[0].type).to.equal('library');
             expect(nodes[0].id).to.equal('base');
          });
       });
@@ -152,20 +152,20 @@ describe('The parser parses', function() {
       ['1:5', '1:(2+3)'].forEach(function(expr) {
          main.parse(expr, function(nodes) {
             expect(nodes.length).to.equal(1);
-            expect(nodes[0].name).to.equal('range');
+            expect(nodes[0].type).to.equal('range');
             expect(nodes[0]).to.contain.keys(['from', 'to']);
          });
       });
       main.parse('2 ^ 1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
-         expect(nodes[0].name).to.equal('range');
-         expect(nodes[0].from.name).to.equal('fun_call');
+         expect(nodes[0].type).to.equal('range');
+         expect(nodes[0].from.type).to.equal('fun_call');
          expect(nodes[0].from.fun.id).to.equal('^');
       });
       main.parse('-1 : 4', function(nodes) {
          expect(nodes.length).to.equal(1);
-         expect(nodes[0].name).to.equal('range');
-         expect(nodes[0].from.name).to.equal('fun_call');
+         expect(nodes[0].type).to.equal('range');
+         expect(nodes[0].from.type).to.equal('fun_call');
          expect(nodes[0].from.fun.id).to.equal('-');
       });
    });
