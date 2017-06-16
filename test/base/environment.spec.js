@@ -219,4 +219,18 @@ describe('Environment handling methods work:', function() {
       expect(evs[3].type).to.equal('list');
       expect(evs[3].value.get(1)).to.equal(evs[3].value.get(3));
    });
+   it('exists', function() {
+      var evs = main.eval('exists("sin", mode = "numeric")\n\
+            exists("sin", mode = "function")\n\
+            sin <- 5; exists("sin", where = 2, mode = "scalar")\n\
+            exists("sin", mode = "scalar")');
+      expect(evs[0].type).to.equal('logical');
+      expect(evs[0].value.get(1)).to.equal(false);
+      expect(evs[1].type).to.equal('logical');
+      expect(evs[1].value.get(1)).to.equal(true);
+      expect(evs[3].type).to.equal('logical');
+      expect(evs[3].value.get(1)).to.equal(false);
+      expect(evs[4].type).to.equal('logical');
+      expect(evs[4].value.get(1)).to.equal(true);
+   });
 });
