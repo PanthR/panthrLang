@@ -41,7 +41,7 @@ define(function(require) {
          'July', 'August', 'September', 'October', 'November', 'December'
       ]));
       addBuiltin('+', function(lst) {
-         if (lst.length() === 1) {
+         if (!lst.has('y')) {
             return Value.wrap(lst.get(1));
          }
          return Value.makeVariable(
@@ -51,7 +51,7 @@ define(function(require) {
          );
       }, configUnaryBinaryOp);
       addBuiltin('-', function(lst) {
-         if (lst.length() === 1) {
+         if (!lst.has('y')) {
             return Value.wrap(lst.get(1).map(function(v) { return -v; }));
          }
          return Value.makeVariable(
@@ -821,7 +821,6 @@ define(function(require) {
          var symbol, wasUndefined;
 
          symbol = lst.get('x');
-
          if (!(symbol instanceof Expression.Symbol)) {
             throw new Error('invalid use of \'missing\'');
          }

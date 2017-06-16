@@ -233,6 +233,10 @@ define(function(require) {
       var processed, i, j, name, formal, params;
 
       processed = new Base.List();
+      processed.has = function(index) {
+         return Base.List.prototype.has.call(this, index) &&
+                typeof processed.get(index) !== 'undefined';
+      };
       params = this.parameters;
 
       // Find named actuals, match them and remove them
@@ -270,6 +274,9 @@ define(function(require) {
             } else if (j <= actuals.length()) {
                processed.set(formal.name, Resolver.resolveValue(formal.types)(actuals.get(j)));
                actuals.delete(j);
+            } else {
+              // this formal has no matching actual
+              processed.set(formal.name, undefined);
             }
          }
       }
