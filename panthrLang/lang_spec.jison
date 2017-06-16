@@ -41,7 +41,7 @@
 '<<-'          return 'LLARROW';
 '<='|'>='|'<'|'>'|'=='|'!='   return yytext;
 '='            return 'EQUALS';
-[:+\-*^/\,()\[\]\{\}\!\|\&]   return yytext;
+[:+\-*^/\,()\[\]\{\}\!\|\&\~]  return yytext;
 '...'          return 'DOTS';
 '$'            return 'DOLLAR';
 '%%'           return 'MOD';
@@ -59,6 +59,7 @@
 %nonassoc 'FUN'
 %nonassoc 'VAR'
 %nonassoc 'LLARROW' 'LARROW' 'EQUALS'
+%nonassoc '~'
 %nonassoc 'FOR' 'WHILE'
 %right 'IF' 'ELSE'
 %left '|' '||'
@@ -116,6 +117,7 @@ expr
    | expr '&&' expr { $$ = Node.funCall(yy.lexer.yylloc, '&&', [$1, $3]); }
    | '+' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '+', [$2]); }
    | '-' expr  %prec UMINUS { $$ = Node.funCall(yy.lexer.yylloc, '-', [$2]); }
+   | '~' expr  %prec '~' { $$ = Node.funCall(yy.lexer.yylloc, '~', [$2]); }
    | expr '+' expr { $$ = Node.funCall(yy.lexer.yylloc, '+', [$1, $3]); }
    | expr '-' expr { $$ = Node.funCall(yy.lexer.yylloc, '-', [$1, $3]); }
    | expr '*' expr { $$ = Node.funCall(yy.lexer.yylloc, '*', [$1, $3]); }
@@ -129,6 +131,7 @@ expr
    | expr '>=' expr { $$ = Node.funCall(yy.lexer.yylloc, '>=', [$1, $3]); }
    | expr '==' expr { $$ = Node.funCall(yy.lexer.yylloc, '==', [$1, $3]); }
    | expr '!=' expr { $$ = Node.funCall(yy.lexer.yylloc, '!=', [$1, $3]); }
+   | expr '~' expr { $$ = Node.funCall(yy.lexer.yylloc, '~', [$1, $3]); }
    | FUN '(' ')' expr { $$ = Node.funDef(yy.lexer.yylloc, [], $4); }
    | FUN '(' formals ')' expr { $$ = Node.funDef(yy.lexer.yylloc, $3, $5); }
    | IF '(' expr ')' expr %prec ELSE { $$ = Node.if(yy.lexer.yylloc, $3, $5); }

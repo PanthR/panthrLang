@@ -120,4 +120,37 @@ describe('The parser handles operators', function() {
          });
       });
    });
+   it('(binary) tilde operator', function() {
+      ['x~y', 'x+y ~ z+w*q/2', 'I(x)~ x^2'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            expect(nodes[0].type).to.equal('fun_call');
+            expect(nodes[0].fun.type).to.equal('variable');
+            expect(nodes[0].fun.id).to.equal('~');
+            expect(nodes[0].args.length).to.equal(2);
+         });
+      });
+   });
+   it('(unary) tilde operator', function() {
+      ['~x', '~x+y', '~f(x) + y^2'].forEach(function(expr) {
+         main.parse(expr, function(nodes) {
+            expect(nodes.length).to.equal(1);
+            expect(nodes[0].type).to.equal('fun_call');
+            expect(nodes[0].fun.type).to.equal('variable');
+            expect(nodes[0].fun.id).to.equal('~');
+            expect(nodes[0].args.length).to.equal(1);
+         });
+      });
+   });
+   it('precedence of tilde operator', function() {
+      main.parse('x <- x~y + z', function(nodes) {
+         expect(nodes[0].type).to.equal('assign');
+         var rvalue = nodes[0].rvalue;
+         expect(rvalue.type).to.equal('fun_call');
+         expect(rvalue.fun.id).to.equal('~');
+         expect(rvalue.args.length).to.equal(2);
+         expect(rvalue.args[1].type).to.equal('fun_call');
+         expect(rvalue.args[1].fun.id).to.equal('+');
+      });
+   });
 });
