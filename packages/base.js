@@ -193,6 +193,32 @@ define(function(require) {
             .addParameter('y', 'boolean', true);
       });
 
+      addBuiltin('~', function(lst) {
+         var components;
+
+         components = [
+            new Expression.Symbol('~'),
+            lst.get('model')
+         ];
+         if (lst.has('y')) {
+            components.splice(1, 0, lst.get('y'));
+         }
+
+         return Value.makeExpression(new Expression(components));
+      }, function(resolver) {
+         resolver.addParameter('y', 'expression', false)
+            .addParameter('model', 'expression', false)
+            .addNormalize(function(lst) {
+               if (!lst.has('model')) {
+                  if (!lst.has('y')) {
+                     throw new Error('formula needs one or two arguments');
+                  }
+                  lst.set('model', lst.get('y'));
+                  lst.set('y', undefined);
+               }
+            });
+      });
+
       addBuiltin('list', function(lst) {
          return Value.makeList(lst.get('...').clone());
       }, function(resolver) { resolver.addDots(); });

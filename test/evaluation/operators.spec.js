@@ -1,4 +1,5 @@
 var main = require('../..');
+var Expression = require('../../panthrLang/expression');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -97,5 +98,26 @@ describe('The evaluator', function() {
          expect(res.type).to.equal('logical');
          expect(res.value.toArray()).to.deep.equal(pair[1]);
       });
+   });
+   it('evaluates tilde operator', function() {
+      var evs;
+
+      evs = main.eval('a~b; ~x');
+      expect(evs.length).to.equal(2);
+
+      expect(evs[0].type).to.equal('expression');
+      expect(evs[0].value).to.be.instanceOf(Expression);
+      expect(evs[0].value.get(1)).to.be.instanceOf(Expression.Symbol);
+      expect(evs[0].value.get(1).id).to.equal('~');
+      expect(evs[0].value.length()).to.equal(3);
+      expect(evs[0].value.get(2).id).to.equal('a');
+      expect(evs[0].value.get(3).id).to.equal('b');
+
+      expect(evs[1].type).to.equal('expression');
+      expect(evs[1].value).to.be.instanceOf(Expression);
+      expect(evs[1].value.get(1)).to.be.instanceOf(Expression.Symbol);
+      expect(evs[1].value.get(1).id).to.equal('~');
+      expect(evs[1].value.length()).to.equal(2);
+      expect(evs[1].value.get(2).id).to.equal('x');
    });
 });
