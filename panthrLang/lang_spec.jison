@@ -18,6 +18,7 @@
 <singlequote>(\\.|[^'])*   return 'STRING';
 
 [ \t]+         {/* skip whitespace */}
+\#[^\n]*\n     {}
 0x[0-9a-fA-F]+ return 'HEXNUM';
 ((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)? return 'NUM';
 \n|';'         return 'EOL';
@@ -82,6 +83,7 @@
 
 expression
    : exprList EOF { yy.emit($1); }
+   | EOF { yy.emit([]); }
    ;
 
 exprList

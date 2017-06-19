@@ -169,4 +169,44 @@ describe('The parser parses', function() {
          expect(nodes[0].from.fun.id).to.equal('-');
       });
    });
+
+   it('comments that are on their own', function() {
+      main.parse('#hey you\n', function(nodes) {
+         console.log(nodes[0])
+         expect(nodes.length).to.equal(0);
+      });
+
+      main.parse('#hey you\n   #whats up?\n', function(nodes) {
+         expect(nodes.length).to.equal(0);
+      });
+   });
+
+   it('comments that are embedded in other expressions', function() {
+      main.parse('#hey you\n 75  #whats up?\n', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].type).to.equal('number');
+      });
+
+      main.parse('(2+#dlaskjflasfk\n3)', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].type).to.equal('parens');
+         expect(nodes[0].expr.type).to.equal('fun_call');
+         expect(nodes[0].expr.args[1].type).to.equal('number');
+      });
+
+      main.parse('(2+3#dlaskjflasfk\n)', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].type).to.equal('parens');
+         expect(nodes[0].expr.type).to.equal('fun_call');
+         expect(nodes[0].expr.args[1].type).to.equal('number');
+      });
+
+      main.parse('f(#hey  \n,3)', function(nodes) {
+         expect(nodes.length).to.equal(1);
+         expect(nodes[0].type).to.equal('fun_call');
+         expect(nodes[0].args.length).to.equal(2);
+         expect(nodes[0].args[0].type).to.equal('arg_empty');
+         expect(nodes[0].args[1].type).to.equal('number');
+      });
+   });
 });
