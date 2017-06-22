@@ -80,11 +80,14 @@ define(function(require) {
     *     - Range, assignments and bracket indexing are treated as functions.
     */
    Expression.maker = function(node) {
-      var maker;
+      var maker, expr;
 
       maker = new ExpressionMaker();
 
-      return maker.visit(node);
+      expr = maker.visit(node);
+      expr.node = node;
+
+      return expr;
    };
 
    // Used for the prototype
