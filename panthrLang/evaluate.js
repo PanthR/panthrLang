@@ -46,6 +46,11 @@ define(function(require) {
       // Returns the array of results.
       parseAndEval: function(str) {
          return this.parseThenEval(str, this.global);
+      },
+      // Loads base packages
+      initialSetup: function() {
+         this.parseAndEval('library(base)');
+         this.parseAndEval('library(stats)');
       }
    };
 

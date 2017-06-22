@@ -49,8 +49,7 @@ define(function(require) {
          var ev;
 
          ev = new Evaluate();
-         ev.parseAndEval('library(base)');
-         ev.parseAndEval('library(stats)');
+         ev.initialSetup();
 
          return ev.parseAndEval(str);
       }
