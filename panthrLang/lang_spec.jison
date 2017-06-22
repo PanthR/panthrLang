@@ -25,7 +25,6 @@
 '&&'           return '&&';
 '||'           return '||';
 'function'     return 'FUN';
-'fun'          return 'FUN';
 'if'           return 'IF';
 'else'         return 'ELSE';
 'while'        return 'WHILE';
