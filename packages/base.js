@@ -10,7 +10,7 @@ define(function(require) {
 
 // It needs to always return a function with the following signature:
    /* eslint-disable max-statements */
-   return function(evalLang, addBuiltin, Value, addBinding) {
+   return function(evalLang, addBuiltin, Value, addBinding, basePackageInstance) {
       // It can call on each of these to create new bindings.
       // For instance we could do:
       // evalLang('foo <- 3.1456'); where the string '3.1456' will be evaluated
@@ -21,6 +21,52 @@ define(function(require) {
       // to return an appropriate value of type "Value".
       // All built-in functions should expect a Base.List
       //
+      addBuiltin('.Internal', function(lst, dynEnv, evalInstance) {
+         var expr, methodName, builtin, callStackEntry, returnValue;
+
+         expr = lst.get('expr');
+         if (!expr instanceof Expression ||
+             !expr.hasOwnProperty('node') ||
+              expr.node.type !== 'fun_call') {
+            throw new Error('.Internal invalid argument');
+         }
+         methodName = expr.node.fun.id;
+         builtin = basePackageInstance.global.builtins[methodName];
+         if (builtin == null) {
+            throw new Error('There is no .Internal function ' + methodName);
+         }
+         // internal methods are not supposed to change call stack.
+         // But since they are coming from closure calls, they already have.
+         // We must temporarily remove the last entry and restore it before returning.
+         callStackEntry = evalInstance.callStack.peek();
+         evalInstance.callStack.pop();
+         returnValue = evalInstance.evalCall(
+            builtin,
+            evalInstance.evalActuals(expr.node.args, dynEnv),
+            null, // no location
+            evalInstance.getFrameOfTop()// Need to use the same environment for builtin and closure
+         );
+         evalInstance.callStack.push(callStackEntry);
+
+         return returnValue;
+      }, function(resolver) {
+         resolver.addParameter('expr', 'expression', true);
+      }, false);  // false makes it added to normal lookup path.
+
+      addBuiltin('.Primitive', function(lst) {
+         var builtin;
+
+         builtin = basePackageInstance.global.builtins[lst.get('name')];
+
+         if (builtin == null) {
+            throw new Error('Unknown primitive function ' + lst.get('name'));
+         }
+
+         return builtin;
+      }, function(resolver) {
+         resolver.addParameter('name', 'string', true);
+      }, false);
+
       addBinding('pi', Value.wrap(Math.PI));
       addBinding('LETTERS', Value.makeString([
          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -679,12 +725,9 @@ define(function(require) {
          resolver.addParameter('fun', ['function'])
             .addParameter('value', ['env']);
       });
-      // immediate function invocation
-      (function(baseenv) {
-         addBuiltin('baseenv', function(lst, env) {
-            return Value.wrap(baseenv);
-         });
-      }(evalLang('environment()')[0].value));
+      addBuiltin('baseenv', function(lst, env) {
+         return Value.wrap(basePackageInstance.global);
+      });
       addBuiltin('emptyenv', function(lst) {
          return Value.wrap(Environment.emptyenv);
       });
@@ -772,15 +815,8 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', 'string', true)
             .addParameter('value', 'any', true)
-            .addParameter('pos', ['number', 'env', 'character'])
             .addParameter('envir', 'env')
-            .addParameter('inherits', 'boolean')
-            .addParameter('immediate', 'boolean')
-            .addDefault('pos', '-1')
-            .addDefault('envir', 'as.environment(pos)')
-            .addDefault('inherits', 'FALSE')
-            .addDefault('immediate', 'TRUE')
-            .addNormalize(normalizeFieldToString('pos'));
+            .addParameter('inherits', 'boolean');
       });
       addBuiltin('get', function(lst, dynEnv, evalInstance) {
          var x, env, inherits, mode, modeFun, foundValue;
@@ -802,15 +838,9 @@ define(function(require) {
          return Value.wrap(foundValue);
       }, function(resolver) {
          resolver.addParameter('x', 'string', true)
-            .addParameter('pos', ['number', 'env', 'character'])
             .addParameter('envir', 'env')
             .addParameter('mode', 'string')
-            .addParameter('inherits', 'boolean')
-            .addDefault('pos', '-1')
-            .addDefault('envir', 'as.environment(pos)')
-            .addDefault('mode', function() { return 'any'; })
-            .addDefault('inherits', 'TRUE')
-            .addNormalize(normalizeFieldToString('pos'));
+            .addParameter('inherits', 'boolean');
       });
       addBuiltin('exists', function(lst, dynEnv, evalInstance) {
          var x, env, inherits, mode, modeFun, foundValue;
@@ -830,16 +860,9 @@ define(function(require) {
          return Value.wrap(foundValue != null);
       }, function(resolver) {
          resolver.addParameter('x', 'string', true)
-            .addParameter('where', ['number', 'env', 'character'])
             .addParameter('envir', 'env')
-            .addParameter('frame', 'number')
             .addParameter('mode', 'string')
-            .addParameter('inherits', 'boolean')
-            .addDefault('where', '-1')
-            .addDefault('mode', function() { return 'any'; })
-            .addDefault('inherits', 'TRUE')
-            .addDefault('envir', 'if (missing(frame)) as.environment(where) else sys.frame(frame)')
-            .addNormalize(normalizeFieldToString('where'));
+            .addParameter('inherits', 'boolean');
       });
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
@@ -862,11 +885,94 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', 'expression', true);
       });
-      // TODO: Add a whole lot more here.
+      // TODO: Add a whole lot more here
 
-   };
+      evalLang('`+` <- .Primitive("+")');
+      evalLang('`-` <- .Primitive("-")');
+      evalLang('`*` <- .Primitive("*")');
+      evalLang('`/` <- .Primitive("/")');
+      evalLang('`^` <- .Primitive("^")');
+      evalLang('`%/%` <- .Primitive("%/%")');
+      evalLang('`%%` <- .Primitive("%%")');
+      evalLang('`>` <- .Primitive(">")');
+      evalLang('`<` <- .Primitive("<")');
+      evalLang('`>=` <- .Primitive(">=")');
+      evalLang('`<=` <- .Primitive("<=")');
+      evalLang('`==` <- .Primitive("==")');
+      evalLang('`!=` <- .Primitive("!=")');
+      evalLang('`!` <- .Primitive("!")');
+      evalLang('`&` <- .Primitive("&")');
+      evalLang('`xor` <- .Primitive("xor")');
+      evalLang('`|` <- .Primitive("|")');
+      evalLang('`||` <- .Primitive("||")');
+      evalLang('`&&` <- .Primitive("&&")');
+      evalLang('`~` <- .Primitive("~")');
+      evalLang('`list` <- .Primitive("list")');
+      evalLang('`names` <- .Primitive("names")');
+      evalLang('`names<-` <- .Primitive("names<-")');
+      evalLang('`c` <- .Primitive("c")');
+      evalLang('`$` <- .Primitive("$")');
+      evalLang('`$<-` <- .Primitive("$<-")');
+      evalLang('`[` <- .Primitive("[")');
+      evalLang('`[<-` <- .Primitive("[<-")');
+      evalLang('`[[` <- .Primitive("[[")');
+      evalLang('`[[<-` <- .Primitive("[[<-")');
+      evalLang('`sin` <- .Primitive("sin")');
+      evalLang('`cos` <- .Primitive("cos")');
+      evalLang('`tan` <- .Primitive("tan")');
+      evalLang('`asin` <- .Primitive("asin")');
+      evalLang('`acos` <- .Primitive("acos")');
+      evalLang('`atan` <- .Primitive("atan")');
+      evalLang('`atan2` <- .Primitive("atan2")');
+      evalLang('`exp` <- .Primitive("exp")');
+      evalLang('`expm1` <- .Primitive("expm1")');
+      evalLang('`log` <- .Primitive("log")');
+      evalLang('`log10` <- .Primitive("log10")');
+      evalLang('`log2` <- .Primitive("log2")');
+      evalLang('`log1p` <- .Primitive("log1p")');
+      evalLang('`abs` <- .Primitive("abs")');
+      evalLang('`sqrt` <- .Primitive("sqrt")');
+      evalLang('`floor` <- .Primitive("floor")');
+      evalLang('`ceiling` <- .Primitive("ceiling")');
+      evalLang('`gamma` <- .Primitive("gamma")');
+      evalLang('`lgamma` <- .Primitive("lgamma")');
+      evalLang('`beta` <- .Primitive("beta")');
+      evalLang('`lbeta` <- .Primitive("lbeta")');
+      evalLang('`choose` <- .Primitive("choose")');
+      evalLang('`lchoose` <- .Primitive("lchoose")');
+      evalLang('`seq` <- .Primitive("seq")');
+      evalLang('`cumsum` <- .Primitive("cumsum")');
+      evalLang('`cumprod` <- .Primitive("cumprod")');
+      evalLang('`cummax` <- .Primitive("cummax")');
+      evalLang('`cummin` <- .Primitive("cummin")');
+      evalLang('`diff` <- .Primitive("diff")'); // TODO: should UseMethod
+      evalLang('`quote` <- .Primitive("quote")');
+      evalLang('environment <- function(fun = NULL) { .Internal(environment(fun)) }');
+      evalLang('`environment<-` <- .Primitive("environment<-")');
+      evalLang('`baseenv` <- .Primitive("baseenv")');
+      evalLang('`emptyenv` <- .Primitive("emptyenv")');
+      evalLang('`globalenv` <- .Primitive("globalenv")');
+      evalLang('`search` <- .Primitive("search")');
+      evalLang('`environmentName` <- function(env) { .Internal(environmentName(env)) }');
+      evalLang('parent.frame <- function(n = 1) { .Internal(parent.frame(n)) }');
+      evalLang('sys.frame <- function(which = 0) { .Internal(sys.frame(which)) }');
+      evalLang('new.env <- function(parent = parent.frame(), hash = TRUE, size = 29) { \
+            .Internal(new.env(parent, hash, size)) \
+         }');
+      evalLang('`parent.env` <- .Primitive("parent.env")');
+      evalLang('`as.environment` <- .Primitive("as.environment")');
+      evalLang('assign <- function (x, value, pos = -1, envir = as.environment(pos), inherits = FALSE, \
+         immediate = TRUE)  { .Internal(assign(x, value, envir, inherits)) }');
+      evalLang('get <- function (x, pos = -1, envir = as.environment(pos), mode = "any", \
+         inherits = TRUE) { .Internal(get(x, envir, mode, inherits)) }');
+      evalLang('exists <- function (x, where = -1, \
+            envir = if (missing(frame)) as.environment(where) else sys.frame(frame), \
+            frame, mode = "any", inherits = TRUE) { \
+         .Internal(exists(x, envir, mode, inherits)) \
+      }');
+      evalLang('`missing` <- .Primitive("missing")');
    /* eslint-enable max-statements */
-
+   };
    // Helper functions
    function doDiv(v1, v2) {
       return Math.floor(v1 / v2);
@@ -910,21 +1016,6 @@ define(function(require) {
 
    function configSingleScalar(resolver) {
       resolver.addParameter('x', 'scalar', true);
-   }
-
-   function normalizeFieldToString(fieldName) {
-      return function(lst) {
-         var fieldValue;
-
-         fieldValue = lst.get(fieldName);
-         if (fieldValue instanceof Base.Variable) {
-            // error for length 0, else use 1st entry
-            if (fieldValue.length() === 0) {
-               throw new Error('cannot convert variable of length 0 to string');
-            }
-            lst.set(fieldName, fieldValue.get(1));
-         }
-      };
    }
 });
 

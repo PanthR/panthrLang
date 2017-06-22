@@ -9,6 +9,7 @@ describe('Environment handling methods work:', function() {
       expect(evs.length).to.equal(1);
       expect(evs[0].type).to.equal('env');
       expect(evs[0].value.isGlobal).to.equal(true);
+      expect(evs[0].value.name).to.equal('.GlobalEnv');
    });
    it('environment(fun) returns closure\'s environment', function() {
       var evs = main.eval('f = function(){function(){}}; g = f(); \
@@ -102,6 +103,12 @@ describe('Environment handling methods work:', function() {
       var len = evs[0].value.length();
       expect(evs[0].value.get(1)).to.match(/globalenv/i);
       expect(evs[0].value.get(len)).to.match(/base/i);
+   });
+   it('simple assign', function() {
+      var evs = main.eval('assign("x", 1:2); x');
+      expect(evs.length).to.equal(2);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([1,2]);
    });
    it('assign with pos = -1 or 1', function() {
       var evs = main.eval('f=function(){assign("x",2:4,-1); assign("x",1:2,1); x}; f(); x');
@@ -206,7 +213,7 @@ describe('Environment handling methods work:', function() {
    it('as.environment', function() {
       var evs = main.eval('f=function(){as.environment(-1)}; f(); environment()');
       expect(evs.length).to.equal(3);
-      expect(evs[1].value.enclosure).to.equal(evs[2].value);
+      expect(evs[1].value.getEnclosure()).to.equal(evs[2].value);
 
       evs = main.eval('f=function(x=as.environment(-1)){z=as.environment(-1); \
          list(x=x,y=as.environment(-1),z=z)}; f(); \

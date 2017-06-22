@@ -148,22 +148,32 @@ define(function(require) {
       if (newEval == null) {
          // Eval environment for the package
          newEval = new Evaluate(global.getEnclosure());
+         newEval.global.builtins = {};
          // Load the package, adding to the newEval's environment.
          packages[packageName](
             function evalLang(str) {
                return newEval.parseAndEval(str);
             },
-            function addBuiltin(name, f, config) {
+            function addBuiltin(name, f, config, keepInternal) {
                var resolver;
 
+               // keepInternal is true except for those "internal" methods that
+               // are to be accessed via normal name lookup rather than calling
+               // .Internal. One such method is ".Internal" itself.
+               keepInternal = keepInternal !== false;
                resolver = new Resolver();
                if (config != null) { config(resolver); }
-               newEval.global.store(name, Value.makeBuiltin(f, resolver));
+               if (keepInternal) {
+                  newEval.global.storeBuiltin(name, Value.makeBuiltin(f, resolver));
+               } else {
+                  newEval.global.store(name, Value.makeBuiltin(f, resolver));
+               }
             },
             Value,
             function addBinding(name, value) {
                newEval.global.store(name, value);
-            }
+            },
+            newEval // Most packages should not use this argument. But base needs to.
          );
          // Now we need to set the package's global to the proper place in
          // the search path.

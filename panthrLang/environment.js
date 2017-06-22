@@ -67,6 +67,17 @@ define(function(require) {
 
          return this;
       },
+      // Stores in the special "builtin" table. Creates it if it does not exist.
+      // Will not overwrite existing symbols.
+      storeBuiltin: function storeBuiltin(symbol, value) {
+         if (!this.hasOwnProperty('builtins')) { this.builtins = {}; }
+         if (this.builtins.hasOwnProperty(symbol)) {
+            throw new Error('Cannot overwrite builtin: ' + symbol);
+         }
+         this.builtins[symbol] = value;
+
+         return this;
+      },
       // Returns whether the environment itself has a symbol
       hasOwnSymbol: function hasOwnSymbol(symbol) {
          return this.frame.hasOwnProperty(symbol);
