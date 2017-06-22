@@ -16,7 +16,11 @@ define(function(require) {
    CallStack.prototype = {
       length: function() { return this.entries.length; },
       push: function(dynamicEnv, bodyEnv, fun, call) {
-         this.entries.push(new CallStackEntry(dynamicEnv, bodyEnv, fun, call));
+         if (dynamicEnv instanceof CallStackEntry) {
+            this.entries.push(dynamicEnv);
+         } else {
+            this.entries.push(new CallStackEntry(dynamicEnv, bodyEnv, fun, call));
+         }
       },
       pop: function() {
          this.entries.pop();
