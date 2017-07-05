@@ -172,7 +172,6 @@ describe('The parser parses', function() {
 
    it('comments that are on their own', function() {
       main.parse('#hey you\n', function(nodes) {
-         console.log(nodes[0])
          expect(nodes.length).to.equal(0);
       });
 
