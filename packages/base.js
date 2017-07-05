@@ -53,6 +53,39 @@ define(function(require) {
          resolver.addParameter('expr', 'expression', true);
       }, false);  // false makes it added to normal lookup path.
 
+      addBuiltin('.Call', function(lst, dynEnv, evalInstance) {
+         var name, methodName, builtin, callStackEntry, returnValue;
+
+         // TODO: We are currently ignoring the PACKAGE value
+         name = lst.get('.NAME');
+         if (name instanceof Expression.Literal) {
+            methodName = name.value;
+         } else {
+            methodName = name.id;
+         }
+         builtin = evalInstance.getFrameOfTop()
+                     .getEnclosure().builtins[methodName];
+         if (builtin == null) {
+            throw new Error('Unknown external function ' + methodName);
+         }
+         // See corresponding comment in .Internal
+         // we could possibly consider not messing with the call stack here
+         callStackEntry = evalInstance.callStack.peek();
+         evalInstance.callStack.pop();
+
+         // We must directly call the function, since the arguments are already resolved
+         returnValue = builtin.value.call(evalInstance, lst.get('...')
+                              .map(Value.wrap.bind(Value)), dynEnv);
+
+         evalInstance.callStack.push(callStackEntry);
+
+         return returnValue;
+      }, function(resolver) {
+         resolver.addParameter('.NAME', 'expression', true)
+            .addDots()
+            .addParameter('PACKAGE', 'string');
+      });
+
       addBuiltin('.Primitive', function(lst) {
          var builtin;
 
@@ -887,6 +920,7 @@ define(function(require) {
       });
       // TODO: Add a whole lot more here
 
+      evalLang('`.Call` <- .Primitive(".Call")');
       evalLang('`+` <- .Primitive("+")');
       evalLang('`-` <- .Primitive("-")');
       evalLang('`*` <- .Primitive("*")');

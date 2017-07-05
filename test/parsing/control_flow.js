@@ -48,6 +48,23 @@ describe('The parser parses', function() {
          expect(nodes[0].else).to.equal(undefined);
       });
    });
+   it('more complicated if', function() {
+      main.parse('\
+         if (!missing(rate) && !missing(scale)) {\
+            if (abs(rate * scale - 1) < 1e-15) \
+               warning("specify \\"rate\\" or \\"scale\\" but not both")\
+            else stop("specify \\"rate\\" or \\"scale\\" but not both")\
+         }', function(nodes) {
+            expect(nodes.length).to.equal(1);
+            expect(nodes[0].type).to.equal('if');
+            expect(nodes[0].test.type).to.equal('fun_call');
+            expect(nodes[0].test.fun.id).to.equal('&&');
+            expect(nodes[0].then.type).to.equal('block');
+            expect(nodes[0].then.exprs.length).to.equal(1);
+            expect(nodes[0].then.exprs[0].type).to.equal('if');
+            expect(nodes[0].else).to.equal(undefined);
+         });
+   });
    it('while expressions', function() {
       main.parse('while (TRUE) 3', function(nodes) {
          expect(nodes.length).to.equal(1);

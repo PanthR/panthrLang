@@ -51,7 +51,7 @@ describe('The stats package', function() {
 
    });
    it('contains pnorm', function() {
-      var evs = main.eval('pnorm(3, 1, 1, log=TRUE); pnorm(44:45, 50, 3, log.p=TRUE); pnorm(2, mean=c(1, 5), sd=1:4, lower.tail=FALSE)');
+      var evs = main.eval('pnorm(3, 1, 1, log.p=TRUE); pnorm(44:45, 50, 3, log.p=TRUE); pnorm(2, mean=c(1, 5), sd=1:4, lower.tail=FALSE)');
 
       expect(evs[0].type).to.equal('scalar');
       expect(evs[0].value.length()).to.equal(1);
@@ -70,7 +70,7 @@ describe('The stats package', function() {
       expect(evs[2].value.get(4)).to.be.above(0.5);
    });
    it('contains qnorm', function() {
-      var evs = main.eval('qnorm(-3, 1, 1, log=TRUE); qnorm(-2:-1, 50, 3, log.p=TRUE); qnorm(.2, mean=c(1, 5), sd=1:4, lower.tail=FALSE)');
+      var evs = main.eval('qnorm(-3, 1, 1, log.p=TRUE); qnorm(-2:-1, 50, 3, log.p=TRUE); qnorm(.2, mean=c(1, 5), sd=1:4, lower.tail=FALSE)');
 
       expect(evs[0].type).to.equal('scalar');
       expect(evs[0].value.length()).to.equal(1);
