@@ -34,3 +34,15 @@ describe('Implement "missing":', function() {
       expect(evs[3].value.toArray()).to.deep.equal([1]);
    });
 });
+describe('Implement "is... primitives":', function() {
+   it('is.null', function() {
+      var evs = main.eval('is.null(NULL); is.null(list()); is.null(0)');
+
+      expect(evs[0].type).to.equal('logical');
+      expect(evs[0].value.toArray()).to.deep.equal([true]);
+      expect(evs[1].type).to.equal('logical');
+      expect(evs[1].value.toArray()).to.deep.equal([false]);
+      expect(evs[2].type).to.equal('logical');
+      expect(evs[2].value.toArray()).to.deep.equal([false]);
+   });
+});

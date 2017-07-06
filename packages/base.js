@@ -854,6 +854,11 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', 'expression', true);
       });
+      addBuiltin('is.null', function(lst) {
+         return lst.get('x') === null;
+      }, function(resolver) {
+         resolver.addParameter('x', 'any', true);
+      });
       // TODO: Add a whole lot more here
 
       evalLang('`.Call` <- .Primitive(".Call")');
@@ -941,6 +946,7 @@ define(function(require) {
          .Internal(exists(x, envir, mode, inherits)) \
       }');
       evalLang('`missing` <- .Primitive("missing")');
+      evalLang('`is.null` <- .Primitive("is.null")');
 
       // Updates the environment from a provided list; uses Value
       function updateEnvironmentFromList(lst, env) {
