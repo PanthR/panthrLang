@@ -152,7 +152,17 @@ define(function(require) {
          // Load the package, adding to the newEval's environment.
          packages[packageName](
             function evalLang(str) {
-               return newEval.parseAndEval(str);
+               var res;
+
+               res = newEval.parseAndEval(str);
+               // check the resulting array for errors
+               res.forEach(function(v) {
+                  if (v.type === 'error') {
+                     throw new Error(v.value.message);
+                  }
+               });
+
+               return res;
             },
             function addBuiltin(name, f, config, keepInternal) {
                var resolver;
