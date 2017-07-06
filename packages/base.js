@@ -831,9 +831,18 @@ define(function(require) {
          resolver.addParameter('env', 'env', true);
       });
       addBuiltin('as.environment', function(lst, dynEnv, evalInstance) {
-         return Value.wrap(evalInstance.search(lst.get('x')));
+         var x;
+
+         x = lst.get('x');
+         if (x instanceof Base.List) {
+            return Value.wrap(
+               updateEnvironmentFromList(x, Environment.emptyenv.extend())
+            );
+         }
+
+         return Value.wrap(evalInstance.search(x));
       }, function(resolver) {
-         resolver.addParameter('x', ['number', 'string', 'env'], true);
+         resolver.addParameter('x', ['number', 'string', 'env', 'list'], true);
       });
       addBuiltin('assign', function(lst, dynEnv, evalInstance) {
          var x, value, env, inherits;
@@ -1005,6 +1014,17 @@ define(function(require) {
          .Internal(exists(x, envir, mode, inherits)) \
       }');
       evalLang('`missing` <- .Primitive("missing")');
+
+      // Updates the environment from a provided list; uses Value
+      function updateEnvironmentFromList(lst, env) {
+         lst.each(function(v, ind, name) {
+            if (name !== null) {
+               env.store(name, Value.wrap(v));
+            }
+         });
+
+         return env;
+      }
    /* eslint-enable max-statements */
    };
    // Helper functions

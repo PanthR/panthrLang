@@ -82,6 +82,9 @@ define(function(require) {
       hasOwnSymbol: function hasOwnSymbol(symbol) {
          return this.frame.hasOwnProperty(symbol);
       },
+      getOwnSymbols: function getOwnSymbols() {
+         return Object.keys(this.frame).sort();
+      },
       // Searches for an environment containing the symbol, starting from
       // `this` environment.
       getEnvironmentForSymbol: function getEnvironmentForSymbol(symbol) {

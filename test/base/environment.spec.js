@@ -226,6 +226,15 @@ describe('Environment handling methods work:', function() {
       expect(evs[3].type).to.equal('list');
       expect(evs[3].value.get(1)).to.equal(evs[3].value.get(3));
    });
+   it('as.environment with a list argument', function() {
+      var evs = main.eval('as.environment(list(x=1:3, y=2:4)); emptyenv()');
+      expect(evs.length).to.equal(2);
+      expect(evs[0].type).to.equal('env');
+      expect(evs[0].value.getEnclosure()).to.equal(evs[1].value);
+      expect(evs[0].value.hasOwnSymbol('x')).to.equal(true);
+      expect(evs[0].value.hasOwnSymbol('y')).to.equal(true);
+      expect(evs[0].value.getOwnSymbols().length).to.equal(2);
+   });
    it('exists', function() {
       var evs = main.eval('exists("sin", mode = "numeric")\n\
             exists("sin", mode = "function")\n\
