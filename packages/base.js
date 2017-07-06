@@ -120,141 +120,122 @@ define(function(require) {
          'July', 'August', 'September', 'October', 'November', 'December'
       ]));
       addBuiltin('+', function(lst) {
-         if (!lst.has('y')) {
-            return Value.wrap(lst.get(1));
-         }
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x + y;
-            }, 'scalar')
+         if (!lst.has('y')) { return lst.get(1); }
+
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x + y; }, 'scalar'
          );
       }, configUnaryBinaryOp);
       addBuiltin('-', function(lst) {
          if (!lst.has('y')) {
-            return Value.wrap(lst.get(1).map(function(v) { return -v; }));
+            return lst.get(1).map(function(v) { return -v; });
          }
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x - y;
-            }, 'scalar')
+
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x - y; }, 'scalar'
          );
       }, configUnaryBinaryOp);
       addBuiltin('*', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x * y;
-            }, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x * y; }, 'scalar'
          );
       }, configArithOp);
       addBuiltin('/', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x / y;
-            }, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x / y; }, 'scalar'
          );
       }, configArithOp);
       addBuiltin('^', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return Math.pow(x, y);
-            }, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return Math.pow(x, y); }, 'scalar'
          );
       }, configArithOp);
       addBuiltin('%/%', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return doDiv(x, y);
-            }, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return doDiv(x, y); }, 'scalar'
          );
       }, configArithOp);
       addBuiltin('%%', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return doMod(x, y);
-            }, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return doMod(x, y); }, 'scalar'
          );
       }, configArithOp);
       addBuiltin('>', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x > y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x > y; }, 'logical'
          );
       }, configCompOp);
       addBuiltin('<', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x < y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x < y; }, 'logical'
          );
       }, configCompOp);
       addBuiltin('>=', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x >= y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x >= y; }, 'logical'
          );
       }, configCompOp);
       addBuiltin('<=', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x <= y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x <= y; }, 'logical'
          );
       }, configCompOp);
       addBuiltin('==', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x === y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x === y; }, 'logical'
          );
       }, configCompOp);
       addBuiltin('!=', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x !== y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x !== y; }, 'logical'
          );
       }, configCompOp);
       addBuiltin('!', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) { return !x; }, 'logical')
-         );
+         return lst.get(1).map(function(x) { return !x; }, 'logical');
       }, function(resolver) {
          resolver.addParameter('x', 'logical', true);
       });
 
       addBuiltin('|', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x || y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x || y; }, 'logical'
          );
       }, configLogicOp);
 
       addBuiltin('&', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
-               return x && y;
-            }, 'logical')
+         return Base.Variable.mapPair(
+            lst.get(1), lst.get(2),
+            function(x, y) { return x && y; }, 'logical'
          );
       }, configLogicOp);
 
       addBuiltin('xor', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get(1), lst.get(2), function(x, y) {
+         return Base.Variable.mapPair(lst.get(1), lst.get(2),
+            function(x, y) {
                return Base.utils.isMissing(x) || Base.utils.isMissing(y) ?
                   Base.utils.missing
                   : x !== y;
-            }, 'logical')
+            }, 'logical'
          );
       }, configLogicOp);
 
       addBuiltin('||', function(lst) {
-         return Value.makeVariable(
-            new Base.Variable([lst.get(1) || lst.get(2)],
-               { mode: 'logical' }
-            )
+         return new Base.Variable(
+            [lst.get(1) || lst.get(2)], { mode: 'logical' }
          );
       }, function(resolver) {
          resolver.addParameter('x', 'boolean', true)
@@ -262,10 +243,8 @@ define(function(require) {
       });
 
       addBuiltin('&&', function(lst) {
-         return Value.makeVariable(
-            new Base.Variable([lst.get(1) && lst.get(2)],
-               { mode: 'logical' }
-            )
+         return new Base.Variable(
+            [lst.get(1) && lst.get(2)], { mode: 'logical' }
          );
       }, function(resolver) {
          resolver.addParameter('x', 'boolean', true)
@@ -283,7 +262,7 @@ define(function(require) {
             components.splice(1, 0, lst.get('y'));
          }
 
-         return Value.makeExpression(new Expression(components));
+         return new Expression(components);
       }, function(resolver) {
          resolver.addParameter('y', 'expression', false)
             .addParameter('model', 'expression', false)
@@ -299,7 +278,7 @@ define(function(require) {
       });
 
       addBuiltin('list', function(lst) {
-         return Value.makeList(lst.get('...').clone());
+         return lst.get('...').clone();
       }, function(resolver) { resolver.addDots(); });
 
       addBuiltin('names', function(lst) {
@@ -307,30 +286,25 @@ define(function(require) {
 
          names = lst.get('x').names();
          if (Base.utils.isMissing(names)) {
-            return Value.makeNull();
+            return null;
          }
 
-         return Value.makeVariable(lst.get('x').names());
+         return lst.get('x').names();
       }, function(resolver) {
          resolver.addParameter('x', ['variable', 'list'], true);
       });
 
       addBuiltin('names<-', function(lst) {
          lst.get('x').names(lst.get('value')); // names as setter
-         return Value.wrap(lst.get('x'));
+
+         return lst.get('x');
       }, function(resolver) {
          resolver.addParameter('x', ['variable', 'list'], true)
             .addParameter('value', 'variable', true);
       });
 
       addBuiltin('c', function(lst) {
-         var res;
-
-         res = lst.get('...').concat(lst.get('recursive'));
-         if (res instanceof Base.Variable) {
-            return Value.makeVariable(res);
-         }
-         return Value.makeList(res);
+         return lst.get('...').concat(lst.get('recursive'));
       }, function(resolver) {
          resolver.addDots()
             .addParameter('recursive', 'boolean', false)
@@ -343,10 +317,10 @@ define(function(require) {
          obj = lst.get('x');
          subscript = lst.get('i');
          if (obj === null || !obj.has(subscript)) {
-            return Value.makeNull();
+            return null;
          }
 
-         return Value.wrap(obj.get(subscript));
+         return obj.get(subscript);
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'null'], true)
             .addParameter('i', 'expression', true)
@@ -366,11 +340,9 @@ define(function(require) {
 
          obj = lst.get('x');
 
-         if (obj === null) { return Value.makeNull(); }
+         if (obj === null) { return null; }
 
-         obj.set(lst.get('i'), lst.get('value'));
-
-         return Value.wrap(obj);
+         return obj.set(lst.get('i'), lst.get('value'));
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'null'], true)
             .addParameter('i', 'expression', true)
@@ -391,12 +363,12 @@ define(function(require) {
 
          x = lst.get('x');
          index = lst.get('i');
-         if (x == null) { return Value.wrap(null); }
+         if (x == null) { return null; }
          if (!lst.has('i') || lst.has('j') || lst.get('...').length() > 0) {
             throw new Error('incorrect number of subscripts');
          }
 
-         return Value.wrap(x.deepGet(index));
+         return x.deepGet(index);
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'null'], true)
             .addParameter('i', ['scalar', 'character', 'null'])
@@ -414,9 +386,8 @@ define(function(require) {
          if (lst.has('j') || lst.get('...').length() > 0) {
             throw new Error('Incorrect number of subscripts');
          }
-         x.deepSet(i, lst.get('value'));
 
-         return Value.wrap(x);
+         return x.deepSet(i, lst.get('value'));
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'null'], true)
             .addParameter('i', ['scalar', 'character', 'null'])
@@ -431,8 +402,9 @@ define(function(require) {
          x = lst.get('x');
          dots = lst.get('...');
          // x is either a list, a variable, or null
-         if (x == null) { return Value.wrap(null); }
-         return Value.wrap(x.index.apply(x, dots.get()));
+         if (x == null) { return null; }
+
+         return x.index.apply(x, dots.get());
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'variable', 'null'], true)
             .addDots()
@@ -468,9 +440,7 @@ define(function(require) {
             x = value.reproduce([]);
          }
 
-         x.indexSet.apply(x, dots);
-
-         return Value.wrap(x);
+         return x.indexSet.apply(x, dots);
       }, function(resolver) {
          resolver.addParameter('x', ['list', 'variable', 'null'], true)
             .addDots()
@@ -492,78 +462,59 @@ define(function(require) {
 
       /* Math functions */
       addBuiltin('sin', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
-               return Math.sin(x);
-            }, 'scalar')
-         );
+         return lst.get(1).map(function(x) {
+            return Math.sin(x);
+         }, 'scalar');
       }, configSingleScalar);
       addBuiltin('cos', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
-               return Math.cos(x);
-            }, 'scalar')
-         );
+         return lst.get(1).map(function(x) {
+            return Math.cos(x);
+         }, 'scalar');
       }, configSingleScalar);
       addBuiltin('tan', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
-               return Math.tan(x);
-            }, 'scalar')
-         );
+         return lst.get(1).map(function(x) {
+            return Math.tan(x);
+         }, 'scalar');
       }, configSingleScalar);
       addBuiltin('asin', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
-               return Math.asin(x);
-            }, 'scalar')
-         );
+         return lst.get(1).map(function(x) {
+            return Math.asin(x);
+         }, 'scalar');
       }, configSingleScalar);
       addBuiltin('acos', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
-               return Math.acos(x);
-            }, 'scalar')
-         );
+         return lst.get(1).map(function(x) {
+            return Math.acos(x);
+         }, 'scalar');
       }, configSingleScalar);
       addBuiltin('atan', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
-               return Math.atan(x);
-            }, 'scalar')
-         );
+         return lst.get(1).map(function(x) {
+            return Math.atan(x);
+         }, 'scalar');
       }, configSingleScalar);
       addBuiltin('atan2', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get('y'), lst.get('x'), function(y, x) {
-               return Math.atan2(y, x);
-            }, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get('y'), lst.get('x'),
+            function(y, x) { return Math.atan2(y, x); }, 'scalar'
          );
       }, function(resolver) {
          resolver.addParameter('y', 'scalar', true);
          resolver.addParameter('x', 'scalar', true);
       });
       addBuiltin('exp', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(function(x) {
+         return lst.get(1).map(function(x) {
                return Math.exp(x);
-            }, 'scalar')
-         );
+            }, 'scalar');
       }, configSingleScalar);
       addBuiltin('expm1', function(lst) {
-         return Value.makeVariable(
-            lst.get(1).map(Base.math.expm1, 'scalar')
-         );
+         return lst.get(1).map(Base.math.expm1, 'scalar');
       }, configSingleScalar);
       addBuiltin('log', function(lst) {
          var logBase;
 
          logBase = Math.log(lst.get('base'));
 
-         return Value.makeVariable(
-            lst.get('x').map(function(x) {
-               return Math.log(x) / logBase;
-            }, 'scalar')
+         return lst.get('x').map(
+            function(x) { return Math.log(x) / logBase; }, 'scalar'
          );
       }, function(resolver) {
          resolver.addParameter('x', 'scalar', true)
@@ -571,77 +522,59 @@ define(function(require) {
             .addDefault('base', 'exp(1)');
       });
       addBuiltin('log10', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Base.math.log10, 'scalar')
-         );
+         return lst.get('x').map(Base.math.log10, 'scalar');
       }, configSingleScalar);
       addBuiltin('log2', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Base.math.log2, 'scalar')
-         );
+         return lst.get('x').map(Base.math.log2, 'scalar');
       }, configSingleScalar);
       addBuiltin('log1p', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Base.math.log1p, 'scalar')
-         );
+         return lst.get('x').map(Base.math.log1p, 'scalar');
       }, configSingleScalar);
       addBuiltin('abs', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Math.abs, 'scalar')
-         );
+         return lst.get('x').map(Math.abs, 'scalar');
       }, configSingleScalar);
       addBuiltin('sqrt', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Math.sqrt, 'scalar')
-         );
+         return lst.get('x').map(Math.sqrt, 'scalar');
       }, configSingleScalar);
       addBuiltin('floor', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Math.floor, 'scalar')
-         );
+         return lst.get('x').map(Math.floor, 'scalar');
       }, configSingleScalar);
       addBuiltin('ceiling', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Math.ceil, 'scalar')
-         );
+         return lst.get('x').map(Math.ceil, 'scalar');
       }, configSingleScalar);
       addBuiltin('gamma', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Base.math.gamma, 'scalar')
-         );
+         return lst.get('x').map(Base.math.gamma, 'scalar');
       }, configSingleScalar);
       addBuiltin('lgamma', function(lst) {
-         return Value.makeVariable(
-            lst.get('x').map(Base.math.lgamma, 'scalar')
-         );
+         return lst.get('x').map(Base.math.lgamma, 'scalar');
       }, configSingleScalar);
       addBuiltin('beta', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get('a'), lst.get('b'), Base.math.beta, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get('a'), lst.get('b'), Base.math.beta, 'scalar'
          );
       }, function(resolver) {
          resolver.addParameter('a', 'scalar', true)
             .addParameter('b', 'scalar', true);
       });
       addBuiltin('lbeta', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get('a'), lst.get('b'), Base.math.lbeta, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get('a'), lst.get('b'), Base.math.lbeta, 'scalar'
          );
       }, function(resolver) {
          resolver.addParameter('a', 'scalar', true)
             .addParameter('b', 'scalar', true);
       });
       addBuiltin('lchoose', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get('n'), lst.get('k'), Base.math.lchoose, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get('n'), lst.get('k'), Base.math.lchoose, 'scalar'
          );
       }, function(resolver) {
          resolver.addParameter('n', 'scalar', true)
             .addParameter('k', 'scalar', true);
       });
       addBuiltin('choose', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.mapPair(lst.get('n'), lst.get('k'), Base.math.choose, 'scalar')
+         return Base.Variable.mapPair(
+            lst.get('n'), lst.get('k'), Base.math.choose, 'scalar'
          );
       }, function(resolver) {
          resolver.addParameter('n', 'scalar', true)
@@ -662,9 +595,7 @@ define(function(require) {
        * - seq(4, 5, length.out=4)
        */
       addBuiltin('seq', function(lst) {
-         return Value.makeVariable(
-            Base.Variable.seq(lst.get('from'), lst.get('to'), lst.get('by'))
-         );
+         return Base.Variable.seq(lst.get('from'), lst.get('to'), lst.get('by'));
       }, function config(resolver) {
          resolver.addParameter('from', 'number', true)
             .addParameter('to', 'number', true)
@@ -703,24 +634,24 @@ define(function(require) {
 
       // Accumulators
       addBuiltin('cumsum', function(lst) {
-         return Value.makeVariable(lst.get('x').cumSum(), 'scalar');
+         return lst.get('x').cumSum();
       }, configSingleScalar);
       addBuiltin('cumprod', function(lst) {
-         return Value.makeVariable(lst.get('x').cumProd(), 'scalar');
+         return lst.get('x').cumProd();
       }, configSingleScalar);
       addBuiltin('cummax', function(lst) {
-         return Value.makeVariable(lst.get('x').cumMax(), 'scalar');
+         return lst.get('x').cumMax();
       }, configSingleScalar);
       addBuiltin('cummin', function(lst) {
-         return Value.makeVariable(lst.get('x').cumMin(), 'scalar');
+         return lst.get('x').cumMin();
       }, configSingleScalar);
       addBuiltin('diff', function(lst) {
-         return Value.makeVariable(lst.get('x').diff(), 'scalar');
+         return lst.get('x').diff();
       }, configSingleScalar);
 
       // Expression manipulation
       addBuiltin('quote', function(lst) {
-         return Value.wrap(lst.get('expr'));
+         return lst.get('expr');
       }, function(resolver) {
          resolver.addLanguageParameter('expr', true);
       });
@@ -734,13 +665,13 @@ define(function(require) {
          fun = lst.get('fun');
          if (typeof fun === 'function') {
             if (fun.hasOwnProperty('env')) {
-               return Value.wrap(fun.env);
+               return fun.env;
             }
             // built-in function
-            return Value.makeNull();
+            return null;
          }
          // null case, return current env
-         return Value.wrap(env);
+         return env;
       }, function(resolver) {
          resolver.addParameter('fun', ['function', 'null'])
             .addDefault('fun', 'NULL');
@@ -753,19 +684,19 @@ define(function(require) {
             fun.env = lst.get('value');
          }
          // assignment functions return the 'x' argument
-         return Value.wrap(fun);
+         return fun;
       }, function(resolver) {
          resolver.addParameter('fun', ['function'])
             .addParameter('value', ['env']);
       });
       addBuiltin('baseenv', function(lst, env) {
-         return Value.wrap(basePackageInstance.global);
+         return basePackageInstance.global;
       });
       addBuiltin('emptyenv', function(lst) {
-         return Value.wrap(Environment.emptyenv);
+         return Environment.emptyenv;
       });
       addBuiltin('globalenv', function(lst, env, evalInstance) {
-         return Value.wrap(evalInstance.getGlobalEnv());
+         return evalInstance.getGlobalEnv();
       });
       addBuiltin('search', function(lst, dynEnv, evalInstance) {
          var arr, env;
@@ -789,7 +720,7 @@ define(function(require) {
 
          which = evalInstance.convertToWhich(lst.get('n'));
 
-         return Value.wrap(evalInstance.getParent(which));
+         return evalInstance.getParent(which);
       }, function(resolver) {
          resolver.addParameter('n', 'number')
             .addDefault('n', '1')
@@ -800,7 +731,7 @@ define(function(require) {
             });
       });
       addBuiltin('sys.frame', function(lst, env, evalInstance) {
-         return Value.wrap(evalInstance.getCallFrame(lst.get('which')));
+         return evalInstance.getCallFrame(lst.get('which'));
       }, function(resolver) {
          resolver.addParameter('which', 'number')
             .addDefault('which', '0')
@@ -809,7 +740,7 @@ define(function(require) {
             });
       });
       addBuiltin('new.env', function(lst) {
-         return Value.wrap(lst.get('parent').extend());
+         return lst.get('parent').extend();
       }, function(resolver) {
          resolver.addParameter('parent', 'env')
             .addParameter('hash', 'boolean')
@@ -826,7 +757,7 @@ define(function(require) {
             throw new Error('the empty environment has no parent');
          }
 
-         return Value.wrap(env.getEnclosure());
+         return env.getEnclosure();
       }, function(resolver) {
          resolver.addParameter('env', 'env', true);
       });
@@ -835,12 +766,10 @@ define(function(require) {
 
          x = lst.get('x');
          if (x instanceof Base.List) {
-            return Value.wrap(
-               updateEnvironmentFromList(x, Environment.emptyenv.extend())
-            );
+            return updateEnvironmentFromList(x, Environment.emptyenv.extend());
          }
 
-         return Value.wrap(evalInstance.search(x));
+         return evalInstance.search(x);
       }, function(resolver) {
          resolver.addParameter('x', ['number', 'string', 'env', 'list'], true);
       });
@@ -877,7 +806,7 @@ define(function(require) {
             throw new Error('Could not find object ' + x);
          }
 
-         return Value.wrap(foundValue);
+         return foundValue;
       }, function(resolver) {
          resolver.addParameter('x', 'string', true)
             .addParameter('envir', 'env')
@@ -899,7 +828,7 @@ define(function(require) {
          foundValue = env.lookup(x, inherits, modeFun);
 
          // Returns panthrLang boolean
-         return Value.wrap(foundValue != null);
+         return foundValue != null;
       }, function(resolver) {
          resolver.addParameter('x', 'string', true)
             .addParameter('envir', 'env')
@@ -909,7 +838,7 @@ define(function(require) {
       // END OF ENVIRONMENT MANIPULATING FUNCTIONS
 
       addBuiltin('missing', function(lst, dynEnv) {
-         var symbol, wasUndefined;
+         var symbol;
 
          symbol = lst.get('x');
          if (!(symbol instanceof Expression.Symbol)) {
@@ -921,9 +850,7 @@ define(function(require) {
          }
 
          // Look up without inheriting or resolving
-         wasUndefined = dynEnv.lookup(symbol.id, false).type === 'undefined';
-
-         return Value.wrap(wasUndefined);
+         return dynEnv.lookup(symbol.id, false).type === 'undefined';
       }, function(resolver) {
          resolver.addParameter('x', 'expression', true);
       });

@@ -179,18 +179,18 @@ define(function(require) {
                                                    : customDefaults;
 
          addBuiltin('r' + distr, function(lst) {
-            return Value.wrap(Base.stats['r' + distr](
+            return Base.stats['r' + distr](
                lst.get('n'), getParams(lst, defaults)
-            ));
+            );
          }, function(resolver) {
             resolver.addParameter('n', ['number', 'variable'], true);
             addDistrDefaults(resolver);
          });
 
          addBuiltin('d' + distr, function(lst) {
-            return Value.wrap(Base.stats['d' + distr](
+            return Base.stats['d' + distr](
                lst.get('x'), getParams(lst, defaults, { log: lst.get('log') })
-            ));
+            );
          }, function(resolver) {
             resolver.addParameter('x', ['scalar'], true);
             addDistrDefaults(resolver);
@@ -198,11 +198,11 @@ define(function(require) {
          });
 
          addBuiltin('p' + distr, function(lst) {
-            return Value.wrap(Base.stats['p' + distr](
+            return Base.stats['p' + distr](
                lst.get('x'), getParams(lst, defaults, {
                   log: lst.get('log.p'), lowerTail: lst.get('lower.tail')
                })
-            ));
+            );
          }, function(resolver) {
             resolver.addParameter('x', ['scalar'], true);
             addDistrDefaults(resolver);
@@ -210,11 +210,11 @@ define(function(require) {
          });
 
          addBuiltin('q' + distr, function(lst) {
-            return Value.wrap(Base.stats['q' + distr](
+            return Base.stats['q' + distr](
                lst.get('p'), getParams(lst, defaults, {
                   log: lst.get('log.p'), lowerTail: lst.get('lower.tail')
                })
-            ));
+            );
          }, function(resolver) {
             resolver.addParameter('p', ['scalar'], true);
             addDistrDefaults(resolver);

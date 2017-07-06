@@ -67,7 +67,7 @@ define(function(require) {
          var resolvedActuals;
 
          resolvedActuals = resolver.resolve(actuals, env, this);
-         return fun(resolvedActuals, env, this);
+         return Value.wrap(fun(resolvedActuals, env, this));
       };
    }
 
