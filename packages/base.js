@@ -791,6 +791,12 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', ['number', 'string', 'env', 'list'], true);
       });
+      addBuiltin('list2env', function(lst) {
+         return updateEnvironmentFromList(lst.get('x'), lst.get('envir'));
+      }, function(resolver) {
+         resolver.addParameter('x', 'list', true)
+            .addParameter('envir', 'env', true);
+      });
       addBuiltin('assign', function(lst, dynEnv, evalInstance) {
          var x, value, env, inherits;
 
@@ -1004,6 +1010,11 @@ define(function(require) {
          }');
       evalLang('`parent.env` <- .Primitive("parent.env")');
       evalLang('`as.environment` <- .Primitive("as.environment")');
+      evalLang('`list2env` <- function (x, envir = NULL, parent = parent.frame(), \
+         hash = (length(x) > 100), size = max(29L, length(x))) { \
+            if (is.null(envir)) { envir <- new.env(hash = hash, parent = parent, size = size) } \n \
+            .Internal(list2env(x, envir)) \
+         }');
       evalLang('assign <- function (x, value, pos = -1, envir = as.environment(pos), inherits = FALSE, \
          immediate = TRUE)  { .Internal(assign(x, value, envir, inherits)) }');
       evalLang('get <- function (x, pos = -1, envir = as.environment(pos), mode = "any", \

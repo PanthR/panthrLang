@@ -235,6 +235,19 @@ describe('Environment handling methods work:', function() {
       expect(evs[0].value.hasOwnSymbol('y')).to.equal(true);
       expect(evs[0].value.getOwnSymbols().length).to.equal(2);
    });
+   it('list2env', function() {
+      var evs = main.eval('e=list2env(list(x=1:3,y=1:2)); f=list2env(list(x=2:3), parent=e); list2env(list(z=5), f); globalenv()');
+      expect(evs.length).to.equal(4);
+      expect(evs[0].type).to.equal('env');
+      expect(evs[0].value.getEnclosure()).to.equal(evs[3].value);
+      expect(evs[0].value.getOwnSymbols()).to.deep.equal(['x', 'y']);
+      expect(evs[1].type).to.equal('env');
+      expect(evs[1].value.getEnclosure()).to.equal(evs[0].value);
+      expect(evs[1].value.getOwnSymbols()).to.deep.equal(['x', 'z']);
+      expect(evs[1].value.lookup('x').value.toArray()).to.deep.equal([2, 3]);
+      expect(evs[1].value.lookup('z').value.toArray()).to.deep.equal([5]);
+      expect(evs[2].value).to.equal(evs[1].value);
+   });
    it('exists', function() {
       var evs = main.eval('exists("sin", mode = "numeric")\n\
             exists("sin", mode = "function")\n\
