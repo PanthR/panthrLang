@@ -87,3 +87,38 @@ describe('length and length<-', function() {
       expect(evs[5].value.get(2).toArray()).to.deep.equal([4,5]);
    });
 });
+describe('max and min', function() {
+   it('work normally', function() {
+      var evs = main.eval('max(1:5); min(1:5); \
+         max(2:4, 1:6); min(2:4, -1:6); \
+         max(); min(); \
+         max(c(TRUE, FALSE, FALSE), 3:7); min(c(TRUE, FALSE, FALSE), 3:7)');
+      expect(evs[0].value.get(1)).to.equal(5);
+      expect(evs[1].value.get(1)).to.equal(1);
+      expect(evs[2].value.get(1)).to.equal(6);
+      expect(evs[3].value.get(1)).to.equal(-1);
+      expect(evs[4].value.get(1)).to.equal(-Infinity);
+      expect(evs[5].value.get(1)).to.equal(Infinity);
+      expect(evs[6].value.get(1)).to.equal(7);
+      expect(evs[7].value.get(1)).to.equal(0);
+      expect(evs[0].value.length()).to.equal(1);
+      expect(evs[1].value.length()).to.equal(1);
+      expect(evs[2].value.length()).to.equal(1);
+      expect(evs[3].value.length()).to.equal(1);
+      expect(evs[4].value.length()).to.equal(1);
+      expect(evs[5].value.length()).to.equal(1);
+      expect(evs[6].value.length()).to.equal(1);
+      expect(evs[7].value.length()).to.equal(1);
+   });
+   it('work with missing present and not ignored', function() {
+      var evs = main.eval('x=1:4; x[10]<-3; max(x); max(x, na.rm = TRUE); min(x); min(x, na.rm = TRUE)');
+      expect(Base.utils.isMissing(evs[2].value.get(1))).to.equal(true);
+      expect(evs[3].value.get(1)).to.equal(4);
+      expect(Base.utils.isMissing(evs[4].value.get(1))).to.equal(true);
+      expect(evs[5].value.get(1)).to.equal(1);
+      expect(evs[2].value.length()).to.equal(1);
+      expect(evs[3].value.length()).to.equal(1);
+      expect(evs[4].value.length()).to.equal(1);
+      expect(evs[5].value.length()).to.equal(1);
+   });
+});

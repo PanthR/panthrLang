@@ -872,6 +872,56 @@ define(function(require) {
       }, function(resolver) {
          resolver.addParameter('x', 'expression', true);
       });
+      addBuiltin('max', function(lst) {
+         var ignoreMissing;
+
+         ignoreMissing = lst.get('na.rm');
+         return Base.Variable.scalar(lst.get('...').reduce(function(acc, v) {
+               // v is a Base.Variable; use its max function
+               return Math.max(acc, v.max(ignoreMissing));
+            },
+            -Infinity
+         ));
+      }, function(resolver) {
+         resolver.addDots()
+            .addParameter('na.rm', 'boolean')
+            .addDefault('na.rm', 'FALSE')
+            .addNormalize(function(lst) {
+               lst.get('...').each(function(val) {
+                  if (!val instanceof Base.Variable) {
+                     throw new Error('\'max\' not meaningful for non-vectors');
+                  }
+                  if (val.mode === 'factor') {
+                     throw new Error('\'max\' not meaningful for factors');
+                  }
+               });
+            });
+      });
+      addBuiltin('min', function(lst) {
+         var ignoreMissing;
+
+         ignoreMissing = lst.get('na.rm');
+         return Base.Variable.scalar(lst.get('...').reduce(function(acc, v) {
+               // v is a Base.Variable; use its min function
+               return Math.min(acc, v.min(ignoreMissing));
+            },
+            Infinity
+         ));
+      }, function(resolver) {
+         resolver.addDots()
+            .addParameter('na.rm', 'boolean')
+            .addDefault('na.rm', 'FALSE')
+            .addNormalize(function(lst) {
+               lst.get('...').each(function(val) {
+                  if (!val instanceof Base.Variable) {
+                     throw new Error('\'min\' not meaningful for non-vectors');
+                  }
+                  if (val.mode === 'factor') {
+                     throw new Error('\'min\' not meaningful for factors');
+                  }
+               });
+            });
+      });
       addBuiltin('is.null', function(lst) {
          return lst.get('x') === null;
       }, function(resolver) {
@@ -966,6 +1016,8 @@ define(function(require) {
       evalLang('`missing` <- .Primitive("missing")');
       evalLang('`length` <- .Primitive("length")');
       evalLang('`length<-` <- .Primitive("length<-")');
+      evalLang('`max` <- .Primitive("max")');
+      evalLang('`min` <- .Primitive("min")');
       evalLang('`is.null` <- .Primitive("is.null")');
 
       // Updates the environment from a provided list; uses Value
