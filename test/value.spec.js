@@ -43,15 +43,11 @@ describe('Value objects', function() {
          v = Value.wrap(true);
          expect(v.type).to.equal('logical');
          expect(v.value.toArray()).to.deep.equal([true]);
-
-         v = Value.wrap(NaN);
-         expect(v.type).to.equal('scalar');
-         expect(v.value.length()).to.equal(1);
       });
       it('the Value.null and value.undefined objects', function() {
          expect(Value.wrap(Value.null)).to.equal(Value.null);
          expect(Value.wrap(null)).to.equal(Value.null);
-         expect(Value.wrap(undefined)).to.equal(Value.undefined);
+         expect(Value.wrap(undefined)).to.equal(Value.null);
       });
       it('appropriate functions', function() {
          var f = function() {};

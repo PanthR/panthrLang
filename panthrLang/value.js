@@ -280,8 +280,7 @@ define(function(require) {
     * - Other values will result in an exception.
     */
    Value.wrap = function wrap(v) {
-      if (v === null) { return Value.makeNull(); }
-      if (typeof v === 'undefined') { return Value.makeUndefined(); }
+      if (Base.utils.isMissing(v)) { return Value.makeNull(); }
       if (v instanceof Value) { return v; }
       if (v instanceof Environment) { return Value.makeEnvironment(v); }
       if (v instanceof Base.Variable) { return Value.makeVariable(v); }

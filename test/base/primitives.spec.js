@@ -46,3 +46,44 @@ describe('Implement "is... primitives":', function() {
       expect(evs[2].value.toArray()).to.deep.equal([false]);
    });
 });
+describe('length and length<-', function() {
+   it('length', function() {
+      var evs = main.eval('length(NULL); length(list(x=1:5,y=1:2)); length(1:5); length(emptyenv()); length(sin); length(quote(x+y))');
+      expect(evs.length).to.equal(6);
+      expect(evs[0].type).to.equal('scalar');
+      expect(evs[0].value.toArray()).to.deep.equal([0]);
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([2]);
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([5]);
+      expect(evs[3].type).to.equal('scalar');
+      expect(evs[3].value.toArray()).to.deep.equal([0]);
+      expect(evs[4].type).to.equal('scalar');
+      expect(evs[4].value.toArray()).to.deep.equal([1]);
+      expect(evs[5].type).to.equal('scalar');
+      expect(evs[5].value.toArray()).to.deep.equal([3]);
+   });
+   it('length<-', function() {
+      var evs = main.eval('x=1:5; length(x)<-2; x; y=1:2; length(y)<-5; y');
+      expect(evs[1].type).to.not.equal('error');
+      expect(evs[4].type).to.not.equal('error');
+      expect(evs[2].value.toArray()).to.deep.equal([1,2]);
+      expect(evs[5].value.length()).to.equal(5);
+      expect(Base.utils.isMissing(evs[5].value.get(3))).to.equal(true);
+      expect(Base.utils.isMissing(evs[5].value.get(4))).to.equal(true);
+      expect(Base.utils.isMissing(evs[5].value.get(5))).to.equal(true);
+      expect(evs[5].value.get(1)).to.equal(1);
+      expect(evs[5].value.get(2)).to.equal(2);
+
+      evs = main.eval('x=list(a=1:3,b=4:5,c=6:8); length(x)<-2; x; y=x; length(y)<-4; y');
+      expect(evs[1].type).to.not.equal('error');
+      expect(evs[2].value.length()).to.equal(2);
+      expect(evs[2].value.get(1).toArray()).to.deep.equal([1,2,3]);
+      expect(evs[4].type).to.not.equal('error');
+      expect(evs[5].value.length()).to.equal(4);
+      expect(Base.utils.isMissing(evs[5].value.get(3))).to.equal(true);
+      expect(Base.utils.isMissing(evs[5].value.get(4))).to.equal(true);
+      expect(evs[5].value.get(1).toArray()).to.deep.equal([1,2,3]);
+      expect(evs[5].value.get(2).toArray()).to.deep.equal([4,5]);
+   });
+});

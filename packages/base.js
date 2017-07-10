@@ -281,6 +281,24 @@ define(function(require) {
          return lst.get('...').clone();
       }, function(resolver) { resolver.addDots(); });
 
+      addBuiltin('length', function(lst) {
+         var x;
+
+         x = lst.get('x');
+         if (x === null) { return 0; }
+         if (x instanceof Environment) { return x.getOwnSymbols().length; }
+         if (typeof x.length === 'function') { return x.length(); }
+
+         return 1;
+      }, function(resolver) { resolver.addParameter('x', 'any', true); });
+
+      addBuiltin('length<-', function(lst) {
+         return lst.get('x').resize(lst.get('value'));
+      }, function(resolver) {
+         resolver.addParameter('x', ['list', 'variable'], true)
+            .addParameter('value', 'number', true);
+      });
+
       addBuiltin('names', function(lst) {
          var names;
 
@@ -946,6 +964,8 @@ define(function(require) {
          .Internal(exists(x, envir, mode, inherits)) \
       }');
       evalLang('`missing` <- .Primitive("missing")');
+      evalLang('`length` <- .Primitive("length")');
+      evalLang('`length<-` <- .Primitive("length<-")');
       evalLang('`is.null` <- .Primitive("is.null")');
 
       // Updates the environment from a provided list; uses Value
