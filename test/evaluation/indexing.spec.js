@@ -67,7 +67,18 @@ describe('The evaluator', function() {
          expect(isNaN(evs[2].value.get(1))).to.be.ok;
       });
       it('with string indices', function() {
-         console.log("TODO write these tests!");
+         var evs = main.eval('x=1:3; names(x)<-c("a","b"); x["a"]; x["b"]; x[c("b","a","b")]; x["d"]');
+         expect(evs[2].type).to.equal('scalar');
+         expect(evs[2].value.toArray()).to.deep.equal([1]);
+         expect(evs[2].value.names().toArray()).to.deep.equal(["a"]);
+         expect(evs[3].type).to.equal('scalar');
+         expect(evs[3].value.toArray()).to.deep.equal([2]);
+         expect(evs[3].value.names().toArray()).to.deep.equal(["b"]);
+         expect(evs[4].value.toArray()).to.deep.equal([2,1,2]);
+         expect(evs[4].value.names().toArray()).to.deep.equal(["b","a","b"]);
+         expect(evs[4].value.length()).to.equal(3);
+         expect(Base.utils.isMissing(evs[5].value.get(1))).to.equal(true);
+         expect(Base.utils.isMissing(evs[5].value.names().get(1))).to.equal(true);
       });
       it('with logical indices', function() {
          var evs = main.eval('(5:1)[c(FALSE, TRUE, TRUE, FALSE, FALSE)]');
