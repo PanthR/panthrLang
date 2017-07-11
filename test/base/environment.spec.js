@@ -262,4 +262,18 @@ describe('Environment handling methods work:', function() {
       expect(evs[4].type).to.equal('logical');
       expect(evs[4].value.get(1)).to.equal(true);
    });
+   it('substitute', function() {
+      var evs = main.eval('x <- 2; substitute(x); substitute(x, list(x=2)); \
+         f= function(x) { y <- 3; substitute(x+y) }; f(w)');
+
+      expect(evs[1].type).to.equal('symbol');
+      expect(evs[1].value.id).to.equal('x');
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([2]);
+      expect(evs[4].type).to.equal('expression');
+      expect(evs[4].value.get(1).id).to.equal('+');
+      expect(evs[4].value.get(2).id).to.equal('w');
+      expect(evs[4].value.get(3)).to.be.instanceof(main.Expression.Value);
+      expect(evs[4].value.get(3).value.value.toArray()).to.deep.equal([3]);
+   });
 });

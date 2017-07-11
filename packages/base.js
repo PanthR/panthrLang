@@ -674,6 +674,36 @@ define(function(require) {
          resolver.addLanguageParameter('expr', true);
       });
 
+      addBuiltin('substitute', function(lst, dynEnv, evalInstance) {
+         var expr, env;
+
+         expr = lst.get('expr');
+         env = lst.get('env');
+         if (env == null) { env = dynEnv; }
+
+         if (env instanceof Base.List) {
+            return expr.substitute(function(str) {
+               return env.has(str) ? env.get(str) : null;
+            });
+         }
+
+         return expr.substitute(function(str) {
+            var res;
+
+            if (env === evalInstance.getGlobalEnv()) { return null; }
+            res = env.lookup(str, false);
+            // Failed lookup. substitute will handle.
+            if (res == null) { return null; }
+            // If promise, need to return the expression.
+            if (res.type === 'promise') { return res.toExpression(); }
+
+            return new Expression.Value(res.resolve());
+         });
+      }, function(resolver) {
+         resolver.addLanguageParameter('expr', true)
+            .addParameter('env', ['env', 'list']);
+      });
+
       // ENVIRONMENT MANIPULATING FUNCTIONS
       //
       //
@@ -996,6 +1026,7 @@ define(function(require) {
       evalLang('`cummin` <- .Primitive("cummin")');
       evalLang('`diff` <- .Primitive("diff")'); // TODO: should UseMethod
       evalLang('`quote` <- .Primitive("quote")');
+      evalLang('`substitute` <- .Primitive("substitute")');
       evalLang('environment <- function(fun = NULL) { .Internal(environment(fun)) }');
       evalLang('`environment<-` <- .Primitive("environment<-")');
       evalLang('`baseenv` <- .Primitive("baseenv")');

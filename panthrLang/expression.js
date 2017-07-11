@@ -19,6 +19,7 @@ define(function(require) {
    }
 
    Expression.prototype = Object.create(Base.List.prototype);
+   Expression.prototype.constructor = Expression;
 
    // Constructor to be used for single symbol expression
    // An "empty" id is used to represent a missing expression
@@ -30,6 +31,13 @@ define(function(require) {
       toString: function() {
          // TODO: need backticks on keywords
          return this.id;
+      },
+      substitute: function(lookup) {
+         var match;
+
+         match = lookup(this.id);
+
+         return match == null ? this : match;
       }
    };
 
@@ -47,6 +55,23 @@ define(function(require) {
          if (this.value === null) { return 'NULL'; }
          if (typeof this.value === 'string') { return JSON.stringify(this.value); }
          throw new Error('Unknown literal expression: ' + this.value);
+      },
+      substitute: function(lookup) {
+         return this;
+      }
+   };
+
+   // Used for actual `Value`s, such as those set via "substitute".
+   Expression.Value = function ExprValue(value) {
+      this.value = value;
+   };
+
+   Expression.Value.prototype = {
+      toString: function() {
+         return this.value.toString();
+      },
+      substitute: function(lookup) {
+         return this;
       }
    };
 
@@ -343,6 +368,14 @@ define(function(require) {
             return acc + ', ' + paramToString(val, name);
          }) + ')';
       }
+   };
+
+   // Substitute symbols based on a `lookup` function.
+   // The lookup function is given a string, and returns either
+   // null if the string is not to be replaced, or an expression or
+   // Value for replacing the string.
+   Expression.prototype.substitute = function(lookup) {
+      return this.map(function(v) { return v.substitute(lookup); });
    };
 
    function indent(expr) {
