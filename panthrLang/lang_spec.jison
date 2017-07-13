@@ -177,7 +177,8 @@ formal
 
 lvalue
    : lvalueVar                 { $$ = $1; }
-   | expr DOLLAR lvalueVar     { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }
+   | expr DOLLAR lvalueVar     { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, $3); }   | expr DOLLAR STRING        { $$ = Node.dollarAccess(yy.lexer.yylloc, $1, Node.variable(yy.lexer.yylloc, $3)); }
+
    | expr '[' actuals ']'      { $$ = Node.singleBracketAccess(yy.lexer.yylloc, $1, $3); }
    | expr '[' '[' expr ']' ']' { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1, $4); }
    | expr '[' '[' ']' ']'      { $$ = Node.dblBracketAccess(yy.lexer.yylloc, $1); }
