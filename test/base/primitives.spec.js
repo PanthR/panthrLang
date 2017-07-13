@@ -2,33 +2,34 @@ var main = require('../..');
 var Base = require('panthrbase/index');
 var chai = require('chai');
 var expect = chai.expect;
+var evalInst = main.getInitializedEvaluate();
 
 describe('Implement "missing":', function() {
    it('should return true when the parameter is missing', function() {
-      var evs = main.eval('f=function(y) { missing(y) }; f()');
+      var evs = evalInst.parseAndEval('f=function(y) { missing(y) }; f()');
 
       expect(evs[1].type).to.equal('logical');
       expect(evs[1].value.toArray()).to.deep.equal([true]);
    });
    it('should return false when the parameter is present', function() {
-      var evs = main.eval('f=function(y) { missing(y) }; f(4)');
+      var evs = evalInst.parseAndEval('f=function(y) { missing(y) }; f(4)');
 
       expect(evs[1].type).to.equal('logical');
       expect(evs[1].value.toArray()).to.deep.equal([false]);
    });
    it('should return false when the parameter has a default', function() {
-      var evs = main.eval('f=function(y=4) { missing(y) }; f()');
+      var evs = evalInst.parseAndEval('f=function(y=4) { missing(y) }; f()');
 
       expect(evs[1].type).to.equal('logical');
       expect(evs[1].value.toArray()).to.deep.equal([false]);
    });
    it('should error when the name is not a parameter', function() {
-      var evs = main.eval('f=function(y) { missing(x) }; f()');
+      var evs = evalInst.parseAndEval('f=function(y) { missing(x) }; f()');
 
       expect(evs[1].type).to.equal('error');
    });
    it('should not attempt to evaluate its argument', function() {
-      var evs = main.eval('f=function(y) { missing(y) }; x=1; f((x=2)); x');
+      var evs = evalInst.parseAndEval('f=function(y) { missing(y) }; x=1; f((x=2)); x');
 
       expect(evs[3].type).to.equal('scalar');
       expect(evs[3].value.toArray()).to.deep.equal([1]);
@@ -36,7 +37,7 @@ describe('Implement "missing":', function() {
 });
 describe('Implement "is... primitives":', function() {
    it('is.null', function() {
-      var evs = main.eval('is.null(NULL); is.null(list()); is.null(0)');
+      var evs = evalInst.parseAndEval('is.null(NULL); is.null(list()); is.null(0)');
 
       expect(evs[0].type).to.equal('logical');
       expect(evs[0].value.toArray()).to.deep.equal([true]);
@@ -48,7 +49,7 @@ describe('Implement "is... primitives":', function() {
 });
 describe('length and length<-', function() {
    it('length', function() {
-      var evs = main.eval('length(NULL); length(list(x=1:5,y=1:2)); length(1:5); length(emptyenv()); length(sin); length(quote(x+y))');
+      var evs = evalInst.parseAndEval('length(NULL); length(list(x=1:5,y=1:2)); length(1:5); length(emptyenv()); length(sin); length(quote(x+y))');
       expect(evs.length).to.equal(6);
       expect(evs[0].type).to.equal('scalar');
       expect(evs[0].value.toArray()).to.deep.equal([0]);
@@ -64,7 +65,7 @@ describe('length and length<-', function() {
       expect(evs[5].value.toArray()).to.deep.equal([3]);
    });
    it('length<-', function() {
-      var evs = main.eval('x=1:5; length(x)<-2; x; y=1:2; length(y)<-5; y');
+      var evs = evalInst.parseAndEval('x=1:5; length(x)<-2; x; y=1:2; length(y)<-5; y');
       expect(evs[1].type).to.not.equal('error');
       expect(evs[4].type).to.not.equal('error');
       expect(evs[2].value.toArray()).to.deep.equal([1,2]);
@@ -75,7 +76,7 @@ describe('length and length<-', function() {
       expect(evs[5].value.get(1)).to.equal(1);
       expect(evs[5].value.get(2)).to.equal(2);
 
-      evs = main.eval('x=list(a=1:3,b=4:5,c=6:8); length(x)<-2; x; y=x; length(y)<-4; y');
+      evs = evalInst.parseAndEval('x=list(a=1:3,b=4:5,c=6:8); length(x)<-2; x; y=x; length(y)<-4; y');
       expect(evs[1].type).to.not.equal('error');
       expect(evs[2].value.length()).to.equal(2);
       expect(evs[2].value.get(1).toArray()).to.deep.equal([1,2,3]);
@@ -89,7 +90,7 @@ describe('length and length<-', function() {
 });
 describe('max and min', function() {
    it('work normally', function() {
-      var evs = main.eval('max(1:5); min(1:5); \
+      var evs = evalInst.parseAndEval('max(1:5); min(1:5); \
          max(2:4, 1:6); min(2:4, -1:6); \
          max(); min(); \
          max(c(TRUE, FALSE, FALSE), 3:7); min(c(TRUE, FALSE, FALSE), 3:7)');
@@ -111,7 +112,7 @@ describe('max and min', function() {
       expect(evs[7].value.length()).to.equal(1);
    });
    it('work with missing present and not ignored', function() {
-      var evs = main.eval('x=1:4; x[10]<-3; max(x); max(x, na.rm = TRUE); min(x); min(x, na.rm = TRUE)');
+      var evs = evalInst.parseAndEval('x=1:4; x[10]<-3; max(x); max(x, na.rm = TRUE); min(x); min(x, na.rm = TRUE)');
       expect(Base.utils.isMissing(evs[2].value.get(1))).to.equal(true);
       expect(evs[3].value.get(1)).to.equal(4);
       expect(Base.utils.isMissing(evs[4].value.get(1))).to.equal(true);

@@ -46,12 +46,10 @@ define(function(require) {
          return parser.parse(str);
       },
       eval: function(str) {
-         var ev;
-
-         ev = new Evaluate();
-         ev.initialSetup();
-
-         return ev.parseAndEval(str);
+         return this.getInitializedEvaluate().parseAndEval(str);
+      },
+      getInitializedEvaluate: function() {
+         return (new Evaluate()).initialSetup();
       }
    };
 

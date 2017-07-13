@@ -2,6 +2,7 @@ var main = require('../..');
 var Base = require('panthrbase/index');
 var chai = require('chai');
 var expect = chai.expect;
+var evalInst = main.getInitializedEvaluate();
 
 describe('The evaluator handles builtin functions:', function() {
    it('evaluates seq expressions', function() {
@@ -16,26 +17,26 @@ describe('The evaluator handles builtin functions:', function() {
        ['seq(4, 5, length.out=5)', [4, 4.25, 4.5, 4.75, 5]],
        ['seq(to=7, from=3)', [3, 4, 5, 6, 7]]
       ].forEach(function(pair) {
-         var ev = main.eval(pair[0])[0];
+         var ev = evalInst.parseAndEval(pair[0])[0];
          expect(ev.type).to.equal('scalar');
          expect(ev.value.toArray()).to.deep.equal(pair[1]);
       });
    });
    describe('quote expressions', function() {
       it('with a symbol', function() {
-         var evs = main.eval('quote(x)');
+         var evs = evalInst.parseAndEval('quote(x)');
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('symbol');
          expect(evs[0].value).to.be.an.instanceof(main.Expression.Symbol);
       });
       it('with a number', function() {
-         var evs = main.eval('quote(5)');
+         var evs = evalInst.parseAndEval('quote(5)');
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value.toArray()).to.deep.equal([5]);
       });
       it('with a compound expression', function() {
-         var evs = main.eval('quote(x+y)');
+         var evs = evalInst.parseAndEval('quote(x+y)');
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('expression');
          expect(evs[0].value).to.be.an.instanceof(main.Expression);

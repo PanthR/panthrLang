@@ -51,6 +51,8 @@ define(function(require) {
       initialSetup: function() {
          this.parseAndEval('library(base)');
          this.parseAndEval('library(stats)');
+
+         return this;
       }
    };
 

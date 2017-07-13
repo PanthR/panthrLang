@@ -2,19 +2,20 @@ var main = require('../..');
 var Expression = require('../../panthrLang/expression');
 var chai = require('chai');
 var expect = chai.expect;
+var evalInst = main.getInitializedEvaluate();
 
 describe('The evaluator', function() {
    it('evaluates arithmetic operations correctly', function() {
       ['5 + 2', '-23 * -2', '2.34+1.2',
        '-0.23 * 2 + 3', '-0.23 + 2 * 3'].forEach(function(expr) {
-         var evs = main.eval(expr);
+         var evs = evalInst.parseAndEval(expr);
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value.get(1)).to.equal(eval(expr));
       });
    });
    it('evaluates 1-arg minus function call correctly', function() {
-      var evs = main.eval('`-`(2)');
+      var evs = evalInst.parseAndEval('`-`(2)');
       expect(evs.length).to.equal(1);
       expect(evs[0].type).to.equal('scalar');
       expect(evs[0].value.get(1)).to.equal(-2);
@@ -26,7 +27,7 @@ describe('The evaluator', function() {
       ].forEach(function(pair) {
          var expr = pair[0];
          var value = pair[1];
-         var evs = main.eval(expr);
+         var evs = evalInst.parseAndEval(expr);
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value.get(1)).to.equal(value);
@@ -40,38 +41,38 @@ describe('The evaluator', function() {
       ].forEach(function(pair) {
          var expr = pair[0];
          var value = pair[1];
-         var evs = main.eval(expr);
+         var evs = evalInst.parseAndEval(expr);
          expect(evs.length).to.equal(1);
          expect(evs[0].type).to.equal('scalar');
          expect(evs[0].value.get(1)).to.equal(value);
       });
    });
    it('div and mod with divisor of 0 work correctly', function() {
-      expect(main.eval('5 %% 0')[0].value.get(1)).to.be.NaN;
-      expect(main.eval('5 %/% 0')[0].value.get(1)).to.equal(Infinity);
-      expect(main.eval('-5 %% 0')[0].value.get(1)).to.be.NaN;
-      expect(main.eval('-5 %/% 0')[0].value.get(1)).to.equal(-Infinity);
-      expect(main.eval('0 %% 0')[0].value.get(1)).to.be.NaN;
-      expect(main.eval('0 %/% 0')[0].value.get(1)).to.be.NaN;
+      expect(evalInst.parseAndEval('5 %% 0')[0].value.get(1)).to.be.NaN;
+      expect(evalInst.parseAndEval('5 %/% 0')[0].value.get(1)).to.equal(Infinity);
+      expect(evalInst.parseAndEval('-5 %% 0')[0].value.get(1)).to.be.NaN;
+      expect(evalInst.parseAndEval('-5 %/% 0')[0].value.get(1)).to.equal(-Infinity);
+      expect(evalInst.parseAndEval('0 %% 0')[0].value.get(1)).to.be.NaN;
+      expect(evalInst.parseAndEval('0 %/% 0')[0].value.get(1)).to.be.NaN;
    });
    it('evaluates pointwise logical operators', function() {
-      expect(main.eval('TRUE & FALSE')[0].value.get(1)).to.equal(false);
-      expect(main.eval('TRUE | FALSE')[0].value.get(1)).to.equal(true);
-      expect(main.eval('! TRUE')[0].value.get(1)).to.equal(false);
-      expect(main.eval('! FALSE')[0].value.get(1)).to.equal(true);
-      expect(main.eval('xor(TRUE, FALSE)')[0].value.get(1)).to.equal(true);
-      expect(main.eval('xor(TRUE, TRUE)')[0].value.get(1)).to.equal(false);
+      expect(evalInst.parseAndEval('TRUE & FALSE')[0].value.get(1)).to.equal(false);
+      expect(evalInst.parseAndEval('TRUE | FALSE')[0].value.get(1)).to.equal(true);
+      expect(evalInst.parseAndEval('! TRUE')[0].value.get(1)).to.equal(false);
+      expect(evalInst.parseAndEval('! FALSE')[0].value.get(1)).to.equal(true);
+      expect(evalInst.parseAndEval('xor(TRUE, FALSE)')[0].value.get(1)).to.equal(true);
+      expect(evalInst.parseAndEval('xor(TRUE, TRUE)')[0].value.get(1)).to.equal(false);
    });
    it('evaluates non-pointwise logical operators', function() {
-      expect(main.eval('TRUE && FALSE')[0].value.get(1)).to.equal(false);
-      expect(main.eval('TRUE || FALSE')[0].value.get(1)).to.equal(true);
+      expect(evalInst.parseAndEval('TRUE && FALSE')[0].value.get(1)).to.equal(false);
+      expect(evalInst.parseAndEval('TRUE || FALSE')[0].value.get(1)).to.equal(true);
    });
    it('evaluates backticked operators', function() {
-      expect(main.eval('`+`(4, 5)')[0].value.get(1)).to.equal(9);
+      expect(evalInst.parseAndEval('`+`(4, 5)')[0].value.get(1)).to.equal(9);
    });
    it('extends length-one vectors as needed', function() {
-      expect(main.eval('1:5 + 1')[0].value.toArray()).to.deep.equal([2, 3, 4, 5, 6]);
-      expect(main.eval('1 - 1:3')[0].value.toArray()).to.deep.equal([0, -1, -2]);
+      expect(evalInst.parseAndEval('1:5 + 1')[0].value.toArray()).to.deep.equal([2, 3, 4, 5, 6]);
+      expect(evalInst.parseAndEval('1 - 1:3')[0].value.toArray()).to.deep.equal([0, -1, -2]);
    });
    it('evaluates comparison operators', function() {
       [
@@ -94,7 +95,7 @@ describe('The evaluator', function() {
       ].forEach(function(pair) {
          var res;
 
-         res = main.eval(pair[0])[0];
+         res = evalInst.parseAndEval(pair[0])[0];
          expect(res.type).to.equal('logical');
          expect(res.value.toArray()).to.deep.equal(pair[1]);
       });
@@ -102,7 +103,7 @@ describe('The evaluator', function() {
    it('evaluates tilde operator', function() {
       var evs;
 
-      evs = main.eval('a~b; ~x');
+      evs = evalInst.parseAndEval('a~b; ~x');
       expect(evs.length).to.equal(2);
 
       expect(evs[0].type).to.equal('expression');
