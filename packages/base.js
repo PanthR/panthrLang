@@ -340,7 +340,7 @@ define(function(require) {
 
          return obj.get(subscript);
       }, function(resolver) {
-         resolver.addParameter('x', ['list', 'null'], true)
+         resolver.addParameter('x', ['list', 'env', 'null'], true)
             .addParameter('i', 'expression', true)
             .addNormalize(function(lst) {
                var subscriptExpr;
@@ -362,7 +362,7 @@ define(function(require) {
 
          return obj.set(lst.get('i'), lst.get('value'));
       }, function(resolver) {
-         resolver.addParameter('x', ['list', 'null'], true)
+         resolver.addParameter('x', ['list', 'env', 'null'], true)
             .addParameter('i', 'expression', true)
             .addParameter('value', 'any', true)
             .addNormalize(function(lst) {
@@ -388,9 +388,9 @@ define(function(require) {
 
          return x.deepGet(index);
       }, function(resolver) {
-         resolver.addParameter('x', ['list', 'null'], true)
-            .addParameter('i', ['scalar', 'character', 'null'])
-            .addParameter('j', ['scalar', 'character', 'null'])
+         resolver.addParameter('x', ['list', 'env', 'null'], true)
+            .addParameter('i', ['scalar', 'character'])
+            .addParameter('j', ['scalar', 'character'])
             .addDots()
             .addParameter('exact', 'boolean')
             .addDefault('exact', 'TRUE');
@@ -407,9 +407,9 @@ define(function(require) {
 
          return x.deepSet(i, lst.get('value'));
       }, function(resolver) {
-         resolver.addParameter('x', ['list', 'null'], true)
-            .addParameter('i', ['scalar', 'character', 'null'])
-            .addParameter('j', ['scalar', 'character', 'null'])
+         resolver.addParameter('x', ['list', 'env', 'null'], true)
+            .addParameter('i', ['scalar', 'character'])
+            .addParameter('j', ['scalar', 'character'])
             .addDots()
             .addParameter('value', 'any', true);
       });

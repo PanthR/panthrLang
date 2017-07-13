@@ -277,4 +277,36 @@ describe('Environment handling methods work:', function() {
       expect(evs[4].value.get(3)).to.be.instanceof(main.Expression.Value);
       expect(evs[4].value.get(3).value.value.toArray()).to.deep.equal([3]);
    });
+   it('$ for environments', function() {
+      var evs = evalInst.parseAndEval('g <- list2env(list(x=1:3, y=1:4)); g$x; g$`x`; g$"x"; g$z');
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([1, 2, 3]);
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([1, 2, 3]);
+      expect(evs[3].type).to.equal('scalar');
+      expect(evs[3].value.toArray()).to.deep.equal([1, 2, 3]);
+      expect(evs[4].type).to.equal('null');
+   });
+   it('$<- for environments', function() {
+      var evs = main.eval('g <- list2env(list(x=1:3, y=1:4)); g$x <- 4:6; g$x; g$z <- 1:3; g$z');
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([4, 5, 6]);
+      expect(evs[4].type).to.equal('scalar');
+      expect(evs[4].value.toArray()).to.deep.equal([1, 2, 3]);
+   });
+   it('[[ for environments', function() {
+      var evs = evalInst.parseAndEval('g <- list2env(list(x=1:3, y=1:4)); g[["x"]]; z<-"x"; g[[z]]; f[[c("x", "y")]]');
+      expect(evs[1].type).to.equal('scalar');
+      expect(evs[1].value.toArray()).to.deep.equal([1, 2, 3]);
+      expect(evs[3].type).to.equal('scalar');
+      expect(evs[3].value.toArray()).to.deep.equal([1, 2, 3]);
+      expect(evs[4].type).to.equal('error');
+   });
+   it('[[<- for environments', function() {
+      var evs = main.eval('g <- list2env(list(x=1:3, y=1:4)); g[["x"]] <- 4:6; g$x; g[["z"]] <- 1:3; g$z');
+      expect(evs[2].type).to.equal('scalar');
+      expect(evs[2].value.toArray()).to.deep.equal([4, 5, 6]);
+      expect(evs[4].type).to.equal('scalar');
+      expect(evs[4].value.toArray()).to.deep.equal([1, 2, 3]);
+   });
 });

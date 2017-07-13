@@ -112,6 +112,28 @@ define(function(require) {
          if (this.name === name) { return this; }
 
          return this.getEnclosure().getNamedAncestor(name);
+      },
+      // Convenience methods to allow an environment to be accessed as a list
+      get: function(symbol) {
+         return this.lookup(symbol, false);
+      },
+      has: function(symbol) {
+         return this.hasOwnSymbol(symbol);
+      },
+      set: function(symbol, value) {
+         return this.store(symbol, value);
+      },
+      deepGet: function(index) {
+         if (index.length() > 1) {
+            throw new Error('Cannot subset deeply in environment');
+         }
+         return this.get(index.get(1));
+      },
+      deepSet: function(index, value) {
+         if (index.length() > 1) {
+            throw new Error('Cannot subset deeply in environment');
+         }
+         return this.set(index.get(1), value);
       }
    };
 
